@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="N. Frerebeau" />
+
+<meta name="date" content="2018-11-22" />
+
+<title>Matrix classes</title>
+
+
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+
+
+<link href="data:text/css;charset=utf-8,body%20%7B%0Abackground%2Dcolor%3A%20%23fff%3B%0Amargin%3A%201em%20auto%3B%0Amax%2Dwidth%3A%20700px%3B%0Aoverflow%3A%20visible%3B%0Apadding%2Dleft%3A%202em%3B%0Apadding%2Dright%3A%202em%3B%0Afont%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0Afont%2Dsize%3A%2014px%3B%0Aline%2Dheight%3A%201%2E35%3B%0A%7D%0A%23header%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0A%23TOC%20%7B%0Aclear%3A%20both%3B%0Amargin%3A%200%200%2010px%2010px%3B%0Apadding%3A%204px%3B%0Awidth%3A%20400px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Aborder%2Dradius%3A%205px%3B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Afont%2Dsize%3A%2013px%3B%0Aline%2Dheight%3A%201%2E3%3B%0A%7D%0A%23TOC%20%2Etoctitle%20%7B%0Afont%2Dweight%3A%20bold%3B%0Afont%2Dsize%3A%2015px%3B%0Amargin%2Dleft%3A%205px%3B%0A%7D%0A%23TOC%20ul%20%7B%0Apadding%2Dleft%3A%2040px%3B%0Amargin%2Dleft%3A%20%2D1%2E5em%3B%0Amargin%2Dtop%3A%205px%3B%0Amargin%2Dbottom%3A%205px%3B%0A%7D%0A%23TOC%20ul%20ul%20%7B%0Amargin%2Dleft%3A%20%2D2em%3B%0A%7D%0A%23TOC%20li%20%7B%0Aline%2Dheight%3A%2016px%3B%0A%7D%0Atable%20%7B%0Amargin%3A%201em%20auto%3B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dcolor%3A%20%23DDDDDD%3B%0Aborder%2Dstyle%3A%20outset%3B%0Aborder%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0Aborder%2Dwidth%3A%202px%3B%0Apadding%3A%205px%3B%0Aborder%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0Aborder%2Dwidth%3A%201px%3B%0Aborder%2Dstyle%3A%20inset%3B%0Aline%2Dheight%3A%2018px%3B%0Apadding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0Aborder%2Dleft%2Dstyle%3A%20none%3B%0Aborder%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Ap%20%7B%0Amargin%3A%200%2E5em%200%3B%0A%7D%0Ablockquote%20%7B%0Abackground%2Dcolor%3A%20%23f6f6f6%3B%0Apadding%3A%200%2E25em%200%2E75em%3B%0A%7D%0Ahr%20%7B%0Aborder%2Dstyle%3A%20solid%3B%0Aborder%3A%20none%3B%0Aborder%2Dtop%3A%201px%20solid%20%23777%3B%0Amargin%3A%2028px%200%3B%0A%7D%0Adl%20%7B%0Amargin%2Dleft%3A%200%3B%0A%7D%0Adl%20dd%20%7B%0Amargin%2Dbottom%3A%2013px%3B%0Amargin%2Dleft%3A%2013px%3B%0A%7D%0Adl%20dt%20%7B%0Afont%2Dweight%3A%20bold%3B%0A%7D%0Aul%20%7B%0Amargin%2Dtop%3A%200%3B%0A%7D%0Aul%20li%20%7B%0Alist%2Dstyle%3A%20circle%20outside%3B%0A%7D%0Aul%20ul%20%7B%0Amargin%2Dbottom%3A%200%3B%0A%7D%0Apre%2C%20code%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0Aborder%2Dradius%3A%203px%3B%0Acolor%3A%20%23333%3B%0Awhite%2Dspace%3A%20pre%2Dwrap%3B%20%0A%7D%0Apre%20%7B%0Aborder%2Dradius%3A%203px%3B%0Amargin%3A%205px%200px%2010px%200px%3B%0Apadding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0Abackground%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0Acode%20%7B%0Afont%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0Afont%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0Apadding%3A%202px%200px%3B%0A%7D%0Adiv%2Efigure%20%7B%0Atext%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0Abackground%2Dcolor%3A%20%23FFFFFF%3B%0Apadding%3A%202px%3B%0Aborder%3A%201px%20solid%20%23DDDDDD%3B%0Aborder%2Dradius%3A%203px%3B%0Aborder%3A%201px%20solid%20%23CCCCCC%3B%0Amargin%3A%200%205px%3B%0A%7D%0Ah1%20%7B%0Amargin%2Dtop%3A%200%3B%0Afont%2Dsize%3A%2035px%3B%0Aline%2Dheight%3A%2040px%3B%0A%7D%0Ah2%20%7B%0Aborder%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Apadding%2Dbottom%3A%202px%3B%0Afont%2Dsize%3A%20145%25%3B%0A%7D%0Ah3%20%7B%0Aborder%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0Apadding%2Dtop%3A%2010px%3B%0Afont%2Dsize%3A%20120%25%3B%0A%7D%0Ah4%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0Amargin%2Dleft%3A%208px%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Ah5%2C%20h6%20%7B%0Aborder%2Dbottom%3A%201px%20solid%20%23ccc%3B%0Afont%2Dsize%3A%20105%25%3B%0A%7D%0Aa%20%7B%0Acolor%3A%20%230033dd%3B%0Atext%2Ddecoration%3A%20none%3B%0A%7D%0Aa%3Ahover%20%7B%0Acolor%3A%20%236666ff%3B%20%7D%0Aa%3Avisited%20%7B%0Acolor%3A%20%23800080%3B%20%7D%0Aa%3Avisited%3Ahover%20%7B%0Acolor%3A%20%23BB00BB%3B%20%7D%0Aa%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0Aa%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0Atext%2Ddecoration%3A%20underline%3B%20%7D%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%20code%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Matrix classes</h1>
+<h4 class="author"><em>N. Frerebeau</em></h4>
+<h4 class="date"><em>2018-11-22</em></h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#definitions">Definitions</a><ul>
+<li><a href="#abundance-matix">Abundance matix</a></li>
+<li><a href="#logical-matrix">Logical matrix</a></li>
+</ul></li>
+<li><a href="#usage">Usage</a><ul>
+<li><a href="#create">Create</a></li>
+<li><a href="#coerce">Coerce</a></li>
+</ul></li>
+</ul>
+</div>
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p><code>tabula</code> provides a set of S4 classes that extend the <code>matrix</code> data type from R <code>base</code>. These new classes represent different special types of matrix.</p>
+<ul>
+<li>Abundance matrix:
+<ul>
+<li><code>CountMatrix</code> represents count data,</li>
+<li><code>FrequencyMatrix</code> represents frequency data.</li>
+</ul></li>
+<li>Logical matrix:
+<ul>
+<li><code>IncidenceMatrix</code> represents presence/absence data.</li>
+<li><code>OccurrenceMatrix</code> represents a co-occurence matrix.</li>
+</ul></li>
+</ul>
+<p>It assumes that you keep your data tidy: each variable (type) must be saved in its own column and each observation (case) must be saved in its own row.</p>
+<p>Missing values are not allowed.</p>
+</div>
+<div id="definitions" class="section level2">
+<h2>Definitions</h2>
+<div id="abundance-matix" class="section level3">
+<h3>Abundance matix</h3>
+<div id="count-matrix" class="section level4">
+<h4>Count matrix</h4>
+<p>We denote the <span class="math inline">\(m \times p\)</span> count matrix by <span class="math inline">\(A = \left[ a_{ij} \right] ~\forall i \in \left[ 1,m \right], j \in \left[ 1,p \right]\)</span> with row and column sums:</p>
+<span class="math display">\[\begin{align}
+ a_{i \cdot} = \sum_{j = 1}^{p} a_{ij} &amp;&amp;
+ a_{\cdot j} = \sum_{i = 1}^{m} a_{ij} &amp;&amp;
+ a_{\cdot \cdot} = \sum_{i = 1}^{m} \sum_{j = 1}^{p} a_{ij} &amp;&amp;
+ \forall a_{ij} \in \mathbb{N}
+\end{align}\]</span>
+</div>
+<div id="frequency-matrix" class="section level4">
+<h4>Frequency matrix</h4>
+<p>A frequency matrix represents relative abundances.</p>
+<p>We denote the <span class="math inline">\(m \times p\)</span> frequency matrix by <span class="math inline">\(B = \left[ b_{ij} \right] ~\forall i \in \left[ 1,m \right], j \in \left[ 1,p \right]\)</span> with row and column sums:</p>
+<span class="math display">\[\begin{align}
+ b_{i \cdot} = \sum_{j = 1}^{p} b_{ij} = 1 &amp;&amp;
+ b_{\cdot j} = \sum_{i = 1}^{m} b_{ij} &amp;&amp;
+ b_{\cdot \cdot} = \sum_{i = 1}^{m} \sum_{j = 1}^{p} b_{ij} &amp;&amp;
+ \forall b_{ij} \in \left[ 0,1 \right]
+\end{align}\]</span>
+</div>
+</div>
+<div id="logical-matrix" class="section level3">
+<h3>Logical matrix</h3>
+<div id="incidence-matrix" class="section level4">
+<h4>Incidence matrix</h4>
+<p>We denote the <span class="math inline">\(m \times p\)</span> incidence matrix by <span class="math inline">\(C = \left[ c_{ij} \right] ~\forall i \in \left[ 1,m \right], j \in \left[ 1,p \right]\)</span> with row and column sums:</p>
+<span class="math display">\[\begin{align}
+ c_{i \cdot} = \sum_{j = 1}^{p} c_{ij} &amp;&amp;
+ c_{\cdot j} = \sum_{i = 1}^{m} c_{ij} &amp;&amp;
+ c_{\cdot \cdot} = \sum_{i = 1}^{m} \sum_{j = 1}^{p} c_{ij} &amp;&amp;
+ \forall c_{ij} \in \lbrace 0,1 \rbrace
+\end{align}\]</span>
+</div>
+<div id="co-occurrence-matrix" class="section level4">
+<h4>Co-occurrence matrix</h4>
+<p>A co-occurrence matrix is a symetric matrix with zeros on its main diagonal, which works out which pairs of taxa occur together in at least one sample</p>
+<!-- The $p \times p$ co-occurrence matrix $D = \left[ d_{i,j} \right] ~\forall i,j \in \left[ 1,p \right]$ is defined over an $m \times p$ incidence matrix $C = \left[ C_{x,y} \right] ~\forall x \in \left[ 1,m \right], y \in \left[ 1,p \right]$ as: -->
+<!-- \[ d_{i,j} = \begin{cases}  -->
+<!--       1 & \text{if}~ m_{x,i} ~\text{and}~ m_{x,j} \\ -->
+<!--       0 & \text{otherwise} -->
+<!--    \end{cases} -->
+<!-- \] -->
+<!-- with row and column sums: -->
+<!-- \begin{align} -->
+<!--  d_{i \cdot} = \sum_{j \geqslant i}^{p} d_{ij} && -->
+<!--  d_{\cdot j} = \sum_{i \leqslant j}^{p} d_{ij} && -->
+<!--  d_{\cdot \cdot} = \sum_{i = 1}^{p} \sum_{j \geqslant i}^{p} d_{ij} && -->
+<!--  \forall d_{ij} \in \lbrace 0,1 \rbrace -->
+<!-- \end{align} -->
+</div>
+</div>
+</div>
+<div id="usage" class="section level2">
+<h2>Usage</h2>
+<div id="create" class="section level3">
+<h3>Create</h3>
+<p>These new classes are of simple use, on the same way as the base <code>matrix</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Create a count data matrix</span>
+<span class="kw">CountMatrix</span>(<span class="dt">data =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">100</span>, <span class="ot">TRUE</span>),
+            <span class="dt">nrow =</span> <span class="dv">10</span>, <span class="dt">ncol =</span> <span class="dv">10</span>)
+<span class="co">#&gt; 10 x 10 count data matrix: </span>
+<span class="co">#&gt;    V1 V2 V3 V4 V5 V6 V7 V8 V9 V10</span>
+<span class="co">#&gt; 1   5  9  7  9  6 10  8  0  3   4</span>
+<span class="co">#&gt; 2   2  0  8  3  1  3  6  6  6   2</span>
+<span class="co">#&gt; 3   4  0  9  7  9  3  9  8  5   4</span>
+<span class="co">#&gt; 4   7  7  6  7 10  2  0  9  9   8</span>
+<span class="co">#&gt; 5   5 10  4  7  0  2  7  3  6   9</span>
+<span class="co">#&gt; 6   1  7  7  0  3  9  7  0  4   0</span>
+<span class="co">#&gt; 7  10  5  2  5  3  8  8  6  5   5</span>
+<span class="co">#&gt; 8   6  5  0  2  6  1  2  1  1  10</span>
+<span class="co">#&gt; 9   9  8 10  5  3 10 10  9  0   5</span>
+<span class="co">#&gt; 10  7 10  1  8  9  5  9  6  3   0</span>
+
+<span class="co"># Create an incidence (presence/absence) matrix</span>
+<span class="co"># Numeric values are coerced to logical as by as.logical</span>
+<span class="kw">IncidenceMatrix</span>(<span class="dt">data =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">1</span>, <span class="dv">100</span>, <span class="ot">TRUE</span>),
+                <span class="dt">nrow =</span> <span class="dv">10</span>, <span class="dt">ncol =</span> <span class="dv">10</span>)
+<span class="co">#&gt; 10 x 10 presence/absence data matrix: </span>
+<span class="co">#&gt;       V1    V2    V3    V4    V5    V6    V7    V8    V9   V10</span>
+<span class="co">#&gt; 1  FALSE  TRUE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE  TRUE</span>
+<span class="co">#&gt; 2  FALSE FALSE  TRUE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE</span>
+<span class="co">#&gt; 3  FALSE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE FALSE  TRUE</span>
+<span class="co">#&gt; 4   TRUE FALSE FALSE FALSE  TRUE FALSE  TRUE FALSE  TRUE FALSE</span>
+<span class="co">#&gt; 5  FALSE FALSE FALSE FALSE FALSE  TRUE FALSE  TRUE  TRUE  TRUE</span>
+<span class="co">#&gt; 6  FALSE  TRUE FALSE  TRUE  TRUE FALSE FALSE  TRUE FALSE  TRUE</span>
+<span class="co">#&gt; 7  FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE FALSE  TRUE  TRUE</span>
+<span class="co">#&gt; 8   TRUE  TRUE  TRUE FALSE  TRUE  TRUE FALSE  TRUE FALSE FALSE</span>
+<span class="co">#&gt; 9  FALSE  TRUE FALSE FALSE FALSE  TRUE  TRUE FALSE  TRUE FALSE</span>
+<span class="co">#&gt; 10 FALSE  TRUE FALSE  TRUE FALSE  TRUE  TRUE  TRUE  TRUE  TRUE</span></code></pre></div>
+<p>Note that a <code>FrequencyMatrix</code> can only be created by coercion from a <code>CountMatrix</code> to ensure data integrity (see below).</p>
+</div>
+<div id="coerce" class="section level3">
+<h3>Coerce</h3>
+<p><code>tabula</code> uses coercing mechanisms (with validation methods) for data type conversions:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Create a count matrix</span>
+<span class="co">#  Numeric values are coerced to integer and hence truncated towards zero</span>
+A1 &lt;-<span class="st"> </span><span class="kw">CountMatrix</span>(<span class="dt">data =</span> <span class="kw">sample</span>(<span class="dv">0</span><span class="op">:</span><span class="dv">10</span>, <span class="dv">100</span>, <span class="ot">TRUE</span>),
+                  <span class="dt">nrow =</span> <span class="dv">10</span>, <span class="dt">ncol =</span> <span class="dv">10</span>)
+
+<span class="co"># Coerce counts to frequencies</span>
+B &lt;-<span class="st"> </span><span class="kw">as</span>(A1, <span class="st">&quot;FrequencyMatrix&quot;</span>)
+
+<span class="co"># Row sums are internally stored before coercing to a frequency matrix</span>
+<span class="kw">totals</span>(B)
+<span class="co">#&gt;  1  2  3  4  5  6  7  8  9 10 </span>
+<span class="co">#&gt; 56 59 66 41 70 50 56 48 68 45</span>
+<span class="co"># This allows to restore the source data</span>
+A2 &lt;-<span class="st"> </span><span class="kw">as</span>(B, <span class="st">&quot;CountMatrix&quot;</span>)
+<span class="kw">all</span>(A1 <span class="op">==</span><span class="st"> </span>A2)
+<span class="co">#&gt; [1] TRUE</span>
+
+<span class="co"># Coerce to presence/absence</span>
+C &lt;-<span class="st"> </span><span class="kw">as</span>(A1, <span class="st">&quot;IncidenceMatrix&quot;</span>)
+
+<span class="co"># Coerce to a co-occurrence matrix</span>
+D &lt;-<span class="st"> </span><span class="kw">as</span>(A1, <span class="st">&quot;OccurrenceMatrix&quot;</span>)</code></pre></div>
+</div>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
