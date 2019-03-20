@@ -11,3 +11,6 @@ totals(B) # Get row sums
 # This allows to restore the source data
 A2 <- as(B, "CountMatrix")
 all(A1 == A2)
+
+# Coerce to a co-occurrence matrix
+C <- as(B, "OccurrenceMatrix")

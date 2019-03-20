@@ -7,17 +7,17 @@
 tabula <img width=120px src="man/figures/logo.svg" align="right" />
 ===================================================================
 
-[![Build Status](https://travis-ci.org/nfrerebeau/tabula.svg?branch=master)](https://travis-ci.org/nfrerebeau/tabula) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/tabula)](https://cran.r-project.org/package=tabula) [![lifecycle](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1489944.svg)](https://doi.org/10.5281/zenodo.1489944)
+[![Build Status](https://travis-ci.org/nfrerebeau/tabula.svg?branch=master)](https://travis-ci.org/nfrerebeau/tabula) [![codecov](https://codecov.io/gh/nfrerebeau/tabula/branch/master/graph/badge.svg)](https://codecov.io/gh/nfrerebeau/tabula) [![GitHub Release](https://img.shields.io/github/release/nfrerebeau/tabula.svg)](https://github.com/nfrerebeau/tabula/releases) [![CRAN Version](http://www.r-pkg.org/badges/version/tabula)](https://cran.r-project.org/package=tabula) [![CRAN Downloads](http://cranlogs.r-pkg.org/badges/tabula)](https://cran.r-project.org/package=tabula) [![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg)](https://www.tidyverse.org/lifecycle/#maturing) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1489944.svg)](https://doi.org/10.5281/zenodo.1489944)
 
 Overview
 --------
 
-`tabula` provides an easy way to examine archaeological count data (artifacts, faunal remains, etc.). This package includes several measures of diversity, e.g. richness, rarefaction, diversity, turnover, similarity, etc. It also provides matrix seriation methods for chronological modeling and dating. The package make it easy to visualize count data and statistical thresholds: rank/abundance plots, Ford and Bertin diagrams, etc.
+`tabula` provides an easy way to examine archaeological count data (artifacts, faunal remains, etc.). This package includes several measures of diversity: e.g. richness and rarefaction (Chao1, Chao2, ACE, ICE, etc.), diversity/dominance and evenness (Brillouin, Shannon, Simpson, etc.), turnover and similarity (Brainerd-Robinson, ...). It also provides matrix seriation methods (reciprocal ranking, CA-based seriation) for chronological modeling and dating. The package make it easy to visualize count data and statistical thresholds: rank/abundance plots, Ford and Bertin diagrams, etc.
 
 Installation
 ------------
 
-Install the released version of `tabula` from CRAN:
+You can install the released version of `tabula` from [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("tabula")
@@ -37,12 +37,14 @@ Usage
 
 -   Abundance matrix:
     -   `CountMatrix` represents count data,
-    -   `FrequencyMatrix` represents frequency data.
+    -   `FrequencyMatrix` represents relative frequency data.
 -   Logical matrix:
     -   `IncidenceMatrix` represents presence/absence data.
+-   Other numeric matrix:
     -   `OccurrenceMatrix` represents a co-occurence matrix.
+    -   `SimilarityMatrix` represents a (dis)similarity matrix.
 
-It assumes that you keep your data tidy: each variable (taxa) must be saved in its own column and each observation (case) must be saved in its own row.
+It assumes that you keep your data tidy: each variable (type/taxa) must be saved in its own column and each observation (sample/case) must be saved in its own row.
 
 These new classes are of simple use, on the same way as the base `matrix`:
 
@@ -81,84 +83,48 @@ C <- as(A1, "IncidenceMatrix")
 D <- as(A1, "OccurrenceMatrix")
 ```
 
-### Analysis
+Several types of graphs are available in `tabula` which uses `ggplot2` for plotting informations. This makes it easy to customize diagramms (e.g. using themes and scales).
+
+Spot matrix (easier to read than a heatmap [1]) allows direct examination of data (above/below some threshold):
 
 ``` r
-count <- as(compiegne, "CountMatrix")
+# Plot frequencies with the column means as a threshold
+ceram_counts <- as(mississippi, "CountMatrix")
+plotSpot(ceram_counts, threshold = mean) +
+  ggplot2::labs(size = "Frequency", colour = "Mean") +
+  khroma::scale_colour_vibrant()
 ```
 
-#### Sample richness
+<img src="man/figures/README-plot-freq-1.png" style="display: block; margin: auto;" />
 
 ``` r
-richness(count, method = c("margalef", "menhinick", "berger"), simplify = TRUE)
-#>   margalef  menhinick
-#> 5 1.176699 0.07933617
-#> 4 1.323459 0.07568907
-#> 3 1.412383 0.07905694
-#> 2 1.429741 0.08432155
-#> 1 1.428106 0.08381675
+# Plot co-occurence of types
+# (i.e. how many times (percent) each pairs of taxa occur together 
+# in at least one sample.)
+ceram_occ <- as(mississippi, "OccurrenceMatrix")
+plotSpot(ceram_occ) +
+  ggplot2::labs(size = "", colour = "Co-occurrence") +
+  ggplot2::theme(legend.box = "horizontal") +
+  khroma::scale_colour_YlOrBr()
 ```
 
-#### Heterogeneity and evenness measures
+<img src="man/figures/README-plot-occ-1.png" style="display: block; margin: auto;" />
 
-*Diversity* can be measured according to several indices (sometimes refered to as indices of *heterogeneity*):
+Bertin or Ford (battleship curve) diagramms can be plotted, with statistic threshold (B. Desachy's [*sériographe*](https://doi.org/10.3406/pica.2004.2396)). The positive difference from the column mean percentage (in french "écart positif au pourcentage moyen", EPPM) represents a deviation from the situation of statistical independence. EPPM is a usefull graphical tool to explore significance of relationship between rows and columns related to seriation.
 
 ``` r
-diversity(count, method = c("shannon", "brillouin", "simpson", "mcintosh", "berger"), simplify = TRUE)
-#>    shannon brillouin   simpson  mcintosh    berger
-#> 5 1.311123  1.309565 0.3648338 0.3983970 0.5117318
-#> 4 1.838332  1.836827 0.2246218 0.5287042 0.3447486
-#> 3 2.037649  2.036142 0.1718061 0.5883879 0.3049316
-#> 2 2.468108  2.466236 0.1038536 0.6812886 0.1927510
-#> 1 2.297495  2.295707 0.1267866 0.6472862 0.1893524
+counts <- as(compiegne, "CountMatrix")
+plotBar(counts, EPPM = TRUE) +
+  khroma::scale_fill_bright()
 ```
 
-Note that `berger`, `mcintosh` and `simpson` methods return a *dominance* index, not the reciprocal form usually adopted, so that an increase in the value of the index accompanies a decrease in diversity.
-
-*Evenness* is a measure of how evenly individuals are distributed across the sample:
-
-``` r
-evenness(count, method = c("shannon", "brillouin", "simpson", "mcintosh"), simplify = TRUE)
-#>     shannon brillouin   simpson  mcintosh
-#> 5 0.5111691 0.5109738 0.2108442 0.5479357
-#> 4 0.6788396 0.6787091 0.2967952 0.7091340
-#> 3 0.7349264 0.7348441 0.3637822 0.7806408
-#> 2 0.8901817 0.8901334 0.6018087 0.9035975
-#> 1 0.8286460 0.8285786 0.4929544 0.8585271
-```
-
-#### Turnover
-
-The following method can be used to acertain the degree of *turnover* in taxa composition along a gradient (*β*-diversity) on qualitative (presence/absence) data.
-
-It assumes that the order of the matrix rows (from 1 to *n*) follows the progression along the gradient/transect.
-
-``` r
-turnover(count, method = c("whittaker", "cody", "routledge1",
-                           "routledge2", "routledge3", "wilson"),
-         simplify = TRUE)
-#>  whittaker       cody routledge1 routledge2 routledge3     wilson 
-#> 0.05263158 1.50000000 0.00000000 0.04061480 1.04145086 0.09868421
-```
-
-#### Similarity coefficients
-
-*β*-diversity can also be measured by addressing *similarity* between pairs of sites:
-
-``` r
-similarity(count, method = "morisita")
-#>   5         4         3         2         1
-#> 5 1 0.9162972 0.7575411 0.6670201 0.6286479
-#> 4 1 1.0000000 0.8879556 0.7964064 0.7106784
-#> 3 1 1.0000000 1.0000000 0.8251501 0.6637747
-#> 2 1 1.0000000 1.0000000 1.0000000 0.9224228
-#> 1 1 1.0000000 1.0000000 1.0000000 1.0000000
-```
+<img src="man/figures/README-seriograph-1.png" style="display: block; margin: auto;" />
 
 ### Seriation
 
 ``` r
 # Build an incidence matrix with random data
+set.seed(12345)
 incidence <- IncidenceMatrix(data = sample(0:1, 400, TRUE, c(0.6, 0.4)),
                              nrow = 20)
 
@@ -166,64 +132,81 @@ incidence <- IncidenceMatrix(data = sample(0:1, 400, TRUE, c(0.6, 0.4)),
 # Correspondance analysis-based seriation
 (indices <- seriate(incidence, method = "correspondance", margin = c(1, 2)))
 #> Permutation order for matrix seriation: 
-#>    Row order: 10 12 9 16 17 15 1 18 13 4 7 6 11 20 3 19 14 5 8 2 
-#>    Column order: 2 7 13 17 8 5 12 10 16 1 11 14 15 9 6 19 20 18 4 3 
+#>    Row order: 20 16 13 4 3 1 9 10 19 2 7 6 17 11 5 14 12 8 15 18 
+#>    Column order: 16 1 9 8 4 14 13 18 20 6 7 3 17 2 11 19 5 15 12 10 
 #>    Method: correspondance
-```
 
-``` r
 # Permute matrix rows and columns
 incidence2 <- permute(incidence, indices)
+```
 
+``` r
 # Plot matrix
-library(ggplot2)
 plotMatrix(incidence) + 
-  labs(title = "Original matrix") +
-  scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"))
+  ggplot2::labs(title = "Original matrix") +
+  ggplot2::scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"))
 plotMatrix(incidence2) + 
-  labs(title = "Rearranged matrix") +
-  scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"))
+  ggplot2::labs(title = "Rearranged matrix") +
+  ggplot2::scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"))
 ```
 
-![](man/figures/README-permute-incidence-plots-1.png)
+![](man/figures/README-permute-incidence-1.png)![](man/figures/README-permute-incidence-2.png)
 
-### Visualization
+### Dating
 
-`tabula` makes an extensive use of `ggplot2` for plotting informations. This makes it easy to customize diagramms (e.g. using themes and scales).
+This package provides an implementation of the chronological modeling method developed by Bellanger and Husi ([2012](https://doi.org/10.1016/j.jas.2011.06.031)). This allows the construction of two different probability estimate density curves of archaeological assembalge dates (the so-called *event* and *accumulation* dates). Note that this implementation is experimental (see `help(dateEvent)`).
 
-Bertin of Ford (battleship curve) diagramms can be plotted, with statistic threshold (B. Desachy's sériographe [1]). The positive difference from the column mean percentage (in french "écart positif au pourcentage moyen", EPPM) represents a deviation from the situation of statistical independence. EPPM is a usefull graphical tool to explore significance of relationship between rows and columns related to seriation.
+<img src="man/figures/README-date-1.png" style="display: block; margin: auto;" />
+
+### Analysis
+
+*Diversity* can be measured according to several indices (sometimes refered to as indices of *heterogeneity*):
 
 ``` r
-plotBar(count, EPPM = TRUE)
+H <- diversity(ceram_counts, method = c("shannon", "brillouin", "simpson", 
+                                        "mcintosh", "berger"), simplify = TRUE)
+head(H)
+#>           shannon brillouin   simpson  mcintosh    berger
+#> 10-P-1  1.2027955 1.1572676 0.3166495 0.4714431 0.4052288
+#> 11-N-9  0.7646565 0.7541207 0.5537760 0.2650711 0.6965699
+#> 11-N-1  0.9293974 0.9192403 0.5047209 0.2975381 0.6638526
+#> 11-O-10 0.8228576 0.8085445 0.5072514 0.2990830 0.6332288
+#> 11-N-4  0.7901428 0.7823396 0.5018826 0.2997089 0.6034755
+#> 13-N-5  0.9998430 0.9442803 0.3823434 0.4229570 0.4430380
 ```
 
-![](man/figures/README-seriograph-1.png)
+Note that `berger`, `mcintosh` and `simpson` methods return a *dominance* index, not the reciprocal form usually adopted, so that an increase in the value of the index accompanies a decrease in diversity.
 
-Matrix plot is displayed as a heatmap. The PVI matrix (B. Desachy's matrigraphe) allows to explore deviations from independence (an intuitive graphical approach to *χ*<sup>2</sup>),
+Corresponding *evenness* (i.e. a measure of how evenly individuals are distributed across the sample) can also be computed.
+
+Several methods can be used to acertain the degree of *turnover* in taxa composition along a gradient (*β*-diversity) on qualitative (presence/absence) data. It assumes that the order of the matrix rows (from 1 to *n*) follows the progression along the gradient/transect.
+
+*β*-diversity can also be measured by addressing *similarity* between pairs of sites:
 
 ``` r
-plotMatrix(count, PVI = TRUE) +
-  ggplot2::scale_fill_gradient2(midpoint = 1)
+# Brainerd-Robinson index
+S <- similarity(ceram_counts, method = "brainerd")
+
+# Plot the similarity matrix
+plotSpot(S) +
+  ggplot2::labs(size = "Similarity", colour = "Similarity") +
+  khroma::scale_colour_YlOrBr()
 ```
 
-![](man/figures/README-matrigraph-1.png)
-
-Spot matrix (no doubt easier to read than a heatmap [2]) allows direct examination of data (above/below some threshold):
-
-``` r
-plotSpot(count, threshold = mean)
-```
-
-![](man/figures/README-spot-1.png)
+<img src="man/figures/README-similarity-brainerd-1.png" style="display: block; margin: auto;" />
 
 Ranks *vs* abundance plot can be used for abundance models (model fitting will be implemented in a futur release):
 
 ``` r
-plotRank(count, log = "xy")
+plotRank(counts, log = "xy") +
+  ggplot2::theme_bw()
 ```
 
-![](man/figures/README-rank-1.png)
+<img src="man/figures/README-plot-rank-1.png" style="display: block; margin: auto;" />
 
-[1] Desachy, B. (2004). Le sériographe EPPM : un outil informatisé de sériation graphique pour tableaux de comptages. *Revue archéologique de Picardie*, 3(1), 39–56. DOI: [10.3406/pica.2004.2396](https://doi.org/10.3406/pica.2004.2396)
+Contributing
+------------
 
-[2] Adapted from Dan Gopstein's original [spot matrix](https://dgopstein.github.io/articles/spot-matrix/).
+Please note that the `tabula` project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By contributing to this project, you agree to abide by its terms.
+
+[1] Adapted from Dan Gopstein's original [spot matrix](https://dgopstein.github.io/articles/spot-matrix/).

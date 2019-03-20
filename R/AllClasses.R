@@ -1,14 +1,104 @@
-#' @include tabula.R utilities.R
+# CLASSES DEFINITION AND INITIALIZATION
+#' @include tabula.R
 NULL
 
-# Class definitions ============================================================
+# DEFINITION ===================================================================
+## -----------------------------------------------------------------------------
+#' Date model
+#'
+#' An S4 class to store the event and accumulation times of archaeological
+#'  assemblages as well as the results of resampling methods for date model
+#'  checking.
+#' @slot counts A numeric matrix of count data.
+#' @slot dates A two columns \code{\link{data.frame}} giving the known dates
+#'  used for model fitting and an identifier to link each row to an assemblage.
+#' @slot level A length-one \code{\link{numeric}} vector giving the
+#'  confidence level.
+#' @slot model A \code{\link[stats:lm]{multiple linear model}}: the Gaussian
+#'  multiple linear regression model fitted for event date estimation and
+#'  prediction.
+#' @slot residual A length-one \code{\link{numeric}} vector giving the residual
+#'  standard deviation.
+#' @slot rows A five columns \code{\link{data.frame}} giving the predicted event
+#'  dates for each archaeological assemblage, with the following columns:
+#'  \describe{
+#'   \item{id}{An identifier to link each row to an assemblage.}
+#'   \item{estimation}{The event date estimation.}
+#'   \item{earliest}{The lower boundary of the confidence interval.}
+#'   \item{latest}{The upper boundary of the confidence interval.}
+#'   \item{error}{The standard error of predicted dates.}
+#'  }
+#' @slot columns A five columns \code{\link{data.frame}} giving the predicted
+#'  event dates for each archaeological type or fabric, with the following
+#'  columns:
+#'  \describe{
+#'   \item{id}{An identifier to link each row to an assemblage.}
+#'   \item{estimation}{The event date estimation.}
+#'   \item{earliest}{The lower boundary of the confidence interval.}
+#'   \item{latest}{The upper boundary of the confidence interval.}
+#'   \item{error}{The standard error of predicted dates.}
+#'  }
+#' @slot accumulation A two columns \code{\link{data.frame}} giving the point
+#'  estimate of accumulation dates of archaeological assemblages and an
+#'  identifier to link each row to an assemblage.
+#' @slot jackknife A six columns \code{\link{data.frame}} giving the results of
+#'  the resamping procedure (jackknifing fabrics) for each assemblage (in rows)
+#'  with the following columns:
+#'  \describe{
+#'   \item{id}{An identifier to link each row to an assemblage.}
+#'   \item{estimation}{The jackknife event date estimate.}
+#'   \item{earliest}{The lower boundary of the associated prediction interval.}
+#'   \item{latest}{The upper boundary of the associated prediction interval.}
+#'   \item{error}{The standard error of predicted means.}
+#'   \item{bias}{The jackknife estimate of bias.}
+#'  }
+#' @slot bootstrap A six columns \code{\link{data.frame}} giving the boostrap
+#'  distribution statistics for each replicated assemblage (in rows)
+#'  with the following columns:
+#'  \describe{
+#'   \item{id}{An identifier to link each row to an assemblage.}
+#'   \item{min}{Minimum value.}
+#'   \item{Q05}{Sample quantile to 0.05 probability.}
+#'   \item{mean}{Mean value (event date).}
+#'   \item{Q95}{Sample quantile to 0.95 probability.}
+#'   \item{max}{Maximum value.}
+#'  }
+#' @param x A \code{DateModel} object from which to extract element(s).
+#' @param i,j Indices specifying elements to extract.
+#'  \code{i} is a \code{\link{character}} string matching to the name of a slot.
+#'  \code{j} can be \code{\link{missing}} or \code{\link{NULL}},
+#'  a \code{\link{numeric}} or \code{\link{character}} vector.
+#'  Numeric values are coerced to \code{\link{integer}} as by
+#'  \code{\link{as.integer}} (and hence truncated towards zero).
+#'  Character vectors will be matched to the names of the object.
+#' @param drop A \code{\link{logical}} scalar: should the result be coerced to
+#'  the lowest possible dimension?
+#' @author N. Frerebeau
+#' @docType class
+#' @aliases DateModel-class
+setClass(
+  Class = "DateModel",
+  slots = c(
+    level = "numeric",
+    model = "lm",
+    residual = "numeric",
+    counts = "matrix",
+    dates = "data.frame",
+    rows = "data.frame",
+    columns = "data.frame",
+    accumulation = "data.frame",
+    jackknife = "data.frame",
+    bootstrap = "data.frame"
+  )
+)
+
 ## -----------------------------------------------------------------------------
 #' Permutation order
 #'
 #' An S4 class to represent a permutation order.
-#' @slot rows A \code{\link{integer}} vector giving the rows permutation.
-#' @slot columns A \code{\link{integer}} vector giving the columns permutation.
-#' @slot seriation A \code{\link{character}} vector indicating the seriation
+#' @slot rows An \code{\link{integer}} vector giving the rows permutation.
+#' @slot columns An \code{\link{integer}} vector giving the columns permutation.
+#' @slot seriation A \code{\link{character}} string indicating the seriation
 #'  method used.
 #' @author N. Frerebeau
 #' @docType class
@@ -30,12 +120,21 @@ setClass(
 #' @slot columns A three columns \code{\link{data.frame}} giving the vertices
 #'  coordinates of the variables convex hull and a identifier to link each row
 #'  to a variable.
-#' @slot lengths A \code{\link{numeric}} vector giving the convex hull
-#'  maximum dimension length of each sample.
+#' @slot lengths A two columns \code{\link{data.frame}} giving the convex hull
+#'  maximum dimension length of each sample and a identifier to link each row to
+#'  a sample.
 #' @slot cutoff A length-one \code{\link{numeric}} vector giving the cutoff
 #'  value for sample selection.
 #' @slot keep A named \code{\link{numeric}} vector giving the subscript of
 #'  the samples to be kept.
+#' @param x A \code{BootCA} object from which to extract element(s).
+#' @param i,j Indices specifying elements to extract.
+#'  \code{i} is a \code{\link{character}} string matching to the name of a slot.
+#'  \code{j} can be \code{\link{missing}} or \code{\link{NULL}},
+#'  a \code{\link{numeric}} or \code{\link{character}} vector.
+#'  Numeric values are coerced to \code{\link{integer}} as by
+#'  \code{\link{as.integer}} (and hence truncated towards zero).
+#'  Character vectors will be matched to the names of the object.
 #' @author N. Frerebeau
 #' @docType class
 #' @aliases BootCA-class
@@ -43,12 +142,21 @@ setClass(
   Class = "BootCA",
   slots = c(rows = "data.frame",
             columns = "data.frame",
-            lengths = "numeric",
+            lengths = "data.frame",
             cutoff = "numeric",
             keep = "numeric")
 )
 
 ## Numeric matrix --------------------------------------------------------------
+#' Numeric matrix
+#'
+#' An S4 class to represent a numeric matrix.
+#' @note This class extends the \code{base} \link[base]{matrix}.
+#' @seealso \link[base]{matrix}
+#' @docType class
+#' @aliases NumericMatrix-class
+#' @keywords internal
+#' @noRd
 setClass(
   Class = "NumericMatrix",
   contains = "matrix"
@@ -61,8 +169,7 @@ setClass(
 #' @details
 #'  Numeric values are coerced to \code{\link{integer}} as by
 #'  \code{\link[base]{as.integer}} (and hence truncated towards zero).
-#' @note
-#'  This class extends the \code{base} \link[base]{matrix}.
+#' @note This class extends the \code{base} \link[base]{matrix}.
 #' @seealso \link[base]{matrix}
 #' @family abundance matrix
 #' @example inst/examples/ex-abundance-class.R
@@ -76,7 +183,7 @@ setClass(
 
 #' Frequency matrix
 #'
-#' An S4 class to represent a frequency matrix.
+#' An S4 class to represent a relative frequency matrix.
 #' @param x A \code{FrequencyMatrix} object from which to extract element.
 #' @slot total A \code{\link{numeric}} vector.
 #' @details
@@ -95,7 +202,52 @@ setClass(
   contains = "NumericMatrix"
 )
 
+#' Co-occurrence matrix
+#'
+#' An S4 class to represent a co-occurrence matrix.
+#' @details
+#'  A co-occurrence matrix is a symetric matrix with zeros on its main diagonal,
+#'  which works out how many times (expressed in percent) each pairs of taxa
+#'  occur together in at least one sample.
+#' @note This class extends the \code{base} \link[base]{matrix}.
+#' @seealso \link[base]{matrix}
+#' @family abundance matrix
+#' @example inst/examples/ex-abundance-class.R
+#' @author N. Frerebeau
+#' @docType class
+#' @aliases OccurrenceMatrix-class
+setClass(
+  Class = "OccurrenceMatrix",
+  contains = "NumericMatrix"
+)
+
+#' Similarity matrix
+#'
+#' An S4 class to represent a (dis)similarity matrix.
+#' @param x A \code{SimilarityMatrix} object from which to extract element.
+#' @note This class extends the \code{base} \link[base]{matrix}.
+#' @seealso \link[base]{matrix}
+# @family
+# @example
+#' @author N. Frerebeau
+#' @docType class
+#' @aliases SimilarityMatrix-class
+setClass(
+  Class = "SimilarityMatrix",
+  slots = c(method = "character"),
+  contains = "NumericMatrix"
+)
+
 ## Logical matrix --------------------------------------------------------------
+#' Logical matrix
+#'
+#' An S4 class to represent a logical matrix.
+#' @note This class extends the \code{base} \link[base]{matrix}.
+#' @seealso \link[base]{matrix}
+#' @docType class
+#' @aliases LogicalMatrix-class
+#' @keywords internal
+#' @noRd
 setClass(
   Class = "LogicalMatrix",
   contains = "matrix"
@@ -120,270 +272,8 @@ setClass(
   contains = "LogicalMatrix"
 )
 
-#' Co-occurrence matrix
-#'
-#' An S4 class to represent a co-occurrence matrix.
-#' @details
-#'  A co-occurrence matrix is a symetric matrix with zeros on its main diagonal,
-#'  which works out which pairs of taxa occur together in at least one sample
-#' @note This class extends the \code{base} \link[base]{matrix}.
-#' @seealso \link[base]{matrix}
-#' @family logical matrix
-#' @example inst/examples/ex-logical-class.R
-#' @author N. Frerebeau
-#' @docType class
-#' @aliases OccurrenceMatrix-class
-setClass(
-  Class = "OccurrenceMatrix",
-  contains = "LogicalMatrix"
-)
-
-# Class validation =============================================================
-## PermutationOrder ------------------------------------------------------------
-setValidity(
-  Class = "PermutationOrder",
-  method = function(object) {
-    errors <- c()
-    # Get data
-    rows <- object@rows
-    columns <- object@columns
-    method <- object@method
-
-    if (length(rows) != 0) {
-      if (!is.integer(rows))
-        errors <- c(errors, "whole numbers are expected")
-      if (any(is.na(rows)))
-        errors <- c(errors, "NA values were detected")
-      if (!any(is.nan(rows)))
-        if (any(rows <= 0))
-          errors <- c(errors, "strictly positive values are expected")
-    }
-    if (length(columns) != 0) {
-      if (!is.integer(columns))
-        errors <- c(errors, "whole numbers are expected")
-      if (any(is.na(columns)))
-        errors <- c(errors, "NA values were detected")
-      if (!any(is.nan(columns)))
-        if (any(columns <= 0))
-          errors <- c(errors, "strictly positive values are expected")
-    }
-    if (length(method) != 0) {
-      if (length(method) != 1) {
-        errors <- c(errors, "a single character string is expected")
-      } else {
-        if (!is.character(method))
-          errors <- c(errors, "a character string is expected")
-      }
-    }
-    # Return errors if any
-    if (length(errors) != 0) {
-      stop(paste(errors, collapse = "\n"))
-    } else {
-      return(TRUE)
-    }
-  }
-)
-
+# INITIALIZATION ===============================================================
 ## BootCA ----------------------------------------------------------------------
-setValidity(
-  Class = "BootCA",
-  method = function(object) {
-    errors <- c()
-    # Get data
-    rows <- object@rows
-    columns <- object@columns
-    lengths <- object@lengths
-    cutoff <- object@cutoff
-    keep <- object@keep
-
-    if (length(rows) != 0) {
-      if (ncol(rows) != 3) {
-        errors <- c(errors, "wrong column dimension")
-      } else {
-        if (!identical(colnames(rows), c("id", "x", "y"))) {
-          errors <- c(errors, "wrong column names")
-        } else {
-          if (!is.numeric(rows$x) | !is.numeric(rows$y))
-            errors <- c(errors, "numeric values are expected")
-        }
-      }
-      if (any(is.na(rows)))
-        errors <- c(errors, "NA values were detected")
-    }
-    if (length(columns) != 0) {
-      if (ncol(columns) != 3) {
-        errors <- c(errors, "wrong column dimension")
-      } else {
-        if (!identical(colnames(columns), c("id", "x", "y"))) {
-          errors <- c(errors, "wrong column names")
-        } else {
-          if (!is.numeric(columns$x) | !is.numeric(columns$y))
-            errors <- c(errors, "numeric values are expected")
-        }
-      }
-      if (any(is.na(columns)))
-        errors <- c(errors, "NA values were detected")
-    }
-    if (length(lengths) != 0) {
-      if (any(!is.numeric(lengths)) | any(is.na(lengths)))
-        errors <- c(errors, "numeric values are expected")
-    }
-    if (length(cutoff) != 0) {
-      if (length(cutoff) != 1) {
-        errors <- c(errors, "a single value is expected")
-      } else {
-        if (!is.numeric(cutoff) | is.na(cutoff))
-          errors <- c(errors, "a numeric value is expected")
-      }
-    }
-    if (length(keep) != 0) {
-      if (any(!is.numeric(keep)) | any(is.na(keep)))
-        errors <- c(errors, "numeric values are expected")
-    }
-    # Return errors if any
-    if (length(errors) != 0) {
-      stop(paste(errors, collapse = "\n"))
-    } else {
-      return(TRUE)
-    }
-  }
-)
-
-## NumericMatrix ---------------------------------------------------------------
-setValidity(
-  Class = "NumericMatrix",
-  method = function(object) {
-    errors <- c()
-    # Get data
-    data <- S3Part(object, strictS3 = TRUE, "matrix")
-    if (length(data) != 0) {
-      if (!is.numeric(data))
-        errors <- c(errors, "numeric values are expected")
-      if (any(is.na(data)))
-        errors <- c(errors, "NA values were detected")
-      if (any(is.infinite(data)))
-        errors <- c(errors, "infinite numbers were detected")
-      if (!any(is.nan(data)))
-        if (any(data < 0))
-          errors <- c(errors, "positive values are expected")
-    }
-    # Return errors if any
-    if (length(errors) != 0) {
-      stop(paste(errors, collapse = "\n"))
-    } else {
-      return(TRUE)
-    }
-  }
-)
-
-## CountMatrix -----------------------------------------------------------------
-setValidity(
-  Class = "CountMatrix",
-  method = function(object) {
-    errors <- c()
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    if (length(data) != 0) {
-      if (sum(!isWholeNumber(data)) != 0)
-        errors <- c(errors, "whole numbers are expected")
-      if (isBinary(data))
-        errors <- c(errors, "you should consider using an incidence matrix")
-    }
-    # Return errors, if any
-    if (length(errors) != 0) {
-      stop(paste(errors, collapse = "\n"))
-    } else {
-      return(TRUE)
-    }
-  }
-)
-
-## FrequencyMatrix -------------------------------------------------------------
-setValidity(
-  Class = "FrequencyMatrix",
-  method = function(object) {
-    errors <- c()
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    totals <- object@totals
-    if (length(data) != 0) {
-      if (!isEqual(rowSums(data, na.rm = TRUE)))
-        errors <- c(errors, "frequencies are expected")
-      if (isBinary(data))
-        errors <- c(errors, "you should consider using an incidence matrix")
-      if (length(totals) != nrow(data))
-        errors <- c(errors, "wrong row sums")
-    }
-    # Return errors, if any
-    if (length(errors) != 0) {
-      stop(paste(errors, collapse = "\n"))
-    } else {
-      return(TRUE)
-    }
-  }
-)
-
-## LogicalMatrix ---------------------------------------------------------------
-setValidity(
-  Class = "LogicalMatrix",
-  method = function(object) {
-    errors <- c()
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    if (length(data) != 0) {
-      if (!is.logical(data))
-        errors <- c("logical values are expected")
-      if (any(is.na(data)))
-        errors <- c(errors, "NA values were detected")
-    }
-    # Return errors, if any
-    if (length(errors) != 0) {
-      stop(paste(errors, collapse = "\n"))
-    } else {
-      return(TRUE)
-    }
-  }
-)
-
-## OccurrenceMatrix ------------------------------------------------------------
-setValidity(
-  Class = "OccurrenceMatrix",
-  method = function(object) {
-    errors <- c()
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-
-    if (length(data) != 0) {
-      if (nrow(data) != ncol(data))
-        errors <- c(errors, "a square matrix is expected")
-      if (!identical(rownames(data), colnames(data)))
-        errors <- c(errors, "rows and columns should have the same names")
-    }
-    # Return errors, if any
-    if (length(errors) != 0) {
-      stop(paste(errors, collapse = "\n"))
-    } else {
-      return(TRUE)
-    }
-  }
-)
-
-# Class constructors ===========================================================
-## PermutationOrder ------------------------------------------------------------
-setMethod(
-  f = "initialize",
-  signature = "PermutationOrder",
-  definition = function(.Object, rows, columns, method) {
-    if (!missing(rows)) .Object@rows <- rows
-    if (!missing(columns)) .Object@columns <- columns
-    if (!missing(method)) .Object@method <- method
-    methods::validObject(.Object)
-    if (getOption("verbose")) {
-      message(paste(class(.Object), "instance initialized.", sep = " "))
-    }
-    return(.Object)
-  }
-)
 setMethod(
   f = "initialize",
   signature = "BootCA",
@@ -393,6 +283,46 @@ setMethod(
     if (!missing(lengths)) .Object@lengths <- lengths
     if (!missing(cutoff)) .Object@cutoff <- cutoff
     if (!missing(keep)) .Object@keep <- keep
+    methods::validObject(.Object)
+    if (getOption("verbose")) {
+      message(paste(class(.Object), "instance initialized.", sep = " "))
+    }
+    return(.Object)
+  }
+)
+## DateModel -------------------------------------------------------------------
+setMethod(
+  f = "initialize",
+  signature = "DateModel",
+  definition = function(.Object, counts, dates, model, level, residual,
+                        rows, columns, accumulation,
+                        jackknife, bootstrap) {
+    if (!missing(counts)) .Object@counts <- counts
+    if (!missing(dates)) .Object@dates <- dates
+    # FIXME: workaround to initialize empty instance
+    .Object@model <- if (!missing(model)) model else stats::lm(0 ~ 0)
+    if (!missing(level)) .Object@level <- level
+    if (!missing(residual)) .Object@residual <- residual
+    if (!missing(rows)) .Object@rows <- rows
+    if (!missing(columns)) .Object@columns <- columns
+    if (!missing(accumulation)) .Object@accumulation <- accumulation
+    if (!missing(jackknife)) .Object@jackknife <- jackknife
+    if (!missing(bootstrap)) .Object@bootstrap <- bootstrap
+    methods::validObject(.Object)
+    if (getOption("verbose")) {
+      message(paste(class(.Object), "instance initialized.", sep = " "))
+    }
+    return(.Object)
+  }
+)
+## PermutationOrder ------------------------------------------------------------
+setMethod(
+  f = "initialize",
+  signature = "PermutationOrder",
+  definition = function(.Object, rows, columns, method) {
+    if (!missing(rows)) .Object@rows <- rows
+    if (!missing(columns)) .Object@columns <- columns
+    if (!missing(method)) .Object@method <- method
     methods::validObject(.Object)
     if (getOption("verbose")) {
       message(paste(class(.Object), "instance initialized.", sep = " "))
@@ -412,156 +342,61 @@ initialize_matrix <- function(.Object, ...) {
 }
 setMethod("initialize", "CountMatrix", initialize_matrix)
 setMethod("initialize", "FrequencyMatrix", initialize_matrix)
+setMethod("initialize", "SimilarityMatrix", initialize_matrix)
 setMethod("initialize", "IncidenceMatrix", initialize_matrix)
 setMethod("initialize", "OccurrenceMatrix", initialize_matrix)
 
-# Show =========================================================================
-## PermutationOrder ------------------------------------------------------------
-setMethod(
-  f = "show",
-  signature = "PermutationOrder",
-  definition = function(object) {
-    cat("Permutation order for matrix seriation:", "\n",
-        "  Row order:", object@rows, "\n",
-        "  Column order:", object@columns, "\n",
-        "  Method:", object@method,
-        sep = " "
-    )
-  }
-)
-## Numeric matrix --------------------------------------------------------------
-setMethod(
-  f = "show",
-  signature = "CountMatrix",
-  definition = function(object) {
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    m <- nrow(data)
-    p <- ncol(data)
-    cat(paste(m, "x", p, "count data matrix:", sep = " "), "\n", sep = " ")
-    print(data)
-  }
-)
-setMethod(
-  f = "show",
-  signature = "FrequencyMatrix",
-  definition = function(object) {
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    m <- nrow(data)
-    p <- ncol(data)
-    cat(paste(m, "x", p, "frequency data matrix:", sep = " "), "\n", sep = " ")
-    print(data)
-  }
-)
-## Logical matrix --------------------------------------------------------------
-setMethod(
-  f = "show",
-  signature = "IncidenceMatrix",
-  definition = function(object) {
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    m <- nrow(data)
-    p <- ncol(data)
-    cat(paste(m, "x", p, "presence/absence data matrix:", sep = " "), "\n",
-        sep = " ")
-    print(data)
-  }
-)
-setMethod(
-  f = "show",
-  signature = "OccurrenceMatrix",
-  definition = function(object) {
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    m <- nrow(data)
-    p <- ncol(data)
-    cat(paste(m, "x", p, "co-occurrence matrix:", sep = " "), "\n",
-        sep = " ")
-    print(data)
-  }
-)
-
-# Accessors ====================================================================
-#' @export
-#' @param x A \code{PermutationOrder} object from which to extract element(s).
-#' @param i A \code{\link{character}} string specifying elements to extract.
-#'  Character vectors will be matched to the name of the slots.
-#' @describeIn PermutationOrder Returns information about the individual slots.
-#' @aliases [[,PermutationOrder-method
-setMethod(
-  f = "[[",
-  signature = "PermutationOrder",
-  definition = function(x, i){
-    i <- match.arg(i, choices = methods::slotNames("PermutationOrder"),
-                   several.ok = FALSE)
-    slot <- slot(x, i)
-    return(slot)
-  }
-)
-
-#' @export
-#' @param x A \code{BootCA} object from which to extract element(s).
-#' @param i A \code{\link{character}} string specifying elements to extract.
-#'  Character vectors will be matched to the name of the slots.
-#' @describeIn BootCA Returns information about the individual slots.
-#' @aliases [[,BootCA-method
-setMethod(
-  f = "[[",
-  signature = "BootCA",
-  definition = function(x, i){
-    i <- match.arg(i, choices = methods::slotNames("BootCA"),
-                   several.ok = FALSE)
-    slot <- slot(x, i)
-    return(slot)
-  }
-)
-
-#' Accessors
+# CREATE =======================================================================
+#' Matrix constructor
 #'
-#' @param x An object.
-#' @author N. Frerebeau
-#' @docType methods
-#' @name accessors
-#' @rdname accessors
-NULL
-
-#' @rdname accessors
-setGeneric("columns", function(x) standardGeneric("columns"))
-
-#' @rdname accessors
-setGeneric("method", function(x) standardGeneric("method"))
-
-#' @rdname accessors
-setGeneric("rows", function(x) standardGeneric("rows"))
-
-#' @rdname accessors
-setGeneric("totals", function(x) standardGeneric("totals"))
-
-#' @export
-#' @describeIn PermutationOrder Returns the rows permutation.
-#' @aliases rows,PermutationOrder-method
-setMethod("rows", "PermutationOrder", function(x) x@rows)
+#' @inheritParams base::matrix
+#' @param rows A \code{\link{logical}} scalar indicating if the number of rows is
+#'  unspecified.
+#' @param cols A \code{\link{logical}} scalar indicating if the number of columns
+#'  is unspecified.
+#' @return A \link{\code{matrix}}.
+#' @noRd
+buildMatrix <- function(data, nrow, ncol, byrow, dimnames,
+                        rows = FALSE, cols = FALSE) {
+  k <- length(data)
+  if (rows) nrow <- k / ncol
+  if (cols) ncol <- k / nrow
+  if (is.null(dimnames)) {
+    dimnames <- list(1:nrow, paste("V", 1:ncol, sep = ""))
+  } else {
+    if (is.null(dimnames[[1]])) dimnames[[1]] <- 1:nrow
+    if (is.null(dimnames[[2]])) dimnames[[2]] <- paste("V", 1:ncol, sep = "")
+  }
+  M <- matrix(data, nrow, ncol, byrow, dimnames)
+  return(M)
+}
 
 #' @export
-#' @describeIn BootCA Returns the convex hull vertice coordinates for each
-#'  individual.
-#' @aliases rows,BootCA-method
-setMethod("rows", "BootCA", function(x) x@rows)
+#' @rdname CountMatrix-class
+CountMatrix <- function(data = NA, nrow = 1, ncol = 1, byrow = FALSE,
+                        dimnames = NULL) {
+  M <- buildMatrix(as.integer(data), nrow, ncol, byrow, dimnames,
+                   missing(nrow), missing(ncol))
+  methods::new("CountMatrix", M)
+}
+
+# @export
+# @rdname FrequencyMatrix-class
+# FrequencyMatrix <- function(data = NA, nrow = 1, ncol = 1, byrow = FALSE,
+#                             dimnames = NULL) {
+#   M <- buildMatrix(data, nrow, ncol, byrow, dimnames,
+#                    missing(nrow), missing(ncol))
+#   totals <- rowSums(M)
+#   M <- M / totals
+#   methods::new("FrequencyMatrix", M, totals = totals)
+# }
 
 #' @export
-#' @describeIn PermutationOrder Returns the columns permutation.
-#' @aliases columns,PermutationOrder-method
-setMethod("columns", "PermutationOrder", function(x) x@columns)
-
-#' @export
-#' @describeIn BootCA Returns the convex hull vertice coordinates for each
-#'  variable.
-#' @aliases columns,BootCA-method
-setMethod("columns", "BootCA", function(x) x@columns)
-
-#' @export
-#' @describeIn PermutationOrder Returns the method used for seriation.
-#' @aliases method,PermutationOrder-method
-setMethod("method", "PermutationOrder", function(x) x@method)
-
-#' @export
-#' @describeIn FrequencyMatrix Returns the row sums (counts).
-#' @aliases totals,FrequencyMatrix-method
-setMethod("totals", "FrequencyMatrix", function(x) x@totals)
+#' @rdname IncidenceMatrix-class
+IncidenceMatrix <- function(data = NA, nrow = 1, ncol = 1, byrow = FALSE,
+                            dimnames = NULL) {
+  data <- as.logical(data)
+  M <- buildMatrix(data, nrow, ncol, byrow, dimnames,
+                   missing(nrow), missing(ncol))
+  methods::new("IncidenceMatrix", M)
+}

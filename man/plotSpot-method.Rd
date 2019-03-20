@@ -6,6 +6,8 @@
 \alias{plotSpot-method}
 \alias{plotSpot,CountMatrix-method}
 \alias{plotSpot,FrequencyMatrix-method}
+\alias{plotSpot,SimilarityMatrix-method}
+\alias{plotSpot,OccurrenceMatrix-method}
 \title{Spot plot}
 \usage{
 plotSpot(object, ...)
@@ -13,6 +15,10 @@ plotSpot(object, ...)
 \S4method{plotSpot}{CountMatrix}(object, threshold = NULL)
 
 \S4method{plotSpot}{FrequencyMatrix}(object, threshold = NULL)
+
+\S4method{plotSpot}{SimilarityMatrix}(object)
+
+\S4method{plotSpot}{OccurrenceMatrix}(object)
 }
 \arguments{
 \item{object}{An object to be plotted.}
@@ -35,22 +41,27 @@ Adapted from Dan Gopstein's original
  Credit should be given to him.
 }
 \examples{
-# Coerce dataset to abundance matrix
-# Data from Desachy 2004
-count <- as(compiegne, "CountMatrix")
-
 # Plot spot diagram...
-## ...without threshod
+
+## ...of count data...
+count <- as(mississippi, "CountMatrix")
+### ...without threshod
 plotSpot(count)
-
-## ...with the  column means as threshold
+### ...with the  column means as threshold
 plotSpot(count, threshold = mean)
-
-## ...with the column medians as threshold
+### ...with the column medians as threshold
 plotSpot(count, threshold = median)
+
+## ...of a similarity matrix
+sim <- similarity(count, "brainerd")
+plotSpot(sim)
+
+## ...of a co-occurence matrix
+occ <- as(mississippi, "OccurrenceMatrix")
+plotSpot(occ)
 }
 \seealso{
-Other plot: \code{\link{plotBar}},
+Other plot: \code{\link{plotBar}}, \code{\link{plotDate}},
   \code{\link{plotMatrix}}, \code{\link{plotRank}}
 }
 \author{

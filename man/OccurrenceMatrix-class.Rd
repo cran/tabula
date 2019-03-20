@@ -9,33 +9,37 @@ An S4 class to represent a co-occurrence matrix.
 }
 \details{
 A co-occurrence matrix is a symetric matrix with zeros on its main diagonal,
- which works out which pairs of taxa occur together in at least one sample
+ which works out how many times (expressed in percent) each pairs of taxa
+ occur together in at least one sample.
 }
 \note{
 This class extends the \code{base} \link[base]{matrix}.
 }
 \examples{
-# Create an incidence (presence/absence) matrix
-# Data will be coerced with as.logical()
-C1 <- IncidenceMatrix(data = sample(0:1, 100, TRUE),
-                      nrow = 10, ncol = 10)
+# Create a count data matrix
+A1 <- CountMatrix(data = sample(0:10, 100, TRUE),
+                  nrow = 10, ncol = 10, byrow = TRUE)
+
+# Coerce counts to frequencies
+B <- as(A1, "FrequencyMatrix")
+
+# Row sums are internally stored before coercing to a frequency matrix
+totals(B) # Get row sums
+
+# This allows to restore the source data
+A2 <- as(B, "CountMatrix")
+all(A1 == A2)
 
 # Coerce to a co-occurrence matrix
-D <- as(C1, "OccurrenceMatrix")
-
-# Create a count data matrix
-A <- CountMatrix(data = sample(0:10, 100, TRUE),
-                 nrow = 10, ncol = 10, byrow = TRUE)
-
-# Coerce to presence/absence
-C2 <- as(A, "IncidenceMatrix")
+C <- as(B, "OccurrenceMatrix")
 }
 \seealso{
 \link[base]{matrix}
 
-Other logical matrix: \code{\link{IncidenceMatrix-class}}
+Other abundance matrix: \code{\link{CountMatrix-class}},
+  \code{\link{FrequencyMatrix-class}}
 }
 \author{
 N. Frerebeau
 }
-\concept{logical matrix}
+\concept{abundance matrix}

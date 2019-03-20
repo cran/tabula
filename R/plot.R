@@ -1,14 +1,148 @@
 #' @include AllGenerics.R AllClasses.R statistics.R
 NULL
 
-# Bar plot =====================================================================
+# Date plot ====================================================================
+#' @export
+#' @rdname plotDate-method
+#' @aliases plotDate,DateModel-method
+setMethod(
+  f = "plotDate",
+  signature = c(object = "DateModel"),
+  definition = function(object, type = c("event", "accumulation"),
+                        select = 1, n = 500) {
+    # Selection
+    type <- match.arg(type, several.ok = TRUE)
+    cases <- object@rows$id
+    index <- if (is.character(select)) {
+      which(cases %in% select)
+    } else {
+      as.numeric(select)
+    }
+    # Validation
+    if (length(index) == 0 | max(index) > length(cases))
+      stop("wrong selection")
+
+    # Get data
+    row_dates <- object@rows$estimation
+    row_lower <- object@rows$earliest
+    row_upper <- object@rows$latest
+    row_errors <- object@rows$error
+    col_dates <- object@columns$estimation
+    col_errors <- object@columns$error
+    date_range <- seq(from = min(row_lower), to = max(row_upper), length.out = n)
+
+    plot_event <- plot_accumulation <- plot_facet <- NULL
+
+    # Event time
+    if ("event" %in% type) {
+      date_event <- mapply(function(mean, sd, x) { stats::dnorm(x, mean, sd) },
+                           mean = row_dates[index], sd = row_errors[index],
+                           MoreArgs = list(x = date_range), SIMPLIFY = TRUE)
+      colnames(date_event) <- cases[index]
+
+      row_data <- cbind.data.frame(date = date_range, date_event) %>%
+        tidyr::gather(key = "assemblage", value = "density", -date)
+
+      plot_event <- geom_line(data = row_data,
+                              mapping = aes_string(color = "assemblage"))
+    }
+
+    # Accumulation time
+    if ("accumulation" %in% type) {
+      # Weighted sum of the fabric dates
+      counts <- object@counts[index, , drop = FALSE]
+      freq <- counts / rowSums(counts)
+
+      col_density <- mapply(function(mean, sd, x) { stats::dnorm(x, mean, sd) },
+                            mean = col_dates, sd = col_errors,
+                            MoreArgs = list(x = date_range), SIMPLIFY = TRUE)
+
+      date_acc <- apply(X = freq, MARGIN = 1, FUN = function(x, density) {
+        colSums(t(density) * as.numeric(x))
+      }, density = col_density)
+
+      col_data <- cbind.data.frame(date = date_range, date_acc) %>%
+        tidyr::gather(key = "assemblage", value = "density", -date)
+
+      plot_accumulation <- geom_area(
+        data = col_data, fill = "darkgrey", color = "darkgrey", alpha = 0.7)
+        # mapping = aes(fill = assemblage, color = assemblage))
+    }
+
+    if (length(index) > 1) {
+      plot_facet <- facet_wrap(. ~ assemblage, nrow = length(index),
+                               scales = "free_y")
+    }
+
+    ggplot(mapping = aes_string(x = "date", y = "density")) +
+      plot_accumulation + plot_event + plot_facet +
+      labs(x = "Date (years)", y = "Density",
+           fill = "Assemblage", color = "Assemblage")
+  }
+)
+
+# @export
+# @rdname plotDate-method
+# @aliases plotDate,DateModel-method
+# setMethod(
+#   f = "plotDate",
+#   signature = signature(object = "DateModel"),
+#   definition = function(object, select = 1, sort = "dsc") {
+#     # Selection
+#     cases <- object@rows$id
+#     index <- if (is.character(select)) {
+#       which(cases %in% select)
+#     } else {
+#       as.numeric(select)
+#     }
+#
+#     # Validation
+#     if (length(index) == 0 | max(index) > length(cases))
+#       stop("wrong selection")
+#
+#     date_data <- cbind.data.frame(
+#       id = as.factor(cases),
+#       event = object@rows$estimation,
+#       accumulation = object@accumulation$date,
+#       y = as.numeric(as.factor(cases)),
+#       xmin = object@rows$earliest,
+#       xmax = object@rows$latest
+#     )[index, ]
+#
+#     if (!is.null(sort)) {
+#       sort <- match.arg(sort, choices = c("asc", "dsc"), several.ok = FALSE)
+#       date_data <- switch (
+#         sort,
+#         asc = dplyr::arrange(date_data, .data$event),
+#         dsc = dplyr::arrange(date_data, dplyr::desc(.data$event))
+#       )
+#       date_data %<>% dplyr::mutate(y = 1:nrow(.))
+#     }
+#
+#     date_data %<>% tidyr::gather(key = "model", value = "date",
+#                                  -.data$id, -.data$y, -.data$xmin, -.data$xmax)
+#
+#     ggplot(mapping = aes_string(color = "model", fill = "model")) +
+#       geom_errorbarh(data = subset(date_data, date_data$model == "event"),
+#                      mapping = aes_string(xmin = "xmin", xmax = "xmax", y = "y"),
+#                      height = 0.5) +
+#       geom_point(data = date_data,
+#                  mapping = aes_string(x = "date", y = "y", shape = "model"),
+#                  size = 2) +
+#       scale_y_continuous(breaks = date_data$y, labels = date_data$id) +
+#       scale_shape_manual(values = c("event" = 21, "accumulation" = 23)) +
+#       labs(x = "Date (years)", y = "",
+#            color = "Model", fill = "Model", shape = "Model")
+#   }
+# )
+
 #' @export
 #' @rdname plotBar-method
 #' @aliases plotBar,CountMatrix-method
 setMethod(
   f = "plotBar",
   signature = signature(object = "CountMatrix"),
-  definition = function(object, level = 0.05, EPPM = FALSE,
+  definition = function(object, level = FALSE, EPPM = FALSE,
                         center = TRUE, horizontal = FALSE) {
     # Prepare data -------------------------------------------------------------
     # Get row names and coerce to factor (preserve original ordering)
@@ -61,6 +195,7 @@ setMethod(
     data %<>% dplyr::rename(frequency = "data")
 
     # ggplot -------------------------------------------------------------------
+    scale_breaks <- c(-4:4) * 0.10
     fill <- if (EPPM) "threshold" else NULL
     bertin <- center | horizontal
     facets <- if (bertin) ".~type" else "type~."
@@ -68,13 +203,15 @@ setMethod(
     axis <- if (bertin) {
       list(
         theme(axis.title.y = element_blank(),
-              axis.ticks.y = element_blank())
+              axis.ticks.y = element_blank()),
+        scale_y_continuous(breaks = scale_breaks, labels = abs(scale_breaks))
       )
     } else {
       list(
         theme(axis.title.x = element_blank(),
               axis.ticks.x = element_blank()),
-        scale_x_discrete(expand = c(0, 0), position = "top")
+        scale_x_discrete(expand = c(0, 0), position = "top"),
+        scale_y_continuous(breaks = scale_breaks, labels = abs(scale_breaks))
       )
     }
 
@@ -97,7 +234,7 @@ setMethod(
 setMethod(
   f = "plotBar",
   signature = signature(object = "FrequencyMatrix"),
-  definition = function(object, level = 0.05, EPPM = FALSE,
+  definition = function(object, level = FALSE, EPPM = FALSE,
                         center = TRUE, horizontal = FALSE) {
     count <- methods::as(object, "CountMatrix")
     plotBar(count, level = level, EPPM = EPPM,
@@ -113,7 +250,7 @@ setMethod(
   f = "plotMatrix",
   signature = signature(object = "CountMatrix"),
   definition = function(object, PVI = FALSE) {
-    # Prepare data -------------------------------------------------------------
+    # Prepare data
     # Get row names and coerce to factor (preserve original ordering)
     row_names <- rownames(object) %>% factor(levels = unique(.))
 
@@ -143,7 +280,7 @@ setMethod(
       y = as.numeric(.data$case)
     )
 
-    # ggplot -------------------------------------------------------------------
+    # ggplot
     fill <- ifelse(PVI, "PVI", "frequency")
     ggplot(data = data) +
       geom_tile(aes_string(x = "x", y = "y", fill = fill)) +
@@ -154,7 +291,8 @@ setMethod(
       scale_y_continuous(expand = c(0, 0), trans = "reverse",
                          breaks = unique(data$y),
                          labels = unique(data$case)) +
-      theme(axis.ticks = element_blank(),
+      theme(axis.text.x = element_text(angle = 90, hjust = 0),
+            axis.ticks = element_blank(),
             axis.title = element_blank(),
             panel.grid = element_blank()) +
       coord_fixed()
@@ -180,7 +318,7 @@ setMethod(
   f = "plotMatrix",
   signature = signature(object = "IncidenceMatrix"),
   definition = function(object) {
-    # Prepare data -------------------------------------------------------------
+    # Prepare data
     # Get row names and coerce to factor (preserve original ordering)
     row_names <- rownames(object) %>% factor(levels = unique(.))
 
@@ -191,7 +329,7 @@ setMethod(
       tidyr::gather(key = "type", value = "value",
                     -.data$case, factor_key = TRUE)
 
-    # ggplot -------------------------------------------------------------------
+    # ggplot
     ggplot(data = data, aes_string(x = "type", y = "case", fill = "value")) +
       geom_tile(color = "black") +
       scale_x_discrete(position = "top") +
@@ -224,7 +362,7 @@ setMethod(
   f = "plotRank",
   signature = signature(object = "FrequencyMatrix"),
   definition = function(object, log = NULL, facet = TRUE) {
-    # Prepare data -------------------------------------------------------------
+    # Prepare data
     # Get row names and coerce to factor (preserve original ordering)
     row_names <- rownames(object) %>% factor(levels = unique(.))
     # Get number of cases
@@ -242,7 +380,7 @@ setMethod(
       dplyr::mutate(rank = rev(.data$rank)) %>%
       dplyr::ungroup()
 
-    # ggplot -------------------------------------------------------------------
+    # ggplot
     log_x <- log_y <- NULL
     if (!is.null(log)) {
       if (log == "x" | log == "xy" | log == "yx") log_x <- scale_x_log10()
@@ -282,7 +420,7 @@ setMethod(
   f = "plotSpot",
   signature = signature(object = "FrequencyMatrix"),
   definition = function(object, threshold = NULL) {
-    # Prepare data -------------------------------------------------------------
+    # Prepare data
     # Get row names and coerce to factor (preserve original ordering)
     row_names <- rownames(object) %>% factor(levels = unique(.))
 
@@ -306,16 +444,101 @@ setMethod(
                                             "above", "below"))
     }
 
-    # ggplot -------------------------------------------------------------------
+    # ggplot
     colour <- if (is.null(threshold)) NULL else function_name
     ggplot(data = data, aes_string(x = "type", y = "case")) +
-      geom_point(aes(size = 1), colour = "black") +
-      geom_point(aes(size = 0.8), colour = "white") +
+      geom_point(aes(size = 1), colour = "black", show.legend = FALSE) +
+      geom_point(aes(size = 0.8), colour = "white", show.legend = FALSE) +
       geom_point(aes_string(size = "frequency", colour = colour)) +
       scale_x_discrete(position = "top") +
       scale_y_discrete(limits = rev(levels(data$case))) +
       scale_size_area() +
-      theme(axis.ticks = element_blank(),
+      theme(axis.text.x = element_text(angle = 90, hjust = 0),
+            axis.ticks = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            legend.key = element_rect(fill = "white"),
+            panel.background = element_rect(fill = "white"),
+            panel.grid = element_blank()) +
+      coord_fixed()
+  }
+)
+
+#' @export
+#' @rdname plotSpot-method
+#' @aliases plotSpot,SimilarityMatrix-method
+setMethod(
+  f = "plotSpot",
+  signature = signature(object = "SimilarityMatrix"),
+  definition = function(object) {
+    # Prepare data
+    # Get row names and coerce to factor (preserve original ordering)
+    row_names <- rownames(object) %>% factor(levels = unique(.))
+    max_value <- unique(diag(object))
+
+    # Replace lower part and diagonal values with 0
+    clean <- object
+    # clean[lower.tri(clean, diag = TRUE)] <- 0
+
+    # Build long table from data
+    data <- clean %>%
+      as.data.frame() %>%
+      dplyr::mutate(case = row_names) %>%
+      tidyr::gather(key = "type", value = "similarity",
+                    -.data$case, factor_key = TRUE)  %>%
+      dplyr::filter(.data$type != .data$case) %>%
+      dplyr::mutate(similarity = similarity * 0.8,
+                    max = max_value) %>%
+      stats::na.omit()
+
+    # ggplot
+    ggplot(data = data, mapping = aes_string(x = "type", y = "case")) +
+      geom_point(aes_string(size = "max"), colour = "black", show.legend = FALSE) +
+      geom_point(aes_string(size = "max * 0.8"), colour = "white", show.legend = FALSE) +
+      geom_point(aes_string(size = "similarity", color = "similarity")) +
+      scale_x_discrete(position = "top") +
+      scale_y_discrete(limits = rev(levels(data$case))) +
+      scale_size_area() +
+      theme(axis.text.x = element_text(angle = 90, hjust = 0),
+            axis.ticks = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            legend.key = element_rect(fill = "white"),
+            panel.background = element_rect(fill = "white"),
+            panel.grid = element_blank()) +
+      coord_fixed()
+  }
+)
+
+#' @export
+#' @rdname plotSpot-method
+#' @aliases plotSpot,OccurrenceMatrix-method
+setMethod(
+  f = "plotSpot",
+  signature = signature(object = "OccurrenceMatrix"),
+  definition = function(object) {
+    # Prepare data
+    # Get row names and coerce to factor (preserve original ordering)
+    row_names <- rownames(object) %>% factor(levels = unique(.))
+
+    # Build long tables from data
+    data <- { object * 0.8 } %>%
+      as.data.frame() %>%
+      dplyr::mutate(case = row_names) %>%
+      tidyr::gather(key = "type", value = "occurrence",
+                    -.data$case, factor_key = TRUE) %>%
+      dplyr::filter(.data$type != .data$case)
+
+    # ggplot
+    ggplot(data = data, mapping = aes_string(x = "type", y = "case")) +
+      geom_point(aes(size = 1), colour = "black", show.legend = FALSE) +
+      geom_point(aes(size = 0.8), colour = "white", show.legend = FALSE) +
+      geom_point(aes_string(size = "occurrence", color = "occurrence")) +
+      scale_x_discrete(position = "top", limits = row_names) +
+      scale_y_discrete(limits = rev(row_names)) +
+      scale_size_area() +
+      theme(axis.text.x = element_text(angle = 90, hjust = 0),
+            axis.ticks = element_blank(),
             axis.title.x = element_blank(),
             axis.title.y = element_blank(),
             legend.key = element_rect(fill = "white"),

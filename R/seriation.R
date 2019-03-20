@@ -1,36 +1,8 @@
-#' @include AllGenerics.R AllClasses.R method-seriation.R statistics.R utilities.R
-NULL
+# SERIATION METHODS
 
-# Refine matrix seriation ======================================================
-#' @export
-#' @rdname seriation
-#' @aliases refine,CountMatrix-method
-setMethod(
-  f = "refine",
-  signature = signature(object = "CountMatrix"),
-  definition = function(object, cutoff, n = 1000, axes = c(1, 2), ...) {
-    # Partial bootstrap CA
-    hull_rows <- bootCA(object, n = n, margin = 1, axes = axes, ...)
-    hull_columns <- rows <- bootCA(object, n = n, margin = 2, axes = axes, ...)
-    # Get convex hull maximal dimension length for each sample
-    hull_length <- sapply(X = hull_rows, function(x) {
-      max(stats::dist(x, method = "euclidean"))
-    })
-    # Get cutoff value
-    limit <- cutoff(hull_length)
-    # Samples to be kept
-    keep <- which(hull_length < limit)
-    # Bind hull vertices in a data.frame
-    rows <- dplyr::bind_rows(hull_rows, .id = "id")
-    cols <- dplyr::bind_rows(hull_columns, .id = "id")
-
-    methods::new("BootCA",
-                 rows = rows, columns = cols, cutoff = limit,
-                 lengths = hull_length, keep = keep)
-  }
-)
-
-# Matrix seriation order =======================================================
+# Seriation methods
+#' @keywords internal
+#' @noRd
 seriation <- function(object, method = c("correspondance", "reciprocal"),
                       EPPM = FALSE, axes = 1, margin = c(1, 2), stop = 100,
                       ...) {
@@ -41,7 +13,7 @@ seriation <- function(object, method = c("correspondance", "reciprocal"),
     method,
     reciprocal = reciprocalSeriation(data, margin = margin, stop = stop),
     correspondance = correspondanceSeriation(data, margin = margin,
-                                         axes = axes, ...),
+                                             axes = axes, ...),
     stop(paste("there is no such method:", method, sep = " "))
   )
   # Coerce indices to integer
@@ -51,63 +23,81 @@ seriation <- function(object, method = c("correspondance", "reciprocal"),
                rows = index[[1]], columns = index[[2]], method = method)
 }
 
-#' @export
-#' @rdname seriation
-#' @aliases seriate,CountMatrix-method
-setMethod(
-  f = "seriate",
-  signature = signature(object = "CountMatrix"),
-  definition = function(object, method = c("correspondance", "reciprocal"),
-                        EPPM = FALSE, margin = c(1, 2), stop = 100, ...) {
-    # Validation
-    method <- match.arg(method, several.ok = FALSE)
-    # Seriation
-    seriation(object, method = method, EPPM = EPPM, margin = margin,
-              stop = stop, ...)
-  }
-)
+# Probabilistic methods ========================================================
+#' Reciprocal ranking/averaging
+#'
+#' @param x A \code{\link{numeric}} matrix.
+#' @param stop A length-one \code{\link{numeric}} vector giving the stopping rule
+#'  (i.e. maximum number of iterations) to avoid infinite loop.
+#' @param margin A \code{\link{numeric}} vector giving the subscripts which the
+#'  rearrangement will be applied over. E.g., for a matrix \code{1} indicates
+#'  rows, \code{2} indicates columns, \code{c(1, 2)} indicates rows then columns,
+#'  \code{c(2, 1)} indicates columns then rows.
+#' @return A list of two \code{\link{numeric}} vectors.
+#' @author N. Frerebeau
+#' @keywords internal
+#' @noRd
+reciprocalSeriation <- function(x, margin = 1, stop = 100) {
+  # Validation
+  margin <- as.integer(margin)
+  stop <- as.integer(stop)
 
-#' @export
-#' @rdname seriation
-#' @aliases seriate,IncidenceMatrix-method
-setMethod(
-  f = "seriate",
-  signature = signature(object = "IncidenceMatrix"),
-  definition = function(object, method = c("correspondance", "reciprocal"),
-                        margin = c(1, 2), stop = 100, ...) {
-    # Validation
-    method <- match.arg(method, several.ok = FALSE)
-    # Seriation
-    seriation(object * 1, method = method, EPPM = FALSE, margin = margin,
-              stop = stop, ...)
+  # Compute ranks
+  # margin = 1 : on rows
+  # margin = 2 : on columns
+  reorder <- function(x, margin) {
+    i <- 1:nrow(x)
+    j <- 1:ncol(x)
+    k <- switch (margin,
+      `1` = colSums(t(x) * j) / rowSums(x),
+      `2` = colSums(x * i) / colSums(x),
+      stop("'margin' subscript out of bounds")
+    )
+    order(k)
   }
-)
 
-# Permute matrix ===============================================================
-#' @export
-#' @rdname seriation
-#' @aliases permute,CountMatrix,PermutationOrder-method
-setMethod(
-  f = "permute",
-  signature = signature(object = "CountMatrix", order = "PermutationOrder"),
-  definition = function(object, order) {
-    # Rearrange matrix
-    new_matrix <- object[order@rows, order@columns]
-    # New CountMatrix object
-    methods::new("CountMatrix", new_matrix)
+  start <- 0
+  index <- list(rows = 1:nrow(x), columns = 1:ncol(x))
+  convergence <- FALSE
+  while (!convergence) {
+    old_index <- index
+    # Rearrange along margins
+    for (k in margin) {
+      index[[k]] <- index[[k]][reorder(x[index[[1]], index[[2]]], margin = k)]
+    }
+    # Loop counter
+    convergence <- identical(index, old_index)
+    start <- start + 1
+    if (start >= stop) {
+      warning("convergence not reached (possible infinite cycle)")
+      break
+    }
   }
-)
 
-#' @export
-#' @rdname seriation
-#' @aliases permute,IncidenceMatrix,PermutationOrder-method
-setMethod(
-  f = "permute",
-  signature = signature(object = "IncidenceMatrix", order = "PermutationOrder"),
-  definition = function(object, order) {
-    # Rearrange matrix
-    new_matrix <- object[order@rows, order@columns]
-    # New CountMatrix object
-    methods::new("IncidenceMatrix", new_matrix)
-  }
-)
+  return(index)
+}
+
+#' CA-based seriation
+#'
+#' @param x A \code{\link{numeric}} matrix.
+#' @param ... Further arguments to be passed to \code{\link[FactoMineR]{CA}}.
+#' @return A list of two \code{\link{numeric}} vectors.
+#' @author N. Frerebeau
+#' @keywords internal
+#' @noRd
+correspondanceSeriation <- function(x, margin, axes, ...) {
+  # Validation
+  margin <- as.integer(margin)
+  axes <- as.integer(axes)
+
+  # Original sequences
+  i <- 1:nrow(x)
+  j <- 1:ncol(x)
+  # Correspondance analysis
+  corresp <- FactoMineR::CA(x, ..., graph = FALSE)
+  # Sequence of the first axis as best seriation order
+  row_coords <- if (1 %in% margin) order(corresp$row$coord[, axes]) else i
+  col_coords <- if (2 %in% margin) order(corresp$col$coord[, axes]) else j
+
+  return(list(rows = row_coords, columns = col_coords))
+}

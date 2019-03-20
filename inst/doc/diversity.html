@@ -12,7 +12,7 @@
 
 <meta name="author" content="N. Frerebeau" />
 
-<meta name="date" content="2018-11-22" />
+<meta name="date" content="2019-03-19" />
 
 <title>Diversity measures</title>
 
@@ -32,13 +32,14 @@
 
 <h1 class="title toc-ignore">Diversity measures</h1>
 <h4 class="author"><em>N. Frerebeau</em></h4>
-<h4 class="date"><em>2018-11-22</em></h4>
+<h4 class="date"><em>2019-03-19</em></h4>
 
 
 <div id="TOC">
 <ul>
 <li><a href="#alpha-diversity"><span class="math inline">\(\alpha\)</span>-diversity</a><ul>
-<li><a href="#richness-and-rarefaction">Richness and rarefaction</a></li>
+<li><a href="#richness">Richness</a></li>
+<li><a href="#rarefaction">Rarefaction</a></li>
 <li><a href="#diversity-and-evenness">Diversity and evenness</a></li>
 </ul></li>
 <li><a href="#beta-diversity"><span class="math inline">\(\beta\)</span>-diversity</a><ul>
@@ -52,14 +53,18 @@
 <p>Thereafter, we denote by:</p>
 <ul>
 <li><span class="math inline">\(S\)</span> the total number of taxa recorded,</li>
-<li><span class="math inline">\(N\)</span> the total number of individuals,</li>
+<li><span class="math inline">\(i\)</span> the rank of the taxon</li>
 <li><span class="math inline">\(n_i\)</span> the number of individuals in the <span class="math inline">\(i\)</span>-th taxon,</li>
-<li><span class="math inline">\(p_i\)</span> the relative proportion of the <span class="math inline">\(i\)</span>-th taxon in the population.</li>
+<li><span class="math inline">\(N = \sum n_i\)</span> the total number of individuals,</li>
+<li><span class="math inline">\(p_i\)</span> the relative proportion of the <span class="math inline">\(i\)</span>-th taxon in the population,</li>
+<li><span class="math inline">\(s_n\)</span> the number of species with <span class="math inline">\(n\)</span> individuals</li>
+<li><span class="math inline">\(f_k\)</span> the number of taxa with <span class="math inline">\(k\)</span> individuals,</li>
+<li><span class="math inline">\(Q_i\)</span> the incidence of the <span class="math inline">\(i\)</span>-th taxon.</li>
 </ul>
 <div id="alpha-diversity" class="section level2">
 <h2><span class="math inline">\(\alpha\)</span>-diversity</h2>
-<div id="richness-and-rarefaction" class="section level3">
-<h3>Richness and rarefaction</h3>
+<div id="richness" class="section level3">
+<h3>Richness</h3>
 <div id="margalef-index-margalef1958" class="section level4">
 <h4>Margalef index <span class="citation">(Margalef 1958)</span></h4>
 <p><span class="math display">\[ D_{Mg} = \frac{S - 1}{\ln N} \]</span></p>
@@ -68,11 +73,49 @@
 <h4>Menhinick index <span class="citation">(Menhinick 1964)</span></h4>
 <p><span class="math display">\[ D_{Mn} = \frac{S}{\sqrt{N}} \]</span></p>
 </div>
-<div id="rarefaction" class="section level4">
-<h4>Rarefaction</h4>
+<div id="chao1-estimator-chao1984" class="section level4">
+<h4>Chao1 estimator <span class="citation">(Chao 1984)</span></h4>
+<p><span class="math display">\[ \hat{S}_{Chao1} = 
+\begin{cases}
+  S + \frac{N - 1}{N} \frac{f_1^2}{2 f_2} &amp; f_2 &gt; 0 \\
+  S + \frac{N - 1}{N} \frac{f_1 (f_1 - 1)}{2} &amp; f_2 = 0
+\end{cases}
+\]</span></p>
+<p>In the special case of homogeneous case, a bias-corrected estimator is:</p>
+<p><span class="math display">\[ \hat{S}_{Chao1-bc} = S + \frac{N - 1}{N} \frac{f_1 (f_1 - 1)}{2 f_2 + 1}\]</span></p>
+<p>Improved Chao1 estimator (makes use of the additional information of tripletons and quadrupletons; <span class="citation">Chiu et al. (2014)</span>) :</p>
+<p><span class="math display">\[ \hat{S}_{iChao1} = \hat{S}_{Chao1} + \frac{N - 3}{4 N} \frac{f_3}{f_4} \times \max\left(f_1 - \frac{N - 3}{N - 1} \frac{f_2 f_3}{2 f_4} , 0\right)\]</span></p>
+</div>
+<div id="abundance-based-coverage-estimator-chao1992" class="section level4">
+<h4>Abundance-based Coverage Estimator <span class="citation">(Chao and Lee 1992)</span></h4>
+<p><span class="math display">\[ \hat{S}_{ACE} = \hat{S}_{abun} + \frac{\hat{S}_{rare}}{\hat{C}_{rare}} + \frac{f_1}{\hat{C}_{rare}} \times \hat{\gamma}^2_{rare} \]</span></p>
+<p>Where <span class="math inline">\(\hat{S}_{rare} = \sum_{i = 1}^{k} f_i\)</span> is the number of rare taxa, <span class="math inline">\(\hat{S}_{abun} = \sum_{i &gt; k}^{N} f_i\)</span> is the number of abundant taxa (for a given cut-off value <span class="math inline">\(k\)</span>), <span class="math inline">\(\hat{C}_{rare} = 1 - \frac{f_1}{N_{rare}}\)</span> is the Turing’s coverage estimate and:</p>
+<p><span class="math display">\[ \hat{\gamma}^2_{rare} = \max\left[\frac{\hat{S}_{rare}}{\hat{C}_{rare}} \frac{\sum_{i = 1}^{k} i(i - 1)f_i}{\left(\sum_{i = 1}^{k} if_i\right)\left(\sum_{i = 1}^{k} if_i - 1\right)} - 1, 0\right]  \]</span></p>
+</div>
+<div id="chao2-estimator-chao1987" class="section level4">
+<h4>Chao2 estimator <span class="citation">(Chao 1987)</span></h4>
+<p>For replicated incidence data (i.e. a <span class="math inline">\(m \times p\)</span> logical matrix), the Chao2 estimator is:</p>
+<p><span class="math display">\[ \hat{S}_{Chao2} = 
+\begin{cases}
+  S + \frac{m - 1}{m} \frac{Q_1^2}{2 Q_2} &amp; Q_2 &gt; 0 \\
+  S + \frac{m - 1}{m} \frac{Q_1 (Q_1 - 1)}{2} &amp; Q_2 = 0
+\end{cases}
+\]</span></p>
+<p>Improved Chao2 estimator <span class="citation">(Chiu et al. 2014)</span>:</p>
+<p><span class="math display">\[ \hat{S}_{iChao2} = \hat{S}_{Chao2} + \frac{m - 3}{4 m} \frac{Q_3}{Q_4} \times \max\left(Q_1 - \frac{m - 3}{m - 1} \frac{Q_2 Q_3}{2 Q_4} , 0\right)\]</span></p>
+</div>
+<div id="incidence-based-coverage-estimator-chao2016" class="section level4">
+<h4>Incidence-based Coverage Estimator <span class="citation">(Chao and Chiu 2016)</span></h4>
+<p><span class="math display">\[ \hat{S}_{ICE} = \hat{S}_{freq} + \frac{\hat{S}_{infreq}}{\hat{C}_{infreq}} + \frac{Q_1}{\hat{C}_{infreq}} \times \hat{\gamma}^2_{infreq} \]</span></p>
+<p>Where <span class="math inline">\(\hat{S}_{infreq} = \sum_{i = 1}^{k} Q_i\)</span> is the number of infrequent taxa, <span class="math inline">\(\hat{S}_{freq} = \sum_{i &gt; k}^{N} Q_i\)</span> is the number of frequent taxa (for a given cut-off value <span class="math inline">\(k\)</span>), <span class="math inline">\(\hat{C}_{infreq} = 1 - \frac{Q_1}{\sum_{i = 1}^{k} iQ_i}\)</span> is the Turing’s coverage estimate and:</p>
+<p><span class="math display">\[ \hat{\gamma}^2_{infreq} = \max\left[\frac{\hat{S}_{infreq}}{\hat{C}_{infreq}} \frac{m_{infreq}}{m_{infreq} - 1} \frac{\sum_{i = 1}^{k} i(i - 1)Q_i}{\left(\sum_{i = 1}^{k} iQ_i\right)\left(\sum_{i = 1}^{k} iQ_i - 1\right)} - 1, 0\right]  \]</span></p>
+<p>Where <span class="math inline">\(m_{infreq}\)</span> is the number of sampling units that include at least one infrequent species.</p>
+</div>
+</div>
+<div id="rarefaction" class="section level3">
+<h3>Rarefaction</h3>
 <p><span class="citation">Hurlbert (1971)</span> unbiaised estimate of <span class="citation">Sander (1968)</span> rarefaction:</p>
 <p><span class="math display">\[ E(S) = \sum_{i = 1}^{S} 1 - \frac{{N - N_i} \choose n}{N \choose n} \]</span></p>
-</div>
 </div>
 <div id="diversity-and-evenness" class="section level3">
 <h3>Diversity and evenness</h3>
@@ -169,33 +212,39 @@
 </div>
 <div id="similarity" class="section level3">
 <h3>Similarity</h3>
-<p>Similarity between two samples <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> can be measured as follow. These indices provide a scale of similarity from <span class="math inline">\(0\)</span>-<span class="math inline">\(1\)</span> where <span class="math inline">\(1\)</span> is perfect similarity and <span class="math inline">\(0\)</span> is no similarity (with the exception of the Brainerd-Robinson index which is scaled between <span class="math inline">\(0\)</span> and <span class="math inline">\(200\)</span>)</p>
-<p><span class="math inline">\(a_i\)</span> and <span class="math inline">\(b_i\)</span> denote the number of individuals in the <span class="math inline">\(i\)</span>-th taxon, <span class="math inline">\(i \in \left[ 1,n \right]\)</span>. <span class="math inline">\(j\)</span> denotes the number of taxa common to both samples: <span class="math inline">\(j = \sum_{k = 1}^{n} a_k \cap b_k\)</span>.</p>
+<p>Similarity between two samples <span class="math inline">\(a\)</span> and <span class="math inline">\(b\)</span> or between two types <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> can be measured as follow.</p>
+<p>These indices provide a scale of similarity from <span class="math inline">\(0\)</span>-<span class="math inline">\(1\)</span> where <span class="math inline">\(1\)</span> is perfect similarity and <span class="math inline">\(0\)</span> is no similarity, with the exception of the Brainerd-Robinson index which is scaled between <span class="math inline">\(0\)</span> and <span class="math inline">\(200\)</span>.</p>
+<p><span class="math inline">\(a_j\)</span> and <span class="math inline">\(b_j\)</span> denote the number of individuals in the <span class="math inline">\(j\)</span>-th type/taxon, <span class="math inline">\(j \in \left[ 1,n \right]\)</span>. <span class="math inline">\(o_j\)</span> denotes the number of type/taxon common to both sample/case: <span class="math inline">\(o_j = \sum_{k = 1}^{n} a_k \cap b_k\)</span>.</p>
+<p><span class="math inline">\(x_i\)</span> and <span class="math inline">\(y_i\)</span> denote the number of individuals in the <span class="math inline">\(i\)</span>-th sample/case, <span class="math inline">\(i \in \left[ 1,m \right]\)</span>. <span class="math inline">\(o_i\)</span> denotes the number of sample/case common to both type/taxon: <span class="math inline">\(o_i = \sum_{k = 1}^{m} x_k \cap y_k\)</span>.</p>
 <div id="qualitative-indices" class="section level4">
 <h4>Qualitative indices</h4>
 <div id="jaccard-index" class="section level5">
 <h5>Jaccard index</h5>
-<p><span class="math display">\[ C_J = \frac{j}{S_a + S_b - j} \]</span></p>
+<p><span class="math display">\[ C_J = \frac{o_j}{S_a + S_b - o_j} \]</span></p>
 </div>
 <div id="sorenson-index" class="section level5">
 <h5>Sorenson index</h5>
-<p><span class="math display">\[ C_S = \frac{2j}{S_a + S_b} \]</span></p>
+<p><span class="math display">\[ C_S = \frac{2 \times o_j}{S_a + S_b} \]</span></p>
 </div>
 </div>
 <div id="quantitative-index" class="section level4">
 <h4>Quantitative index</h4>
 <div id="brainerd-robinson-index-robinson1951brainerd1951-robinson1951" class="section level5">
 <h5>Brainerd-Robinson index <span class="citation">(Brainerd 1951, <span class="citation">Robinson (1951)</span>)</span></h5>
-<p><span class="math display">\[ C_{BR} = 200 - \sum_{i = 1}^{S} \left| \frac{a_i \times 100}{\sum_{i = 1}^{S} a_i} - \frac{b_i \times 100}{\sum_{i = 1}^{S} b_i} \right|\]</span></p>
+<p><span class="math display">\[ C_{BR} = 200 - \sum_{j = 1}^{S} \left| \frac{a_j \times 100}{\sum_{j = 1}^{S} a_j} - \frac{b_j \times 100}{\sum_{j = 1}^{S} b_j} \right|\]</span></p>
 </div>
 <div id="sorenson-index-1" class="section level5">
 <h5>Sorenson index</h5>
 <p><span class="citation">Bray and Curtis (1957)</span> modified version of Sorenson’s index:</p>
-<p><span class="math display">\[ C_N = \frac{2 \sum_{i = 1}^{S} \min(a_i, b_i)}{N_a + N_b} \]</span></p>
+<p><span class="math display">\[ C_N = \frac{2 \sum_{j = 1}^{S} \min(a_j, b_j)}{N_a + N_b} \]</span></p>
 </div>
 <div id="morisita-horn-index" class="section level5">
 <h5>Morisita-Horn index</h5>
-<p><span class="math display">\[ C_{MH} = \frac{2 \sum_{i = 1}^{S} a_i \times b_i}{(\frac{\sum_{i = 1}^{S} a_i^2}{N_a^2} + \frac{\sum_{i = 1}^{S} b_i^2}{N_b^2}) \times N_a \times N_b} \]</span></p>
+<p><span class="math display">\[ C_{MH} = \frac{2 \sum_{j = 1}^{S} a_j \times b_j}{(\frac{\sum_{j = 1}^{S} a_j^2}{N_a^2} + \frac{\sum_{j = 1}^{S} b_j^2}{N_b^2}) \times N_a \times N_b} \]</span></p>
+</div>
+<div id="binomial-co-occurrence-kintigh2006" class="section level5">
+<h5>Binomial co-occurrence <span class="citation">(Kintigh 2006)</span></h5>
+<p><span class="math display">\[ C_{Bi} = \frac{o_i - N \times p}{\sqrt{N \times p \times (1 - p)}} \]</span></p>
 </div>
 </div>
 </div>
@@ -218,6 +267,21 @@
 <div id="ref-brillouin1956">
 <p>Brillouin, Leon. 1956. <em>Science and Information Theory</em>. New York: Academic Press.</p>
 </div>
+<div id="ref-chao1984">
+<p>Chao, Anne. 1984. “Nonparametric Estimation of the Number of Classes in a Population.” <em>Scandinavian Journal of Statistics</em> 11 (4): 265–70.</p>
+</div>
+<div id="ref-chao1987">
+<p>———. 1987. “Estimating the Population Size for Capture-Recapture Data with Unequal Catchability.” <em>Biometrics</em> 43 (4): 783–91. doi:<a href="https://doi.org/10.2307/2531532">10.2307/2531532</a>.</p>
+</div>
+<div id="ref-chao2016">
+<p>Chao, Anne, and Chun-Huo Chiu. 2016. “Species Richness: Estimation and Comparison.” In <em>Wiley StatsRef: Statistics Reference Online</em>, edited by N. Balakrishnan, Theodore Colton, Brian Everitt, Walter Piegorsch, Fabrizio Ruggeri, and Jozef L. Teugels, 1–26. Chichester, UK: John Wiley &amp; Sons, Ltd. doi:<a href="https://doi.org/10.1002/9781118445112.stat03432.pub2">10.1002/9781118445112.stat03432.pub2</a>.</p>
+</div>
+<div id="ref-chao1992">
+<p>Chao, Anne, and Shen-Ming Lee. 1992. “Estimating the Number of Classes via Sample Coverage.” <em>Journal of the American Statistical Association</em> 87 (417): 210–17. doi:<a href="https://doi.org/10.1080/01621459.1992.10475194">10.1080/01621459.1992.10475194</a>.</p>
+</div>
+<div id="ref-chiu2014">
+<p>Chiu, Chun-Huo, Yi-Ting Wang, Bruno A. Walther, and Anne Chao. 2014. “An Improved Nonparametric Lower Bound of Species Richness via a Modified Good-Turing Frequency Formula.” <em>Biometrics</em> 70 (3): 671–82. doi:<a href="https://doi.org/10.1111/biom.12200">10.1111/biom.12200</a>.</p>
+</div>
 <div id="ref-cody1975">
 <p>Cody, M. L. 1975. “Towards a Theory of Continental Species Diversity: Bird Distributions over Mediterranean Habitat Gradients.” In <em>Ecology and Evolution of Communities</em>, edited by M. L. Cody and J. M. Diamond, 214–57. Cambridge, MA: Harvard University Press.</p>
 </div>
@@ -226,6 +290,9 @@
 </div>
 <div id="ref-hutcheson1970">
 <p>Hutcheson, K. 1970. “A Test for Comparing Diversity Based on the Shannon Formula.” <em>Journal of Theoretical Biology</em> 29 (1): 151–54. doi:<a href="https://doi.org/10.1016/0022-5193(70)90124-4">10.1016/0022-5193(70)90124-4</a>.</p>
+</div>
+<div id="ref-kintigh2006">
+<p>Kintigh, Keith. 2006. “Ceramic Dating and Type Associations.” In <em>Managing Archaeological Data: Essays in Honor of Sylvia W. Gaines</em>, edited by Jeffrey Hantman and Rachel Most, 17–26. Anthropological Research Paper 57. Tempe, AZ: Arizona State University. doi:<a href="https://doi.org/10.6067/XCV8J38QSS">10.6067/XCV8J38QSS</a>.</p>
 </div>
 <div id="ref-margalef1958">
 <p>Margalef, R. 1958. “Information Theory in Ecology.” <em>General Systems</em> 3: 36–71.</p>

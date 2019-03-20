@@ -34,7 +34,7 @@ If \code{PVI} is \code{FALSE}, it plots a heatmap of relative abundances
  (frequency), otherwise percentages of the independence value are drawn (in
  french, "pourcentages de valeur d'indépendance", PVI).
 
- \code{PVI} is calculated for Each cell as the percentage to the column
+ \code{PVI} is calculated for each cell as the percentage to the column
  theoretical independence value: \code{PVI} greater than \eqn{1} represent
  positive deviations from the independance, whereas \code{PVI} smaller than
  \eqn{1} represent negative deviations (Desachy 2004).
@@ -73,8 +73,8 @@ Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
  DOI: \href{https://doi.org/10.3406/pica.2004.2396}{10.3406/pica.2004.2396}.
 }
 \seealso{
-Other plot: \code{\link{plotBar}}, \code{\link{plotRank}},
-  \code{\link{plotSpot}}
+Other plot: \code{\link{plotBar}}, \code{\link{plotDate}},
+  \code{\link{plotRank}}, \code{\link{plotSpot}}
 }
 \author{
 N. Frerebeau
