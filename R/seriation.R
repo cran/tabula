@@ -1,31 +1,33 @@
 # SERIATION METHODS
 
 # Seriation methods
-#' @keywords internal
-#' @noRd
-seriation <- function(object, method = c("correspondance", "reciprocal"),
-                      EPPM = FALSE, axes = 1, margin = c(1, 2), stop = 100,
-                      ...) {
-
+seriation <- function(object, method = c("correspondence", "reciprocal"),
+                      EPPM = FALSE, ...) {
+  # Validation
+  method <- match.arg(method, several.ok = FALSE)
   data <- if (EPPM) independance(object, method = "EPPM") else object
 
-  index <- switch (
+  index <- switch(
     method,
-    reciprocal = reciprocalSeriation(data, margin = margin, stop = stop),
-    correspondance = correspondanceSeriation(data, margin = margin,
-                                             axes = axes, ...),
-    stop(paste("there is no such method:", method, sep = " "))
+    reciprocal = seriationReciprocal(data, ...),
+    correspondence = seriationCorrespondence(data, ...),
+    stop(sprintf("There is no such method: %s.", method), call. = FALSE)
   )
-  # Coerce indices to integer
-  index <- lapply(X = index, FUN = as.integer)
+
   # New PermutationOrder object
-  methods::new("PermutationOrder",
-               rows = index[[1]], columns = index[[2]], method = method)
+  PermutationOrder(
+    id = object[["id"]],
+    rows = as.integer(index[[1]]),
+    columns = as.integer(index[[2]]),
+    method = method
+  )
 }
 
-# Probabilistic methods ========================================================
-#' Reciprocal ranking/averaging
+# ==============================================================================
+#' Probabilistic seriation methods
 #'
+#' \code{seriationReciprocal} computes reciprocal ranking.
+#' \code{seriationCorrespondence} computes CA-based seriation.
 #' @param x A \code{\link{numeric}} matrix.
 #' @param stop A length-one \code{\link{numeric}} vector giving the stopping rule
 #'  (i.e. maximum number of iterations) to avoid infinite loop.
@@ -33,11 +35,15 @@ seriation <- function(object, method = c("correspondance", "reciprocal"),
 #'  rearrangement will be applied over. E.g., for a matrix \code{1} indicates
 #'  rows, \code{2} indicates columns, \code{c(1, 2)} indicates rows then columns,
 #'  \code{c(2, 1)} indicates columns then rows.
+#' @param ... Further arguments to be passed to \code{\link[ca]{ca}}.
 #' @return A list of two \code{\link{numeric}} vectors.
 #' @author N. Frerebeau
+#' @family seriation methods
+#' @name seriation-probabilistic
 #' @keywords internal
 #' @noRd
-reciprocalSeriation <- function(x, margin = 1, stop = 100) {
+
+seriationReciprocal <- function(x, margin = 1, stop = 100) {
   # Validation
   margin <- as.integer(margin)
   stop <- as.integer(stop)
@@ -46,18 +52,19 @@ reciprocalSeriation <- function(x, margin = 1, stop = 100) {
   # margin = 1 : on rows
   # margin = 2 : on columns
   reorder <- function(x, margin) {
-    i <- 1:nrow(x)
-    j <- 1:ncol(x)
-    k <- switch (margin,
+    i <- seq_len(nrow(x))
+    j <- seq_len(ncol(x))
+    k <- switch(
+      margin,
       `1` = colSums(t(x) * j) / rowSums(x),
       `2` = colSums(x * i) / colSums(x),
-      stop("'margin' subscript out of bounds")
+      stop("`margin` subscript out of bounds.", call. = FALSE)
     )
     order(k)
   }
 
   start <- 0
-  index <- list(rows = 1:nrow(x), columns = 1:ncol(x))
+  index <- list(rows = seq_len(nrow(x)), columns = seq_len(ncol(x)))
   convergence <- FALSE
   while (!convergence) {
     old_index <- index
@@ -69,35 +76,45 @@ reciprocalSeriation <- function(x, margin = 1, stop = 100) {
     convergence <- identical(index, old_index)
     start <- start + 1
     if (start >= stop) {
-      warning("convergence not reached (possible infinite cycle)")
+      warning("Convergence not reached (possible infinite cycle).",
+              call. = FALSE)
       break
     }
   }
 
-  return(index)
+  index
 }
 
-#' CA-based seriation
-#'
-#' @param x A \code{\link{numeric}} matrix.
-#' @param ... Further arguments to be passed to \code{\link[FactoMineR]{CA}}.
-#' @return A list of two \code{\link{numeric}} vectors.
-#' @author N. Frerebeau
-#' @keywords internal
-#' @noRd
-correspondanceSeriation <- function(x, margin, axes, ...) {
+seriationCorrespondence <- function(x, margin, axes = 1,
+                                    verbose = getOption("verbose"), ...) {
   # Validation
   margin <- as.integer(margin)
-  axes <- as.integer(axes)
+  axes <- as.integer(axes)[[1L]]
+
+  # /!\ Important: we need to clean the data before processing
+  # Empty rows/columns must be removed to avoid error in svd()
+  empty_rows <- rowSums(x) == 0
+  empty_cols <- colSums(x) == 0
+  x_clean <- x[!empty_rows, !empty_cols]
+
+  if (sum(empty_rows) != 0 || sum(empty_cols) != 0) {
+    row_names <- paste0(rownames(x)[empty_rows], collapse = ", ")
+    col_names <- paste0(colnames(x)[empty_cols], collapse = ", ")
+    msg <- "Empty values were removed:"
+    if (sum(empty_rows) != 0) msg <- paste0(msg, "\n* Rows: ", row_names)
+    if (sum(empty_cols) != 0) msg <- paste0(msg, "\n* Columns: ", col_names)
+    warning(msg, call. = FALSE)
+  }
 
   # Original sequences
-  i <- 1:nrow(x)
-  j <- 1:ncol(x)
-  # Correspondance analysis
-  corresp <- FactoMineR::CA(x, ..., graph = FALSE)
+  i <- seq_len(nrow(x_clean))
+  j <- seq_len(ncol(x_clean))
+  # Correspondence analysis
+  corresp <- ca::ca(x_clean, ...)
   # Sequence of the first axis as best seriation order
-  row_coords <- if (1 %in% margin) order(corresp$row$coord[, axes]) else i
-  col_coords <- if (2 %in% margin) order(corresp$col$coord[, axes]) else j
+  coords <- ca::cacoord(corresp, type = "principal")
+  row_coords <- if (1 %in% margin) order(coords$rows[, axes]) else i
+  col_coords <- if (2 %in% margin) order(coords$columns[, axes]) else j
 
-  return(list(rows = row_coords, columns = col_coords))
+  list(rows = row_coords, columns = col_coords)
 }

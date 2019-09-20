@@ -1,4 +1,32 @@
-#' Compiegne ceramics
+#' Boves ceramics
+#'
+#' A dataset containing the ceramic counts from the castle site of Boves
+#'  (Somme, France). The data are grouped into eight periods ranging from the
+#'  10th to the 18th century and thirteen ceramic types.
+#' @format A numeric matrix with 8 rows and 13 variables (ceramic types):
+#'  \describe{
+#'    \item{I}{}
+#'    \item{IIa}{}
+#'    \item{IIb}{}
+#'    \item{IIIa}{}
+#'    \item{IIIb}{}
+#'    \item{IIIc}{}
+#'    \item{IVa}{}
+#'    \item{IVb}{}
+#'    \item{Va}{}
+#'    \item{Vb}{}
+#'    \item{VI}{}
+#'    \item{VII}{}
+#'  }
+#' @source
+#'  Racinet P. (2002). Le site castral et prioral de Boves du Xe au XVIIe
+#'  siècle. Bilan des recherches 1996-2000. \emph{Revue archéologique de
+#'  Picardie}. Numéro spécial 20, 123 p.
+#' @family data set
+#' @keywords datasets
+"boves"
+
+#' Compiègne ceramics
 #'
 #' A dataset containing the ceramic counts from the Place des Hallettes in
 #'  Compiègne (Oise, France). The data are grouped into five periods of about a
@@ -31,33 +59,57 @@
 #'  Compiègne (Oise). \emph{Revue archéologique de Picardie}. Numéro spécial,
 #'  13(1), 135-168.
 #'  DOI: \href{https://doi.org/10.3406/pica.1997.1945}{10.3406/pica.1997.1945}
+#' @family data set
+#' @keywords datasets
 "compiegne"
 
-#' Boves ceramics
+#' Merzbach ceramics
 #'
-#' A dataset containing the ceramic counts from the castle site of Boves
-#'  (Somme, France). The data are grouped into eight periods ranging from the
-#'  10th to the 18th century and thirteen ceramic types.
-#' @format A numeric matrix with 8 rows and 13 variables (ceramic types):
+#' A dataset containing the ceramic counts from the Merzbach assemblage
+#' (Germany). The data are grouped into eight phases.
+#' @format A numeric matrix with 8 rows (phases, numbered from VII to XIV)
+#' and 36 variables (pottery motifs).
 #'  \describe{
-#'    \item{I}{}
-#'    \item{IIa}{}
-#'    \item{IIb}{}
-#'    \item{IIIa}{}
-#'    \item{IIIb}{}
-#'    \item{IIIc}{}
-#'    \item{IVa}{}
-#'    \item{IVb}{}
-#'    \item{Va}{}
-#'    \item{Vb}{}
-#'    \item{VI}{}
-#'    \item{VII}{}
+#'   \item{BT1, BT2, ...}{ Counts of a motif.}
 #'  }
 #' @source
-#'  Racinet P. (2002). Le site castral et prioral de Boves du Xe au XVIIe
-#'  siècle. Bilan des recherches 1996-2000. \emph{Revue archéologique de
-#'  Picardie}. Numéro spécial 20, 123 p.
-"boves"
+#'  Crema, E. R., Kandler, A. & Shennan, S. (2016). Revealing Patterns of
+#'  Cultural Transmission from Frequency Data: Equilibrium and Non-Equilibrium
+#'  Assumptions. \emph{Scientific Reports}, 6(1).
+#'  DOI: \href{https://doi.org/10.1038/srep39122}{10.1038/srep39122}.
+#'
+#'  Crema, E. R. (2016). Sample codes and data for "Revealing patterns of
+#'  cultural transmission from frequency data: equilibrium and non-equilibrium
+#'  assumptions". \emph{Zenodo}, v1.0.
+#'  DOI: \href{https://doi.org/10.5281/zenodo.187558}{10.5281/zenodo.187558}.
+#' @family data set
+#' @keywords datasets
+"merzbach"
+
+#' Mississippi ceramics
+#'
+#' A dataset containing ceramic counts from the Mississippi region.
+#' @format A numeric matrix with 20 rows and 10 variables (ceramic types):
+#'  \describe{
+#'    \item{ParkinPunctate}{}
+#'    \item{BartonKentMPI}{}
+#'    \item{Painted}{}
+#'    \item{FortuneNoded}{}
+#'    \item{RanchIncised}{}
+#'    \item{WallsEngraved}{}
+#'    \item{WallaceIncised}{}
+#'    \item{RhodesIncised}{}
+#'    \item{VernonPaulApplique}{}
+#'    \item{HullEngraved}{}
+#'  }
+#' @source
+#'  Lipo, C. P., Madsen, M. E. & Dunnell, R. C. (2015). A
+#'  Theoretically-Sufficient and Computationally-Practical Technique for
+#'  Deterministic Frequency Seriation. \emph{PLOS ONE}, 10(4), e0124942.
+#'  DOI: \href{https://doi.org/10.1371/journal.pone.0124942}{10.1371/journal.pone.0124942}.
+#' @family data set
+#' @keywords datasets
+"mississippi"
 
 #' Zuni ceramics
 #'
@@ -80,7 +132,7 @@
 #'    \item{WING}{Wingate Black-on-red (1070-1200).}
 #'    \item{WIPO}{Wingate Polychrome (1150-1250).}
 #'    \item{SJ}{St. Johns Black-on-red/Polychrome (1200-1300).}
-#'    \item{LSJ}{St.Johns glaze, Techado Polychrome (1275-1300).}
+#'    \item{LSJ}{St. Johns glaze, Techado Polychrome (1275-1300).}
 #'    \item{SPR}{Springerville Polychrome (1250-1300).}
 #'    \item{PINER}{Pinedale Black-on-red/Polychrome (1275-1325).}
 #'    \item{HESH}{Heshotauthla Polychrome (1285-1400).}
@@ -91,27 +143,6 @@
 #'  analysis-based ceramic seriation of regional data sets. \emph{Journal of
 #'  Archaeological Science}, 39(8), 2818-2827.
 #'  DOI: \href{https://doi.org/10.1016/j.jas.2012.04.040}{10.1016/j.jas.2012.04.040}.
+#' @family data set
+#' @keywords datasets
 "zuni"
-
-#' Mississippi ceramics
-#'
-#' A dataset containing ceramic counts from the Mississippi region.
-#' @format A numeric matrix with 20 rows and 10 variables (ceramic types):
-#'  \describe{
-#'    \item{ParkinPunctate}{}
-#'    \item{BartonKentMPI}{}
-#'    \item{Painted}{}
-#'    \item{FortuneNoded}{}
-#'    \item{RanchIncised}{}
-#'    \item{WallsEngraved}{}
-#'    \item{WallaceIncised}{}
-#'    \item{RhodesIncised}{}
-#'    \item{VernonPaulApplique}{}
-#'    \item{HullEngraved}{}
-#'  }
-#' @source
-#' Lipo, C. P., Madsen, M. E. & Dunnell, R. C. (2015). A
-#' Theoretically-Sufficient and Computationally-Practical Technique for
-#' Deterministic Frequency Seriation. \emph{PLOS ONE}, 10(4), e0124942.
-#' DOI: \href{https://doi.org/10.1371/journal.pone.0124942}{10.1371/journal.pone.0124942}.
-"mississippi"

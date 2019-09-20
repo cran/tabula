@@ -3,7 +3,7 @@
 \docType{data}
 \name{compiegne}
 \alias{compiegne}
-\title{Compiegne ceramics}
+\title{Compiègne ceramics}
 \format{A numeric matrix with 5 rows (chronological periods, numbered from
  the oldest to the most recent from 1 to 5) and 16 variables (ceramic types):
  \describe{
@@ -41,4 +41,10 @@ A dataset containing the ceramic counts from the Place des Hallettes in
  century, ranging from the 9th to the 14th century, and sixteen ceramic
  types.
 }
+\seealso{
+Other data set: \code{\link{boves}},
+  \code{\link{merzbach}}, \code{\link{mississippi}},
+  \code{\link{zuni}}
+}
+\concept{data set}
 \keyword{datasets}

@@ -2,43 +2,63 @@
 NULL
 
 # Matrix seriation order =======================================================
+## Reciprocal seriation --------------------------------------------------------
 #' @export
 #' @rdname seriation
-#' @aliases seriate,CountMatrix,missing-method
+#' @aliases seriate_reciprocal,CountMatrix-method
 setMethod(
-  f = "seriate",
+  f = "seriate_reciprocal",
+  signature = signature(object = "CountMatrix"),
+  definition = function(object, EPPM = FALSE, margin = c(1, 2), stop = 100) {
+
+    seriation(object, method = "reciprocal", EPPM = EPPM, margin = margin,
+              stop = stop)
+  }
+)
+
+#' @export
+#' @rdname seriation
+#' @aliases seriate_reciprocal,IncidenceMatrix-method
+setMethod(
+  f = "seriate_reciprocal",
+  signature = signature(object = "IncidenceMatrix"),
+  definition = function(object, margin = c(1, 2), stop = 100) {
+
+    seriation(object, method = "reciprocal", margin = margin, stop = stop)
+  }
+)
+
+## CA seriation ----------------------------------------------------------------
+#' @export
+#' @rdname seriation
+#' @aliases seriate_correspondence,CountMatrix,missing-method
+setMethod(
+  f = "seriate_correspondence",
   signature = signature(object = "CountMatrix", subset = "missing"),
-  definition = function(object, method = c("correspondance", "reciprocal"),
-                        EPPM = FALSE, margin = c(1, 2), stop = 100, ...) {
-    # Validation
-    method <- match.arg(method, several.ok = FALSE)
-    # Seriation
-    seriation(object, method = method, EPPM = EPPM, margin = margin,
-              stop = stop, ...)
+  definition = function(object, margin = c(1, 2), ...) {
+
+    seriation(object, method = "correspondence", margin = margin, ...)
   }
 )
 
 #' @export
 #' @rdname seriation
-#' @aliases seriate,IncidenceMatrix,missing-method
+#' @aliases seriate_correspondence,IncidenceMatrix-method
 setMethod(
-  f = "seriate",
+  f = "seriate_correspondence",
   signature = signature(object = "IncidenceMatrix", subset = "missing"),
-  definition = function(object, method = c("correspondance", "reciprocal"),
-                        margin = c(1, 2), stop = 100, ...) {
-    # Validation
-    method <- match.arg(method, several.ok = FALSE)
-    # Seriation
-    seriation(object * 1, method = method, EPPM = FALSE, margin = margin,
-              stop = stop, ...)
+  definition = function(object, margin = c(1, 2), ...) {
+
+    seriation(object, method = "correspondence", margin = margin, ...)
   }
 )
 
+## CA refined seriation --------------------------------------------------------
 #' @export
 #' @rdname seriation
-#' @aliases seriate,CountMatrix,BootCA-method
+#' @aliases seriate_correspondence,CountMatrix,BootCA-method
 setMethod(
-  f = "seriate",
+  f = "seriate_correspondence",
   signature = signature(object = "CountMatrix", subset = "BootCA"),
   definition = function(object, subset, margin = c(1, 2), ...) {
     # Validation
@@ -47,28 +67,35 @@ setMethod(
     # Original sequences
     m <- nrow(object)
     p <- ncol(object)
-    i <- 1:m
-    j <- 1:p
+    i <- seq_len(m)
+    j <- seq_len(p)
 
-    # Correspondance analysis
-    index <- subset[["keep"]]
-    suppl <- if (length(index) < m) i[-index] else NULL
+    # correspondence analysis
+    index_rows <- subset[["keep"]][[1]]
+    index_columns <- subset[["keep"]][[2]]
 
-    corresp <- FactoMineR::CA(object, row.sup = suppl, graph = FALSE, ...)
+    supp_rows <- supp_columns <- NA
+    if (length(index_rows) < m & 1 %in% margin) {
+      supp_rows <- i[-index_rows]
+    }
+    if (length(index_columns) < p & 2 %in% margin) {
+      supp_columns <- j[-index_columns]
+    }
 
-    # Bind and reorder coords
-    all_coords <- rbind(corresp$row$coord, corresp$row.sup$coord)
-    ordered_coords <- all_coords[order(c(index, suppl)), ]
-
+    # correspondence analysis
+    corresp <- ca::ca(object, suprow = supp_rows, supcol = supp_columns, ...)
     # Sequence of the first axis as best seriation order
-    row_coords <- if (1 %in% margin) order(ordered_coords[, 1]) else i
-    col_coords <- if (2 %in% margin) order(corresp$col$coord[, 1]) else j
+    coords <- ca::cacoord(corresp, type = "principal")
+    row_coords <- if (1 %in% margin) order(coords$rows[, 1]) else i
+    col_coords <- if (2 %in% margin) order(coords$columns[, 2]) else j
 
     # New PermutationOrder object
-    methods::new("PermutationOrder",
-                 rows = as.integer(row_coords),
-                 columns = as.integer(col_coords),
-                 method = "refined correspondance")
+    PermutationOrder(
+      id = object[["id"]],
+      rows = row_coords,
+      columns = col_coords,
+      method = "refined correspondence"
+    )
   }
 )
 
@@ -80,10 +107,13 @@ setMethod(
   f = "permute",
   signature = signature(object = "CountMatrix", order = "PermutationOrder"),
   definition = function(object, order) {
+    # Validation
+    compare_uuid(object[["id"]], order[["id"]])
+
     # Rearrange matrix
-    new_matrix <- object[order@rows, order@columns]
+    new_matrix <- object[order[["rows"]], order[["columns"]]]
     # New CountMatrix object
-    methods::new("CountMatrix", new_matrix)
+    .CountMatrix(new_matrix, id = order[["id"]])
   }
 )
 
@@ -94,9 +124,12 @@ setMethod(
   f = "permute",
   signature = signature(object = "IncidenceMatrix", order = "PermutationOrder"),
   definition = function(object, order) {
+    # Validation
+    compare_uuid(object[["id"]], order[["id"]])
+
     # Rearrange matrix
-    new_matrix <- object[order@rows, order@columns]
+    new_matrix <- object[order[["rows"]], order[["columns"]]]
     # New CountMatrix object
-    methods::new("IncidenceMatrix", new_matrix)
+    .IncidenceMatrix(new_matrix, id = order[["id"]])
   }
 )

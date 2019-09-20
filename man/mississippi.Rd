@@ -19,9 +19,9 @@
  }}
 \source{
 Lipo, C. P., Madsen, M. E. & Dunnell, R. C. (2015). A
-Theoretically-Sufficient and Computationally-Practical Technique for
-Deterministic Frequency Seriation. \emph{PLOS ONE}, 10(4), e0124942.
-DOI: \href{https://doi.org/10.1371/journal.pone.0124942}{10.1371/journal.pone.0124942}.
+ Theoretically-Sufficient and Computationally-Practical Technique for
+ Deterministic Frequency Seriation. \emph{PLOS ONE}, 10(4), e0124942.
+ DOI: \href{https://doi.org/10.1371/journal.pone.0124942}{10.1371/journal.pone.0124942}.
 }
 \usage{
 mississippi
@@ -29,4 +29,10 @@ mississippi
 \description{
 A dataset containing ceramic counts from the Mississippi region.
 }
+\seealso{
+Other data set: \code{\link{boves}},
+  \code{\link{compiegne}}, \code{\link{merzbach}},
+  \code{\link{zuni}}
+}
+\concept{data set}
 \keyword{datasets}

@@ -32,4 +32,10 @@ A dataset containing the ceramic counts from the castle site of Boves
  (Somme, France). The data are grouped into eight periods ranging from the
  10th to the 18th century and thirteen ceramic types.
 }
+\seealso{
+Other data set: \code{\link{compiegne}},
+  \code{\link{merzbach}}, \code{\link{mississippi}},
+  \code{\link{zuni}}
+}
+\concept{data set}
 \keyword{datasets}
