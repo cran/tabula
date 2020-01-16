@@ -3,11 +3,74 @@
 NULL
 
 # DEFINITION ===================================================================
+#' Diversity Index
+#'
+#' An S4 class to represent a diversity measure.
+#' @slot id A \code{\link{character}} string specifying the unique
+#'  identifier of the corresponding matrix (UUID v4).
+#' @slot index A \code{\link{numeric}} vector giving the diversity index values.
+#' @slot size A \code{\link{integer}} vector giving the sample sizes.
+#' @slot jackknife A numeric \code{\link{matrix}} vector giving the jackknifed
+#'  estimates.
+#' @slot boostrap A numeric \code{\link{matrix}} vector giving the boostraped
+#'  estimates.
+#' @slot simulated A numeric \code{\link{matrix}} vector giving the diversity
+#'  measures for the simulated assemblage.
+#' @slot method A \code{\link{character}} string indicating the method used.
+#' @section Subset:
+#'  In the code snippets below, \code{x} is a \code{DiversityIndex} object.
+#'  \describe{
+#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
+#'   subscript \code{i}. \code{i} is a length-one \code{\link{character}}
+#'   vector. Returns the corresponding slot values.}
+#'  }
+#' @author N. Frerebeau
+#' @family class
+#' @docType class
+#' @name DiversityIndex
+#' @rdname DiversityIndex
+NULL
+
+#' @rdname DiversityIndex
+#' @aliases DiversityIndex-class
+.DiversityIndex <- setClass(
+  Class = "DiversityIndex",
+  slots = c(
+    id = "character",
+    index = "numeric",
+    size = "integer",
+    jackknife = "matrix",
+    boostrap = "matrix",
+    simulated = "matrix",
+    method = "character"
+  )
+)
+#' @rdname DiversityIndex
+#' @aliases HeterogeneityIndex HeterogeneityIndex-class
+.HeterogeneityIndex <- setClass(
+  Class = "HeterogeneityIndex",
+  contains = "DiversityIndex"
+)
+#' @rdname DiversityIndex
+#' @aliases EvennessIndex EvennessIndex-class
+.EvennessIndex <- setClass(
+  Class = "EvennessIndex",
+  contains = "DiversityIndex"
+)
+#' @rdname DiversityIndex
+#' @aliases RichnessIndex RichnessIndex-class
+.RichnessIndex <- setClass(
+  Class = "RichnessIndex",
+  contains = "DiversityIndex"
+)
+
 ## -----------------------------------------------------------------------------
-#' Date model
+#' Date Model
 #'
 #' An S4 class to store the event and accumulation times of archaeological
 #'  assemblages.
+#' @slot id A \code{\link{character}} string specifying the unique
+#'  identifier of the corresponding matrix (UUID v4).
 #' @slot counts A numeric matrix of count data.
 #' @slot level A length-one \code{\link{numeric}} vector giving the
 #'  confidence level.
@@ -40,6 +103,7 @@ NULL
 #'   vector. Returns the corresponding slot values.}
 #'  }
 #' @author N. Frerebeau
+#' @family class
 #' @docType class
 #' @aliases DateModel-class
 .DateModel <- setClass(
@@ -52,21 +116,6 @@ NULL
     rows = "matrix",
     columns = "matrix",
     accumulation = "matrix"
-  ),
-  prototype = list(
-    id = "00000000-0000-4000-a000-000000000000",
-    counts = matrix(0, 0, 0),
-    level = numeric(1),
-    model = stats::lm(0 ~ 0),
-    rows = matrix(
-      0, 0, 4,
-      dimnames = list(NULL, c("date", "lower", "upper", "error"))
-    ),
-    columns = matrix(
-      0, 0, 4,
-      dimnames = list(NULL, c("date", "lower", "upper", "error"))
-    ),
-    accumulation = matrix(0, 0, 2, dimnames = list(NULL, c("date", "error")))
   )
 )
 
@@ -107,6 +156,7 @@ NULL
 #'   "\code{keep}". Any unambiguous substring can be given.}
 #'  }
 #' @author N. Frerebeau
+#' @family class
 #' @docType class
 #' @aliases BootCA-class
 .BootCA <- setClass(
@@ -118,14 +168,6 @@ NULL
     lengths = "list",
     cutoff = "numeric",
     keep = "list"
-  ),
-  prototype = list(
-    id = "00000000-0000-4000-a000-000000000000",
-    rows = list(id = factor(), x = numeric(0), y = numeric(0)),
-    columns = list(id = factor(), x = numeric(0), y = numeric(0)),
-    lengths = list(numeric(0), numeric(0)),
-    cutoff = numeric(0),
-    keep = list(integer(0), integer(0))
   )
 )
 
@@ -150,6 +192,7 @@ NULL
 #'  Numeric values are coerced to \code{\link{integer}} as by
 #'  \code{\link[base]{as.integer}} (and hence truncated towards zero).
 #' @author N. Frerebeau
+#' @family class
 #' @docType class
 #' @aliases PermutationOrder-class
 .PermutationOrder <- setClass(
@@ -159,456 +202,106 @@ NULL
     rows = "integer",
     columns = "integer",
     method = "character"
-  ),
-  prototype = list(
-    id = "00000000-0000-4000-a000-000000000000",
-    rows = integer(0),
-    columns = integer(0),
-    method = "unknown"
   )
-)
-
-## -----------------------------------------------------------------------------
-#' Space and Time
-#'
-#' An S4 class to represent space-time informations.
-#' @slot dates A two column \code{\link{numeric}} matrix giving
-#'  the date \code{value} and \code{error}, respectively.
-#' @slot coordinates A three columns \code{\link{numeric}} matrix
-#'  (\code{x}, \code{y} and \code{z}) giving the geographic coordinates
-#'  (longitude, latitude and elevation, respectively).
-#' @slot epsg An \code{\link{integer}} giving the EPSG code of the spatial
-#'  reference system used. Numeric values are coerced to \code{\link{integer}}
-#'  as by \code{\link{as.integer}} (and hence truncated towards zero).
-#' @section Get and set:
-#'  In the code snippets below, \code{x} is a \code{SpaceTime} object.
-#'  \describe{
-#'   \item{\code{get_dates(x)}, \code{set_dates(x) <- value}}{Get or set the dates
-#'   of \code{x} according to \code{value}
-#'   (see \code{\link[=set_dates<-]{set_dates}} for details).}
-#'   \item{\code{get_coordinates(x)}, \code{set_coordinates(x) <- value}}{Get or
-#'   set the geographical coordinates of \code{x} according to \code{value}
-#'   (see \code{\link[=set_coordinates<-]{set_coordinates}} for details).}
-#'   \item{\code{get_epsg(x)}, \code{set_epsg(x) <- value}}{Get or
-#'   set the EPSG of \code{x} according to \code{value}. Numeric values are
-#'   coerced to \code{\link{integer}} as by \code{\link{as.integer}} (and hence
-#'   truncated towards zero).}
-#'   \item{\code{get_features(x)}}{Convert an \code{AbundanceMatrix}
-#'   object to a \code{\link[=data.frame]{data frame}} with dates and
-#'   coordinates columns.}
-#'  }
-#' @author N. Frerebeau
-#' @docType class
-#' @aliases SpaceTime-class
-#' @keywords internal
-.SpaceTime <- setClass(
-  Class = "SpaceTime",
-  slots = c(
-    dates = "matrix",
-    coordinates = "matrix",
-    epsg = "integer"
-  ),
-  prototype = list(
-    dates = matrix(0, 0, 2, dimnames = list(NULL, c("value", "error"))),
-    coordinates = matrix(0, 0, 3, dimnames = list(NULL, c("X", "Y", "Z"))),
-    epsg = as.integer(0)
-  )
-)
-
-## Matrix ----------------------------------------------------------------------
-#' Matrix
-#'
-#' An S4 class to represent a matrix. This class extends the \code{base}
-#' \link[base]{matrix}.
-#' @slot id A \code{\link{character}} string specifying the unique
-#'  identifier of the matrix (UUID v4).
-#' @section Matrix ID:
-#'  When a matrix is first created, an identifier is generated (UUID v4).
-#'  This ID is preserved when coercing to another class. Thus, the object ID is
-#'  unique within the same class, but two objects of different classes can have
-#'  the same ID. This makes it possible to identify objects representing the
-#'  same initial data and associate them with the results of specific
-#'  computations (e. g. \link[=seriate]{seriation}).
-#' @section Get and set:
-#'  In the code snippets below, \code{x} is a \code{*Matrix} object.
-#'  \describe{
-#'   \item{\code{get_id(x)}}{Get the ID of \code{x}.}
-#'  }
-#' @section Access:
-#'  In the code snippets below, \code{x} is a \code{*Matrix} object.
-#'  \describe{
-#'   \item{\code{dim(x)}}{Returns the dimension of \code{x}.}
-#'   \item{\code{nrow(x)}}{Returns the number of rows present in \code{x}.}
-#'   \item{\code{ncol(x)}}{Returns the number of columns present in \code{x}.}
-#'   \item{\code{dimnames(x)}, \code{dimnames(x) <- value}}{Retrieves or sets
-#'   the row dimnames of \code{x} according to \code{value}.}
-#'   \item{\code{rownames(x)}, \code{rownames(x) <- value}}{Retrieves or sets
-#'   the row names of \code{x} according to \code{value}.}
-#'   \item{\code{colnames(x)}, \code{colnames(x) <- value}}{Retrieves or sets
-#'   the column names of \code{x} according to \code{value}.}
-#'  }
-#' @section Subset:
-#'  In the code snippets below, \code{x} is a \code{*Matrix} object.
-#'  \describe{
-#'   \item{\code{x[i, j]}}{Extracts elements selected by subscripts \code{i}
-#'   and \code{j}. Indices are \code{\link{numeric}}, \code{\link{integer}} or
-#'   \code{\link{character}} vectors or empty (missing) or \code{NULL}.
-#'   Numeric values are coerced to \code{\link{integer}} as by
-#'   \code{\link{as.integer}} (and hence truncated towards zero).
-#'   Character vectors will be matched to the name of the elements.
-#'   An empty index (a comma separated blank) indicates that all
-#'   entries in that dimension are selected.
-#'   Returns an object of the same class as \code{x}.}
-#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
-#'   subscript \code{i}. \code{i} should be one of "\code{id}" or \code{NULL}.}
-#'  }
-#' @seealso \link[base]{matrix}
-#' @author N. Frerebeau
-#' @family matrix class
-#' @docType class
-#' @aliases Matrix-class
-#' @keywords internal
-.Matrix <- setClass(
-  Class = "Matrix",
-  slots = c(
-    id = "character"
-  ),
-  prototype = prototype(
-    matrix(0, 0, 0),
-    id = "00000000-0000-4000-a000-000000000000"
-  ),
-  contains = "matrix"
-)
-
-## Numeric matrix --------------------------------------------------------------
-#' Numeric matrix
-#'
-#' An S4 class to represent a numeric matrix.
-#' @inheritSection Matrix-class Matrix ID
-#' @inheritSection Matrix-class Get and set
-#' @inheritSection Matrix-class Access
-#' @inheritSection Matrix-class Subset
-#' @seealso \linkS4class{Matrix}
-#' @author N. Frerebeau
-#' @family matrix class
-#' @docType class
-#' @aliases NumericMatrix-class
-#' @keywords internal
-.NumericMatrix <- setClass(
-  Class = "NumericMatrix",
-  contains = "Matrix"
-)
-
-#' Count matrix
-#'
-#' An S4 class to represent a count matrix.
-#' @inheritParams base::matrix
-#' @inheritSection Matrix-class Matrix ID
-#' @inheritSection Matrix-class Get and set
-#' @inheritSection Matrix-class Access
-#' @inheritSection Matrix-class Subset
-#' @return
-#'  TODO
-#' @note
-#'  Numeric values are \code{\link[base:round]{rounded}} to zero decimal places
-#'  and then coerced to \code{\link{integer}} as by
-#'  \code{\link[base]{as.integer}}.
-#' @seealso \linkS4class{NumericMatrix}, \linkS4class{SpaceTime}
-#' @family abundance matrix
-#' @example inst/examples/ex-abundance-class.R
-#' @author N. Frerebeau
-#' @family matrix class
-#' @docType class
-#' @aliases CountMatrix-class
-.CountMatrix <- setClass(
-  Class = "CountMatrix",
-  contains = c("NumericMatrix", "SpaceTime")
-)
-
-#' Frequency matrix
-#'
-#' An S4 class to represent a relative frequency matrix.
-#' @slot total A \code{\link{numeric}} vector.
-#' @details
-#'  To ensure data integrity, a \code{FrequencyMatrix} can only be created by
-#'  coercion from a \linkS4class{CountMatrix} (see examples).
-#' @inheritSection Matrix-class Matrix ID
-#' @section Get and set:
-#'  In the code snippets below, \code{x} is a \code{FrequencyMatrix} object.
-#'  \describe{
-#'   \item{\code{get_id(x)}}{Get the unique ID of \code{x}.}
-#'   \item{\code{get_totals(x)}}{Get the row sums (counts) of \code{x}.}
-#'  }
-#' @inheritSection Matrix-class Access
-#' @inheritSection Matrix-class Subset
-#' @seealso \linkS4class{NumericMatrix}, \linkS4class{SpaceTime}
-#' @family abundance matrix
-#' @example inst/examples/ex-abundance-class.R
-#' @author N. Frerebeau
-#' @family matrix class
-#' @docType class
-#' @aliases FrequencyMatrix-class
-.FrequencyMatrix <- setClass(
-  Class = "FrequencyMatrix",
-  slots = c(
-    totals = "numeric"
-  ),
-  prototype = prototype(
-    matrix(0, 0, 0),
-    totals = numeric(0)
-  ),
-  contains = c("NumericMatrix", "SpaceTime")
-)
-
-#' Co-occurrence matrix
-#'
-#' An S4 class to represent a co-occurrence matrix.
-#' @details
-#'  A co-occurrence matrix is a symmetric matrix with zeros on its main diagonal,
-#'  which works out how many times (expressed in percent) each pairs of
-#'  taxa/types occur together in at least one sample.
-#' @inheritSection Matrix-class Matrix ID
-#' @inheritSection Matrix-class Get and set
-#' @inheritSection Matrix-class Access
-#' @inheritSection Matrix-class Subset
-#' @seealso \linkS4class{NumericMatrix}
-#' @family abundance matrix
-#' @example inst/examples/ex-abundance-class.R
-#' @author N. Frerebeau
-#' @family matrix class
-#' @docType class
-#' @aliases OccurrenceMatrix-class
-.OccurrenceMatrix <- setClass(
-  Class = "OccurrenceMatrix",
-  contains = "NumericMatrix"
-)
-
-#' Similarity matrix
-#'
-#' An S4 class to represent a (dis)similarity matrix.
-#' @slot method A \code{\link{character}} string specifying the distance
-#'  method used.
-#' @inheritSection Matrix-class Matrix ID
-#' @inheritSection Matrix-class Get and set
-#' @inheritSection Matrix-class Access
-#' @inheritSection Matrix-class Subset
-#' @seealso \linkS4class{NumericMatrix}
-#' @family matrix class
-#' @author N. Frerebeau
-#' @docType class
-#' @aliases SimilarityMatrix-class
-.SimilarityMatrix <- setClass(
-  Class = "SimilarityMatrix",
-  slots = c(
-    method = "character"
-  ),
-  prototype = prototype(
-    matrix(0, 0, 0),
-    method = "unknown"
-  ),
-  contains = "NumericMatrix"
-)
-
-## Logical matrix --------------------------------------------------------------
-#' Logical matrix
-#'
-#' An S4 class to represent a logical matrix.
-#' @inheritSection Matrix-class Matrix ID
-#' @inheritSection Matrix-class Get and set
-#' @inheritSection Matrix-class Access
-#' @inheritSection Matrix-class Subset
-#' @seealso \linkS4class{Matrix}
-#' @author N. Frerebeau
-#' @family matrix class
-#' @docType class
-#' @aliases LogicalMatrix-class
-#' @keywords internal
-.LogicalMatrix <- setClass(
-  Class = "LogicalMatrix",
-  contains = "Matrix"
-)
-
-#' Incidence matrix
-#'
-#' An S4 class to represent an incidence (presence/absence) matrix.
-#' @inheritParams base::matrix
-#' @details
-#'  Numeric values are coerced to \code{\link{logical}} as by
-#'  \code{\link[base]{as.logical}}.
-#' @inheritSection Matrix-class Matrix ID
-#' @inheritSection Matrix-class Get and set
-#' @inheritSection Matrix-class Access
-#' @inheritSection Matrix-class Subset
-#' @return
-#'  TODO
-#' @seealso \linkS4class{LogicalMatrix}, \linkS4class{SpaceTime}
-#' @family logical matrix
-#' @example inst/examples/ex-logical-class.R
-#' @author N. Frerebeau
-#' @family matrix class
-#' @docType class
-#' @aliases IncidenceMatrix-class
-.IncidenceMatrix <- setClass(
-  Class = "IncidenceMatrix",
-  contains = c("LogicalMatrix", "SpaceTime")
-)
-
-## Abundance matrix ------------------------------------------------------------
-setClassUnion(
-  name = "AbundanceMatrix",
-  members = c("CountMatrix", "FrequencyMatrix", "IncidenceMatrix")
 )
 
 # INITIALIZATION ===============================================================
 ## DateModel -------------------------------------------------------------------
-DateModel <- function(
-  id = generate_uuid(), counts = matrix(0, 0, 0),
-  level = numeric(1), model = stats::lm(0 ~ 0),
-  rows = matrix(0, 0, 4,
-                dimnames = list(NULL, c("date", "lower", "upper", "error"))),
-  columns = matrix(0, 0, 4,
-                   dimnames = list(NULL, c("date", "lower", "upper", "error"))),
-  accumulation = matrix(0, 0, 2, dimnames = list(NULL, c("date", "error")))
-) {
-  throw_message_class("SimilarityMatrix")
+setMethod(
+  f = "initialize",
+  signature = "DateModel",
+  definition = function(.Object, ..., id, counts, level, model,
+                        rows, columns, accumulation) {
 
-  .DateModel(
-    id = id,
-    counts = counts,
-    level = level,
-    model = model,
-    rows = rows,
-    columns = columns,
-    accumulation = accumulation
-  )
-}
-## BootCA ----------------------------------------------------------------------
-BootCA <- function(
-  id = generate_uuid(),
-  rows = list(id = factor(), x = numeric(0), y = numeric(0)),
-  columns = list(id = factor(), x = numeric(0), y = numeric(0)),
-  lengths = list(numeric(0), numeric(0)),
-  cutoff = c(0, 0), keep = list(integer(0), integer(0))
-) {
-  throw_message_class("BootCA")
+    mtx <- matrix(0, 0, 4, dimnames = list(NULL, c("date", "lower", "upper", "error")))
+    acc <- matrix(0, 0, 2, dimnames = list(NULL, c("date", "error")))
 
-  rows <- mapply(
-    FUN = function(x, type) type(x),
-    rows, list(as.factor, as.numeric, as.numeric),
-    SIMPLIFY = FALSE
-  )
-  columns <- mapply(
-    FUN = function(x, type) type(x),
-    columns, list(as.factor, as.numeric, as.numeric),
-    SIMPLIFY = FALSE
-  )
-  lengths <- lapply(X = lengths, FUN = as.numeric)
-  lengths <- mapply(FUN = `names<-`,
-                    lengths, list(unique(rows$id), unique(columns$id)),
-                    SIMPLIFY = FALSE)
-  # keep <- lapply(X = keep, FUN = as.integer)
-  .BootCA(
-    id = id,
-    rows = rows,
-    columns = columns,
-    lengths = lengths,
-    cutoff = as.numeric(cutoff),
-    keep = keep
-  )
-}
-## PermutationOrder ------------------------------------------------------------
-PermutationOrder <- function(id = generate_uuid(), rows = integer(0),
-                             columns = integer(0), method = "unknown") {
-  throw_message_class("PermutationOrder")
-  .PermutationOrder(
-    id = as.character(id),
-    rows = as.integer(rows),
-    columns = as.integer(columns),
-    method = as.character(method)
-  )
-}
-## SpaceTime -------------------------------------------------------------------
-SpaceTime <- function(
-  dates = matrix(0, 0, 2, dimnames = list(NULL, c("value", "error"))),
-  coordinates = matrix(0, 0, 3, dimnames = list(NULL, c("X", "Y", "Z"))),
-  epsg = 0, ...
-) {
-  throw_message_class("SpaceTime")
-  colnames(coordinates) <- toupper(colnames(coordinates))
-  .SpaceTime(
-    dates = dates,
-    coordinates = coordinates,
-    epsg = as.integer(epsg),
-    ...
-  )
-}
-## *Matrix ---------------------------------------------------------------------
-Matrix <- function(...) {
-  throw_message_class("Matrix")
-  .Matrix(..., id = generate_uuid(seed = NULL))
-}
-NumericMatrix <- function(data = matrix(0, 0, 0), ...) {
-  throw_message_class("NumericMatrix")
-  .NumericMatrix(Matrix(data), ...)
-}
-LogicalMatrix <- function(data = matrix(FALSE, 0, 0), ...) {
-  throw_message_class("LogicalMatrix")
-  .LogicalMatrix(Matrix(data), ...)
-}
-OccurrenceMatrix <- function(data = matrix(0, 0, 0), ...) {
-  throw_message_class("OccurrenceMatrix")
-  .OccurrenceMatrix(NumericMatrix(data), ...)
-}
-SimilarityMatrix <- function(data = matrix(0, 0, 0), method = "unknown", ...) {
-  throw_message_class("SimilarityMatrix")
-  .SimilarityMatrix(NumericMatrix(data), method = as.character(method), ...)
-}
+    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
+    .Object@counts <- if (missing(counts)) matrix(0, 0, 0) else counts
+    .Object@level <- if (missing(level)) numeric(1) else level
+    .Object@model <- if (missing(model)) stats::lm(0 ~ 0) else model
+    .Object@rows <- if (missing(rows)) mtx else rows
+    .Object@columns <- if (missing(columns)) mtx else columns
+    .Object@accumulation <- if (missing(accumulation)) acc else accumulation
 
-#' @export
-#' @rdname CountMatrix-class
-CountMatrix <- function(data = 0, nrow = 1, ncol = 1, byrow = FALSE,
-                        dimnames = NULL, ...) {
-  throw_message_class("CountMatrix")
-  M <- buildMatrix(data, nrow, ncol, byrow, dimnames,
-                   missing(nrow), missing(ncol))
-  .CountMatrix(NumericMatrix(M), ...)
-}
-
-#' @export
-#' @rdname IncidenceMatrix-class
-IncidenceMatrix <- function(data = FALSE, nrow = 1, ncol = 1, byrow = FALSE,
-                            dimnames = NULL, ...) {
-  throw_message_class("IncidenceMatrix")
-  data <- as.logical(data)
-  M <- buildMatrix(data, nrow, ncol, byrow, dimnames,
-                   missing(nrow), missing(ncol))
-  .IncidenceMatrix(LogicalMatrix(M), ...)
-}
-
-# CREATE =======================================================================
-#' Matrix constructor
-#'
-#' @inheritParams base::matrix
-#' @param rows A \code{\link{logical}} scalar: is the number of rows
-#'  unspecified?
-#' @param cols A \code{\link{logical}} scalar: is the number of columns
-#'  unspecified?
-#' @return A \link{\code{matrix}}.
-#' @author N. Frerebeau
-#' @name matrix-constructors
-#' @keywords internal
-#' @noRd
-buildMatrix <- function(data, nrow, ncol, byrow, dimnames,
-                        rows = FALSE, cols = FALSE) {
-  k <- length(data)
-  if (rows) nrow <- k / ncol
-  if (cols) ncol <- k / nrow
-  if (is.null(dimnames)) {
-    dimnames <- list(seq_len(nrow), paste("V", seq_len(ncol), sep = ""))
-  } else {
-    if (is.null(dimnames[[1]])) dimnames[[1]] <- seq_len(nrow)
-    if (is.null(dimnames[[2]])) dimnames[[2]] <- paste0("V", seq_len(ncol))
+    .Object <- methods::callNextMethod()
+    methods::validObject(.Object)
+    .Object
   }
-  M <- matrix(data, nrow, ncol, byrow, dimnames)
-  return(M)
-}
+)
+## DiversityIndex --------------------------------------------------------------
+setMethod(
+  f = "initialize",
+  signature = "DiversityIndex",
+  definition = function(.Object, ..., id, index, size, jackknife, boostrap,
+                        simulated, method) {
+
+    jack <- matrix(0, 0, 3, dimnames = list(NULL, c("mean", "bias", "error")))
+    boot <- matrix(0, 0, 5, dimnames = list(NULL, c("min","Q05", "mean", "Q95", "max")))
+    sim <- matrix(0, 0, 4, dimnames = list(NULL, c("size", "mean", "lower", "upper")))
+
+    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
+    .Object@index <- if (missing(index)) numeric(0) else index
+    .Object@size <- if (missing(size)) integer(0) else as.integer(size)
+    .Object@jackknife <- if (missing(jackknife)) jack else jackknife
+    .Object@boostrap <- if (missing(boostrap)) boot else boostrap
+    .Object@simulated <- if (missing(simulated)) sim else simulated
+    .Object@method <- if (missing(method)) "unknown" else method
+
+    .Object <- methods::callNextMethod()
+    methods::validObject(.Object)
+    .Object
+  }
+)
+## BootCA ----------------------------------------------------------------------
+setMethod(
+  f = "initialize",
+  signature = "BootCA",
+  definition = function(.Object, ..., id, rows, columns, lengths,
+                        cutoff, keep) {
+
+    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
+    if (missing(rows)) {
+      rows <- list(id = factor(), x = numeric(0), y = numeric(0))
+    } else {
+      rows
+    }
+    .Object@rows <- rows
+    if (missing(columns)) {
+      columns <- list(id = factor(), x = numeric(0), y = numeric(0))
+    } else {
+      columns
+    }
+    .Object@columns <- columns
+    .Object@lengths <- if (missing(lengths)) {
+      list(numeric(0), numeric(0))
+    } else {
+      mapply(FUN = `names<-`,
+             lengths, list(unique(rows$id), unique(columns$id)),
+             SIMPLIFY = FALSE)
+    }
+    .Object@cutoff <- if (missing(cutoff)) c(0, 0) else cutoff
+    .Object@keep <- if (missing(keep)) list(integer(0), integer(0)) else keep
+
+    .Object <- methods::callNextMethod()
+    methods::validObject(.Object)
+    .Object
+  }
+)
+
+## PermutationOrder ------------------------------------------------------------
+setMethod(
+  f = "initialize",
+  signature = "PermutationOrder",
+  definition = function(.Object, ..., id, rows, columns, method) {
+
+    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
+    .Object@rows <- if (missing(rows)) integer(0) else rows
+    .Object@columns <- if (missing(columns)) integer(0) else columns
+    .Object@method <- if (missing(method)) "unknown" else method
+
+    .Object <- methods::callNextMethod()
+    methods::validObject(.Object)
+    .Object
+  }
+)

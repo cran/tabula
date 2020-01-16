@@ -9,17 +9,17 @@ setMethod(
   f = "plot_spot",
   signature = signature(object = "CountMatrix"),
   definition = function(object, threshold = NULL) {
-    freq <- methods::as(object, "FrequencyMatrix")
+    freq <- methods::as(object, "AbundanceMatrix")
     plot_spot(freq, threshold = threshold)
   }
 )
 
 #' @export
 #' @rdname plot_spot
-#' @aliases plot_spot,FrequencyMatrix-method
+#' @aliases plot_spot,AbundanceMatrix-method
 setMethod(
   f = "plot_spot",
-  signature = signature(object = "FrequencyMatrix"),
+  signature = signature(object = "AbundanceMatrix"),
   definition = function(object, threshold = NULL) {
     # Prepare data
     data <- prepare_spot(object, threshold)
@@ -63,12 +63,11 @@ setMethod(
   definition = function(object) {
     # Prepare data
     data <- prepare_spot(object, threshold = NULL, diag = FALSE)
-    index_name <- object[["method"]]
+    index_name <- arkhe::get_method(object)
 
     # ggplot
     aes_plot <- ggplot2::aes(x = .data$type, y = .data$case)
-    aes_point <- ggplot2::aes(size = .data$value,
-                              colour = .data$value)
+    aes_point <- ggplot2::aes(size = .data$value, colour = .data$value)
 
     ggplot2::ggplot(data = data, mapping = aes_plot) +
       ggplot2::geom_point(mapping = ggplot2::aes(size = .data$max),

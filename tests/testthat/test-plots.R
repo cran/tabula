@@ -1,7 +1,7 @@
 context("Plots")
 
 test_count <- as(mississippi, "CountMatrix")
-test_freq <- as(mississippi, "FrequencyMatrix")
+test_freq <- as(mississippi, "AbundanceMatrix")
 test_incid <- as(mississippi, "IncidenceMatrix")
 test_occ <- as(mississippi, "OccurrenceMatrix")
 test_sim <- similarity(test_count)

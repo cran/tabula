@@ -2,29 +2,38 @@
 % Please edit documentation in R/AllGenerics.R, R/index-rarefaction.R,
 %   R/index-richness.R
 \docType{methods}
-\name{richness}
-\alias{richness}
-\alias{richness-method}
+\name{richness-index}
+\alias{richness-index}
+\alias{index_richness}
+\alias{index_richness-method}
+\alias{index_composition}
+\alias{index_composition-method}
 \alias{rarefaction}
 \alias{rarefaction-method}
 \alias{rarefaction,CountMatrix-method}
-\alias{richness,CountMatrix-method}
-\alias{richness,IncidenceMatrix-method}
+\alias{index_richness,CountMatrix-method}
+\alias{index_composition,CountMatrix-method}
+\alias{index_composition,IncidenceMatrix-method}
 \title{Richness and Rarefaction}
 \usage{
-richness(object, ...)
+index_richness(object, ...)
+
+index_composition(object, ...)
 
 rarefaction(object, ...)
 
 \S4method{rarefaction}{CountMatrix}(object, sample,
   method = c("hurlbert"), simplify = FALSE, ...)
 
-\S4method{richness}{CountMatrix}(object, method = c("ace", "chao1",
-  "margalef", "menhinick", "none"), unbiased = FALSE, improved = FALSE,
-  k = 10, simplify = FALSE)
+\S4method{index_richness}{CountMatrix}(object, method = c("none",
+  "margalef", "menhinick"), jackknife = TRUE, bootstrap = TRUE,
+  simulate = FALSE, level = 0.8, n = 1000, ...)
 
-\S4method{richness}{IncidenceMatrix}(object, method = c("chao2", "ice"),
-  unbiased = FALSE, improved = FALSE, k = 10, simplify = FALSE)
+\S4method{index_composition}{CountMatrix}(object, method = c("chao1",
+  "ace"), unbiased = FALSE, improved = FALSE, k = 10)
+
+\S4method{index_composition}{IncidenceMatrix}(object, method = c("chao2",
+  "ice"), unbiased = FALSE, improved = FALSE, k = 10)
 }
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} matrix of count data.}
@@ -41,6 +50,21 @@ Any unambiguous substring can be given.}
 \item{simplify}{A \code{\link{logical}} scalar: should the result be
 simplified to a matrix? The default value, \code{FALSE}, returns a list.}
 
+\item{jackknife}{A \code{\link{logical}} scalar: should jackknifed estimates
+be computed?}
+
+\item{bootstrap}{A \code{\link{logical}} scalar: should boostraped estimates
+be computed?}
+
+\item{simulate}{A \code{\link{logical}} scalar: simulated assemblages
+be computed?}
+
+\item{level}{A length-one \code{\link{numeric}} vector giving the
+confidence level. Only used if \code{simulate} is \code{TRUE}.}
+
+\item{n}{A non-negative \code{\link{integer}} giving the number of bootstrap
+replications. Only used if \code{simulate} is \code{TRUE}.}
+
 \item{unbiased}{A \code{\link{logical}} scalar. Should the bias-corrected
 estimator be used? Only used with "\code{chao1}" or "\code{chao2}"
 (improved) estimator.}
@@ -53,12 +77,16 @@ between rare/infrequent and abundant/frequent species. Only used if
 \code{method} is "\code{ace}" or "\code{ice}".}
 }
 \value{
-If \code{simplify} is \code{FALSE}, then \code{rarefaction} and
- \code{richness} return a list (default), else return a matrix
- (for \code{CountMatrix}) or a a numeric vector (for \code{IncidenceMatrix}).
+\code{index_richness} and \code{index_composition} return a
+ \linkS4class{DiversityIndex} object.
+
+ If \code{simplify} is \code{FALSE}, then \code{rarefaction} returns a list
+ (default), else return a matrix.
 }
 \description{
-\code{richness} returns sample richness.
+\code{index_richness} returns sample richness. \code{index_composition}
+ returns asymptotic species richness.
+
  \code{rarefaction} returns Hurlbert's unbiased estimate of Sander's
  rarefaction.
 }
@@ -80,19 +108,26 @@ The number of different taxa, provides an instantly comprehensible
 
  The following richness measures are available for count data:
  \describe{
-  \item{ace}{Abundance-based Coverage Estimator.}
-  \item{chao1}{(improved) Chao1 estimator.}
   \item{margalef}{Margalef richness index.}
   \item{menhinick}{Menhinick richness index.}
   \item{none}{Returns the number of observed taxa/types.}
  }
+}
+\section{Asymptotic Species Richness}{
 
- The following richness measures are available for replicated incidence data:
+ The following measures are available for count data:
+ \describe{
+  \item{ace}{Abundance-based Coverage Estimator.}
+  \item{chao1}{(improved/unbiased) Chao1 estimator.}
+ }
+
+ The following measures are available for replicated incidence data:
  \describe{
   \item{ice}{Incidence-based Coverage Estimator.}
-  \item{chao2}{(improved) Chao2 estimator.}
+  \item{chao2}{(improved/unbiased) Chao2 estimator.}
  }
 }
+
 \examples{
 ## Richness
 ## Margalef and Menhinick index
@@ -100,10 +135,12 @@ The number of different taxa, provides an instantly comprehensible
 trap <- CountMatrix(data = c(9, 3, 0, 4, 2, 1, 1, 0, 1, 0, 1, 1,
                              1, 0, 1, 0, 0, 0, 1, 2, 0, 5, 3, 0),
                     nrow = 2, byrow = TRUE, dimnames = list(c("A", "B"), NULL))
-richness(trap, method = c("margalef", "menhinick"), simplify = TRUE)
+index_richness(trap, method = "margalef")
 ## A 2.55 1.88
+index_richness(trap, method = "menhinick")
 ## B 1.95 1.66
 
+## Asymptotic species richness
 ## Chao1-type estimators
 ## Data from Chao & Chiu 2016
 brazil <- CountMatrix(
@@ -115,12 +152,15 @@ brazil <- CountMatrix(
   nrow = 1, byrow = TRUE
 )
 
-richness(brazil, method = c("chao1", "chao1i", "ace"),
-         unbiased = FALSE, simplify = TRUE)
-## 461.625 488.284 445.822
+index_composition(brazil, method = c("chao1"), unbiased = FALSE)
+## 461.625
+index_composition(brazil, method = c("ace"), k = 10)
+## 445.822
 
 ## Rarefaction
 rarefaction(trap, sample = 13) # 6.56
+
+richness(trap, method = c("margalef", "menhinick", "chao1"))
 }
 \references{
 Chao, A. (1984). Nonparametric Estimation of the Number of Classes in a
@@ -154,6 +194,9 @@ Chao, A. (1984). Nonparametric Estimation of the Number of Classes in a
  Princeton, NJ: Princeton University Press.
  DOI: \href{https://doi.org/10.1007/978-94-015-7358-0}{10.1007/978-94-015-7358-0}.
 
+ Magurran, A E. & Brian J. McGill (2011). \emph{Biological Diversity:
+ Frontiers in Measurement and Assessment}. Oxford: Oxford University Press.
+
  Margalef, R. (1958). Information Theory in Ecology. \emph{General Systems},
  3, 36-71.
 
@@ -169,8 +212,8 @@ Chao, A. (1984). Nonparametric Estimation of the Number of Classes in a
  \emph{The American Naturalist}, 102(925), 243-282.
 }
 \seealso{
-Other diversity: \code{\link{diversity}},
-  \code{\link{similarity}}, \code{\link{turnover}}
+Other diversity: \code{\link{heterogeneity-index}},
+  \code{\link{similarity}}, \code{\link{turnover-index}}
 }
 \author{
 N. Frerebeau

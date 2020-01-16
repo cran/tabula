@@ -40,10 +40,10 @@ setMethod(
 
 #' @export
 #' @rdname plot_matrix
-#' @aliases plot_heatmap,FrequencyMatrix-method
+#' @aliases plot_heatmap,AbundanceMatrix-method
 setMethod(
   f = "plot_heatmap",
-  signature = signature(object = "FrequencyMatrix"),
+  signature = signature(object = "AbundanceMatrix"),
   definition = function(object) {
     # Prepare data
     data <- prepare_heatmap(object, PVI = FALSE)

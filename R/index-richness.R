@@ -2,77 +2,89 @@
 NULL
 
 #' @export
-#' @rdname richness
-#' @aliases richness,CountMatrix-method
+#' @rdname richness-index
+#' @aliases index_richness,CountMatrix-method
 setMethod(
-  f = "richness",
+  f = "index_richness",
   signature = signature(object = "CountMatrix"),
-  definition = function(object, method = c("ace", "chao1",
-                                           "margalef", "menhinick", "none"),
-                        unbiased = FALSE, improved = FALSE, k = 10,
-                        simplify = FALSE) {
-    # Validation
-    method <- match.arg(method, several.ok = TRUE)
-    E <- lapply(
-      X = method,
-      FUN = function(x, object, unbiased, improved, k) {
-        index <- switch (
-          x,
-          ace = richnessACE,
-          chao1 = richnessChao1,
-          margalef = richnessMargalef,
-          menhinick = richnessMenhinick,
-          none = function(x, ...) { sum(x > 0) },
-          stop(sprintf("There is no such method: %s.", method), call. = FALSE)
-        )
-        apply(X = object, MARGIN = 1, FUN = index, unbiased = unbiased,
-              improved = improved, k = k)
-      },
-      object,
-      unbiased,
-      improved,
-      k
-    )
-    names(E) <- method
-    if (simplify)
-      E <- simplify2array(E, higher = FALSE)
-    return(E)
+  definition = function(object, method = c("none", "margalef", "menhinick"),
+                        jackknife = TRUE, bootstrap = TRUE, simulate = FALSE,
+                        level = 0.80, n = 1000, ...) {
+    fun <- switch_richness(method)
+    index <- index_diversity(object, fun, jackknife, bootstrap, simulate,
+                             prob = NULL, level = level, n = n)
+    index@method <- method[[1L]]
+    methods::as(index, "RichnessIndex")
   }
 )
 
 #' @export
-#' @rdname richness
-#' @aliases richness,IncidenceMatrix-method
+#' @rdname richness-index
+#' @aliases index_composition,CountMatrix-method
 setMethod(
-  f = "richness",
-  signature = signature(object = "IncidenceMatrix"),
-  definition = function(object, method = c("chao2", "ice"),
-                        unbiased = FALSE, improved = FALSE, k = 10,
-                        simplify = FALSE) {
+  f = "index_composition",
+  signature = signature(object = "CountMatrix"),
+  definition = function(object, method = c("chao1", "ace"),
+                        unbiased = FALSE, improved = FALSE, k = 10) {
     # Validation
-    method <- match.arg(method, several.ok = TRUE)
-    E <- lapply(
-      X = method,
-      FUN = function(x, object, unbiased, improved, k) {
-        index <- switch (
-          x,
-          ice = richnessICE,
-          chao2 = richnessChao2,
-          stop(sprintf("There is no such method: %s.", method), call. = FALSE)
-        )
-        index(object, unbiased = unbiased, improved = improved, k = k)
-      },
-      object,
-      unbiased,
-      improved,
-      k
+    method <- match.arg(method, several.ok = FALSE)
+    fun <- switch (
+      method,
+      ace = richnessACE,
+      chao1 = richnessChao1,
+      stop(sprintf("There is no such method: %s.", method), call. = FALSE)
     )
-    names(E) <- method
-    if (simplify)
-      E <- simplify2array(E, higher = FALSE)
-    return(E)
+    index <- apply(X = object, MARGIN = 1, FUN = fun,
+                   unbiased = unbiased, improved = improved, k = k)
+    .RichnessIndex(
+      id = arkhe::get_id(object),
+      index = index,
+      size = as.integer(rowSums(object)),
+      method = method
+    )
   }
 )
+
+#' @export
+#' @rdname richness-index
+#' @aliases index_composition,IncidenceMatrix-method
+setMethod(
+  f = "index_composition",
+  signature = signature(object = "IncidenceMatrix"),
+  definition = function(object, method = c("chao2", "ice"),
+                        unbiased = FALSE, improved = FALSE, k = 10) {
+    # Validation
+    method <- match.arg(method, several.ok = FALSE)
+    fun <- switch (
+      method,
+      chao2 = richnessChao2,
+      ice = richnessICE,
+      stop(sprintf("There is no such method: %s.", method), call. = FALSE)
+    )
+    index <- fun(object, unbiased = unbiased, improved = improved, k = k)
+    .RichnessIndex(
+      id = arkhe::get_id(object),
+      index = index,
+      size = as.integer(sum(object)),
+      method = method
+    )
+  }
+)
+
+switch_richness <- function(x) {
+  # Validation
+  measures <- c("margalef", "menhinick", "none")
+  x <- match.arg(x, choices = measures, several.ok = FALSE)
+
+  index <- switch (
+    x,
+    margalef = richnessMargalef,
+    menhinick = richnessMenhinick,
+    none = function(x, ...) { sum(x > 0) },
+    stop(sprintf("There is no such method: %s.", x), call. = FALSE)
+  )
+  return(index)
+}
 
 # ==============================================================================
 #' Richness index
@@ -132,8 +144,10 @@ setMethod(
 # @rdname index-richness
 richnessACE <- function(x, k = 10, ...) {
   # Validation
-  check_type(x, expected = "numeric")
-  check_scalar(k, expected = "numeric")
+  if (!is.numeric(x))
+    stop("`x` must be a numeric vector.")
+  if (!is.numeric(k) || length(k) != 1)
+    stop("`k` must be a numeric scalar.")
 
   x <- x[x > 0] # Remove unobserved species
   S <- length(x) # Number of observed species
@@ -174,9 +188,12 @@ richnessACE <- function(x, k = 10, ...) {
 # @rdname index-richness
 richnessChao1 <- function(x, unbiased = FALSE, improved = FALSE, ...) {
   # Validation
-  check_type(x, expected = "numeric")
-  check_scalar(unbiased, expected = "logical")
-  check_scalar(improved, expected = "logical")
+  if (!is.numeric(x))
+    stop("`x` must be a numeric vector.")
+  if (!is.logical(unbiased) || length(unbiased) != 1)
+    stop("`unbiased` must be a logical scalar.")
+  if (!is.logical(improved) || length(improved) != 1)
+    stop("`improved` must be a logical scalar.")
 
   x <- x[x > 0] # Remove unobserved species
   S <- length(x) # Number of observed species
@@ -210,7 +227,8 @@ richnessChao1 <- function(x, unbiased = FALSE, improved = FALSE, ...) {
 # @rdname index-richness
 richnessMargalef <- function(x, ...) {
   # Validation
-  check_type(x, expected = "numeric")
+  if (!is.numeric(x))
+    stop("`x` must be a numeric vector.")
 
   x <- x[x > 0] # Remove unobserved species
   N <- sum(x) # Number of individuals
@@ -222,7 +240,8 @@ richnessMargalef <- function(x, ...) {
 # @rdname index-richness
 richnessMenhinick <- function(x, ...) {
   # Validation
-  check_type(x, expected = "numeric")
+  if (!is.numeric(x))
+    stop("`x` must be a numeric vector.")
 
   x <- x[x > 0] # Remove unobserved species
   N <- sum(x) # Number of individuals
@@ -235,8 +254,10 @@ richnessMenhinick <- function(x, ...) {
 # @rdname index-richness
 richnessICE <- function(x, k = 10, ...) {
   # Validation
-  check_type(x, expected = "logical")
-  check_scalar(k, expected = "numeric")
+  if (!is.logical(x))
+    stop("`x` must be a logical vector.")
+  if (!is.numeric(k) || length(k) != 1)
+    stop("`k` must be a numeric scalar.")
 
   q <- colSums(x) # Number of species in the assemblage
   q <- q[q > 0] # Remove unobserved species
@@ -280,9 +301,12 @@ richnessICE <- function(x, k = 10, ...) {
 # @rdname index-richness
 richnessChao2 <- function(x, unbiased = FALSE, improved = FALSE, ...) {
   # Validation
-  check_type(x, expected = "logical")
-  check_scalar(unbiased, expected = "logical")
-  check_scalar(improved, expected = "logical")
+  if (!is.logical(x))
+    stop("`x` must be a logical vector.")
+  if (!is.logical(unbiased) || length(unbiased) != 1)
+    stop("`unbiased` must be a logical scalar.")
+  if (!is.logical(improved) || length(improved) != 1)
+    stop("`improved` must be a logical scalar.")
 
   q <- colSums(x) # Number of species in the assemblage
   q <- q[q > 0] # Remove unobserved species

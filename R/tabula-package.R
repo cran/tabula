@@ -2,16 +2,17 @@
 #' \tabular{ll}{
 #'  \strong{Package:} \tab tabula \cr
 #'  \strong{Type:} \tab Package \cr
-#'  \strong{Version:} \tab 1.3.0 \cr
+#'  \strong{Version:} \tab 1.5.0 \cr
 #'  \strong{License:} \tab GPL-3 \cr
-#'  \strong{DOI:} \tab \href{https://doi.org/10.5281/zenodo.1489944}{10.5281/zenodo.1489944}
+#'  \strong{DOI:} \tab \href{https://doi.org/10.5281/zenodo.1489944}{10.5281/zenodo.1489944} \cr
+#'  \strong{JOSS:} \tab \href{https://doi.org/10.21105/joss.01821}{10.21105/joss.01821} \cr
 #' }
 #' @author
 #' \strong{Full list of authors and contributors} (alphabetic order)
 #'
 #' \tabular{ll}{
-#'  Nicolas Frerebeau \tab \emph{Université Bordeaux Montaigne, France} \cr
 #'  Jean-Baptiste Fourvel \tab \emph{CNRS, France} \cr
+#'  Nicolas Frerebeau \tab \emph{Université Bordeaux Montaigne, France} \cr
 #'  Brice Lebrun \tab \emph{Aix-Marseille Université, France} \cr
 #'  Ben Marwick \tab \emph{University of Washington, USA} \cr
 #'  Matthew Peeples \tab \emph{Arizona State University, USA} \cr
@@ -28,10 +29,6 @@
 #' Université Bordeaux Montaigne\cr
 #' F-33607 Pessac cedex\cr
 #' France
-#' @note
-#' This work received a state financial support managed by the Agence Nationale
-#' de la Recherche (France) through the program \emph{Investissements d'avenir}
-#' (ref. ANR-10-LABX-52).
 #' @name tabula-package
 #' @aliases tabula
 #' @docType package
@@ -42,6 +39,13 @@
 # See https://github.com/tidyverse/magrittr/issues/29
 if(getRversion() >= "2.15.1") utils::globalVariables(c("."))
 
-#' @importFrom methods new setClass setClassUnion setGeneric setMethod
+#' @import arkhe
+#' @importFrom ca ca
+#' @importFrom ggplot2 ggplot aes coord_fixed element_blank element_rect
+#' element_text facet_wrap geom_line geom_path geom_point geom_tile labs
+#' scale_size_area scale_x_continuous scale_x_discrete scale_x_log10
+#' scale_y_continuous scale_y_discrete scale_y_log10 theme
+#' @importFrom methods as callNextMethod new setClass setClassUnion setGeneric
+#' setMethod validObject
 #' @importFrom rlang .data
 NULL

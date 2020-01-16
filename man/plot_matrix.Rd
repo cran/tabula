@@ -7,7 +7,7 @@
 \alias{plot_heatmap}
 \alias{plot_heatmap-method}
 \alias{plot_heatmap,CountMatrix-method}
-\alias{plot_heatmap,FrequencyMatrix-method}
+\alias{plot_heatmap,AbundanceMatrix-method}
 \alias{plot_heatmap,IncidenceMatrix-method}
 \title{Heatmap}
 \usage{
@@ -16,7 +16,7 @@ plot_heatmap(object, ...)
 \S4method{plot_heatmap}{CountMatrix}(object, PVI = FALSE,
   frequency = TRUE)
 
-\S4method{plot_heatmap}{FrequencyMatrix}(object)
+\S4method{plot_heatmap}{AbundanceMatrix}(object)
 
 \S4method{plot_heatmap}{IncidenceMatrix}(object)
 }
@@ -78,8 +78,8 @@ Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
 }
 \seealso{
 Other plot: \code{\link{plot_bar}},
-  \code{\link{plot_date}}, \code{\link{plot_line}},
-  \code{\link{plot_spot}}
+  \code{\link{plot_date}}, \code{\link{plot_diversity}},
+  \code{\link{plot_line}}, \code{\link{plot_spot}}
 }
 \author{
 N. Frerebeau

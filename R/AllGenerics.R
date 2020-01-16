@@ -7,13 +7,13 @@ NULL
 #'
 #' Getters and setters to extract or replace parts of an object.
 #' @param object An object from which to get or set element(s).
-#' @param value A possible value for the element(s) of \code{object} (see
-#'  below).
+# @param value A possible value for the element(s) of \code{object} (see below).
 #' @return
 #'  An object of the same sort as \code{object} with the new values assigned.
-#' @example inst/examples/ex-abundance-class.R
+# @example inst/examples/ex-mutator.R
 #' @author N. Frerebeau
 #' @docType methods
+#' @family mutator
 #' @name access
 #' @rdname access
 #' @aliases get set
@@ -24,20 +24,6 @@ NULL
 setGeneric(
   name = "get_id",
   def = function(object) standardGeneric("get_id")
-)
-
-#' @rdname access
-#' @aliases get_totals-method
-setGeneric(
-  name = "get_totals",
-  def = function(object) standardGeneric("get_totals")
-)
-
-#' @rdname access
-#' @aliases set_totals-method
-setGeneric(
-  name = "set_totals<-",
-  def = function(object, value) standardGeneric("set_totals<-")
 )
 
 # ------------------------------------------------------------------------------
@@ -56,81 +42,17 @@ setGeneric(
 #' @param drop A \code{\link{logical}} scalar: should the result be coerced to
 #'  the lowest possible dimension? This only works for extracting elements,
 #'  not for the replacement.
+# @param value A possible value for \code{x}.
 #' @return
 #'  A subsetted object.
-#' @example inst/examples/ex-abundance-class.R
+# @example inst/examples/ex-mutator.R
 #' @author N. Frerebeau
 #' @docType methods
+#' @family mutator
 #' @name subset
 #' @rdname subset
 NULL
 
-# ------------------------------------------------------------------------------
-#' Coerce
-#'
-#' @param from A numeric \code{\link{matrix}} or \code{\link{data.frame}} to be
-#'  coerced.
-#' @details
-#'  The following methods coerce a \code{matrix} or \code{data.frame} to a
-#'  \code{*Matrix} object:
-#'
-#'  \tabular{ll}{
-#'   \strong{Method} \tab \strong{Target} \cr
-#'   \code{as_count} \tab \linkS4class{CountMatrix} \cr
-#'   \code{as_frequency} \tab \linkS4class{FrequencyMatrix} \cr
-#'   \code{as_incidence} \tab \linkS4class{IncidenceMatrix} \cr
-#'   \code{as_occurrence} \tab \linkS4class{OccurrenceMatrix} \cr
-#'   \code{as_similarity} \tab \linkS4class{SimilarityMatrix}
-#'  }
-#' @return A \linkS4class{CountMatrix} or an \linkS4class{IncidenceMatrix}.
-#' @example inst/examples/ex-coerce.R
-#' @author N. Frerebeau
-#' @docType methods
-#' @name coerce
-#' @rdname coerce
-NULL
-
-# @rdname coerce
-# @aliases as_matrix-method
-# setGeneric(
-#   name = "as_matrix",
-#   def = function(from) standardGeneric("as_matrix")
-# )
-
-#' @rdname coerce
-#' @aliases as_count-method
-setGeneric(
-  name = "as_count",
-  def = function(from) standardGeneric("as_count")
-)
-
-#' @rdname coerce
-#' @aliases as_frequency-method
-setGeneric(
-  name = "as_frequency",
-  def = function(from) standardGeneric("as_frequency")
-)
-
-#' @rdname coerce
-#' @aliases as_incidence-method
-setGeneric(
-  name = "as_incidence",
-  def = function(from) standardGeneric("as_incidence")
-)
-
-#' @rdname coerce
-#' @aliases as_occurrence-method
-setGeneric(
-  name = "as_occurrence",
-  def = function(from) standardGeneric("as_occurrence")
-)
-
-#' @rdname coerce
-#' @aliases as_similarity-method
-setGeneric(
-  name = "as_similarity",
-  def = function(from) standardGeneric("as_similarity")
-)
 # ========================================================================= Date
 #' Date Archaeological Assemblages
 #'
@@ -141,13 +63,8 @@ setGeneric(
 #'
 #' \code{refine_dates} checks the stability of a date model with resampling
 #' methods.
-#'
-#' \code{set_dates} and \code{get_dates} allow to get or set the dates of an
-#' object.
 #' @param object A \eqn{m \times p}{m x p} matrix of count data (typically of
 #'  class \linkS4class{CountMatrix}).
-#' @param value A possible value for the element(s) of \code{object} (see
-#'  below).
 #' @param dates A length-\eqn{p} numeric vector giving the mid-date of each type
 #'  (year AD).
 #' @param errors A length-\eqn{p} numeric vector giving the absolute error of
@@ -164,22 +81,6 @@ setGeneric(
 #'  method to be used. This must be one of "\code{jackknife}",
 #'  "\code{bootstrap}" (see details). Any unambiguous substring can be given.
 #' @param ... Further arguments to be passed to internal methods.
-#' @section Set dates:
-#'  An attempt is made to interpret the argument \code{value} in a suitable way.
-#'  \emph{Note} that errors are assumed to be given at \code{1} sigma.
-#'
-#'  If \code{value} is a:
-#'  \describe{
-#'   \item{\code{character} vector}{it is assumed to contain Roman numerals.}
-#'   \item{\code{numeric} or \code{integer} \code{vector}}{these values are
-#'   assumed to represent dates without known errors.}
-#'   \item{\code{list}}{containing components "\code{value}" and "\code{error}",
-#'   these are used to define dates and corresponding errors.}
-#'   \item{\code{matrix} or \code{data.frame} with two or more columns}{the
-#'   first is assumed to contain the dates and the second the error values.
-#'   \emph{Note} that if \code{value} has columns named "\code{value}" and
-#'   "\code{error}", these columns will be used.}
-#'  }
 #' @section Mean Ceramic Date:
 #'  The Mean Ceramic Date (MCD) is a point estimate of the occupation of an
 #'  archaeological site (South 1977). The MCD is estimated as the weighted mean
@@ -303,7 +204,7 @@ setGeneric(
 #'
 #'  South, S. A. (1977). \emph{Method and Theory in Historical Archaeology}.
 #'  New York: Academic Press.
-#' @seealso \link{refine}
+#' @seealso \link[arkhe:set_dates<-]{set_dates}
 #' @example inst/examples/ex-dating.R
 #' @author N. Frerebeau
 #' @family dating
@@ -311,20 +212,6 @@ setGeneric(
 #' @name date
 #' @rdname date
 NULL
-
-#' @rdname date
-#' @aliases get_dates-method
-setGeneric(
-  name = "get_dates",
-  def = function(object) standardGeneric("get_dates")
-)
-
-#' @rdname date
-#' @aliases set_dates-method
-setGeneric(
-  name = "set_dates<-",
-  def = function(object, value) standardGeneric("set_dates<-")
-)
 
 #' @rdname date
 #' @aliases date_mcd-method
@@ -351,14 +238,23 @@ setGeneric(
 #' Heterogeneity and Evenness
 #'
 #' @description
-#'  \code{diversity} returns a diversity or dominance index.
-#'  \code{evenness} returns an evenness measure.
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
-#' @param method A \code{\link{character}} string or vector of strings
-#'  specifying the index to be computed (see details).
-#'  Any unambiguous substring can be given.
-#' @param simplify A \code{\link{logical}} scalar: should the result be
-#'  simplified to a matrix? The default value, \code{FALSE}, returns a list.
+#'  \code{index_heterogeneity} returns an heterogeneity or dominance index.
+#'
+#'  \code{index_evenness} returns an evenness measure.
+#' @param object A \eqn{m \times p}{m x p} matrix of count data (typically
+#'  a \linkS4class{CountMatrix} object).
+#' @param method A \code{\link{character}} string specifying the index to be
+#'  computed (see details). Any unambiguous substring can be given.
+#' @param jackknife A \code{\link{logical}} scalar: should jackknifed estimates
+#'  be computed?
+#' @param bootstrap A \code{\link{logical}} scalar: should boostraped estimates
+#'  be computed?
+#' @param simulate A \code{\link{logical}} scalar: simulated assemblages
+#'  be computed?
+#' @param level A length-one \code{\link{numeric}} vector giving the
+#'  confidence level.
+#' @param n A non-negative \code{\link{integer}} giving the number of bootstrap
+#' replications.
 #' @param ... Further arguments to be passed to internal methods.
 #' @details
 #'  \emph{Diversity} measurement assumes that all individuals in a specific
@@ -414,8 +310,8 @@ setGeneric(
 #'  so that an increase in the value of the index accompanies a decrease in
 #'  diversity.
 #' @return
-#'  If \code{simplify} is \code{FALSE}, then \code{diversity} and
-#'  \code{evenness} return a list (default), else return a matrix.
+#'  \code{index_heterogeneity} and \code{index_evenness} return a
+#'  \linkS4class{DiversityIndex} object.
 #' @note
 #'  Ramanujan approximation is used for \eqn{x!} computation if \eqn{x > 170}.
 #' @references
@@ -425,6 +321,15 @@ setGeneric(
 #'
 #'  Brillouin, L. (1956). \emph{Science and information theory}. New York:
 #'  Academic Press.
+#'
+#'  Kintigh, K. W. (1984). Measuring Archaeological Diversity by Comparison
+#'  with Simulated Assemblages. \emph{American Antiquity}, 49(1), 44-54.
+#'  DOI: \href{https://doi.org/10.2307/280511}{10.2307/280511}.
+#'
+#'  Kintigh, K. W. (1989). Sample Size, Significance, and Measures of
+#'  Diversity. In Leonard, R. D. and Jones, G. T., \emph{Quantifying Diversity
+#'  in Archaeology}. New Directions in Archaeology. Cambridge:
+#'  Cambridge University Press, p. 25-36.
 #'
 #'  Laxton, R. R. (1978). The measure of diversity. \emph{Journal of Theoretical
 #'  Biology}, 70(1), 51-67.
@@ -458,93 +363,22 @@ setGeneric(
 #'  \code{\link{turnover}}
 #'  \code{\link{similarity}}
 #' @docType methods
-#' @name diversity
-#' @rdname diversity
+#' @name heterogeneity-index
+#' @rdname heterogeneity-index
 NULL
 
-#' @rdname diversity
-#' @aliases diversity-method
+#' @rdname heterogeneity-index
+#' @aliases index_heterogeneity-method
 setGeneric(
-  name = "diversity",
-  def = function(object, ...) standardGeneric("diversity")
+  name = "index_heterogeneity",
+  def = function(object, ...) standardGeneric("index_heterogeneity")
 )
 
-#' @rdname diversity
-#' @aliases evenness-method
+#' @rdname heterogeneity-index
+#' @aliases index_evenness-method
 setGeneric(
-  name = "evenness",
-  def = function(object, ...) standardGeneric("evenness")
-)
-
-# ===================================================================== Geography
-#' Spatial Information
-#'
-#' Experimental tools to deal with spatial information.
-#' @param object An object from which to get or set element(s).
-#' @param value A possible value for the element(s) of \code{object} (see
-#'  below).
-#' @section Set coordinates:
-#'  An attempt is made to interpret the argument \code{value} in a way suitable
-#'  for geographic coordinates. If \code{value} is a:
-#'  \describe{
-#'   \item{\code{list}}{containing components "\code{x}", "\code{y}" and
-#'   "\code{z}", these are used to define coordinates (longitude, latitude and
-#'   elevation, respectively). If "\code{z}" is missing, the vertical
-#'   coordinates will be ignored (and \code{NA} will be generated).}
-#'   \item{\code{matrix} or \code{data.frame} with two or more columns}{the
-#'   first is assumed to contain the \code{x} values, the second the \code{y}
-#'   and the third the \code{z} values. \emph{Note} that if \code{value} has
-#'   columns named "\code{x}", "\code{y}" and "\code{z}", these columns will be
-#'   used. If \code{value} has only two columns or has columns named "\code{x}"
-#'   and "\code{y}" but not "\code{z}", the vertical coordinates will be ignored
-#'   (and \code{NA} will be generated).}
-#'  }
-#'
-#'  \code{get_features} converts an \code{AbundanceMatrix} object to a
-#'  collection of features (i.e. a\code{\link{data.frame}} with
-#'  dates and coordinates columns) that can be used for spatial manipulation
-#'  with \pkg{sf}.
-#' @example inst/examples/ex-geography.R
-#' @author N. Frerebeau
-#' @family geography
-#' @docType methods
-#' @name geography
-#' @rdname geography
-NULL
-
-#' @rdname geography
-#' @aliases get_features-method
-setGeneric(
-  name = "get_features",
-  def = function(object) standardGeneric("get_features")
-)
-
-#' @rdname geography
-#' @aliases get_coordinates-method
-setGeneric(
-  name = "get_coordinates",
-  def = function(object) standardGeneric("get_coordinates")
-)
-
-#' @rdname geography
-#' @aliases set_coordinates-method
-setGeneric(
-  name = "set_coordinates<-",
-  def = function(object, value) standardGeneric("set_coordinates<-")
-)
-
-#' @rdname geography
-#' @aliases get_epsg-method
-setGeneric(
-  name = "get_epsg",
-  def = function(object) standardGeneric("get_epsg")
-)
-
-#' @rdname geography
-#' @aliases set_epsg-method
-setGeneric(
-  name = "set_epsg<-",
-  def = function(object, value) standardGeneric("set_epsg<-")
+  name = "index_evenness",
+  def = function(object, ...) standardGeneric("index_evenness")
 )
 
 # ========================================================================= Plot
@@ -648,6 +482,29 @@ setGeneric(
   name = "plot_time",
   def = function(object, ...) standardGeneric("plot_time")
 )
+
+# ------------------------------------------------------------------------------
+#' Diversity Plot
+#'
+#' @param object A \linkS4class{DiversityIndex} object to be plotted.
+#' @param ... Currently not used.
+#' @example inst/examples/ex-plot_diversity.R
+#' @author N. Frerebeau
+#' @family plot
+#' @seealso \link{index_heterogeneity}, \link{index_evenness},
+#'  \link{index_richness}
+#' @docType methods
+#' @name plot_diversity
+#' @rdname plot_diversity
+NULL
+
+#' @rdname plot_diversity
+#' @aliases plot_diversity-method
+setGeneric(
+  name = "plot_diversity",
+  def = function(object, ...) standardGeneric("plot_diversity")
+)
+
 # ------------------------------------------------------------------------------
 #' Bar Plot
 #'
@@ -838,7 +695,9 @@ setGeneric(
 #' Richness and Rarefaction
 #'
 #' @description
-#'  \code{richness} returns sample richness.
+#'  \code{index_richness} returns sample richness. \code{index_composition}
+#'  returns asymptotic species richness.
+#'
 #'  \code{rarefaction} returns Hurlbert's unbiased estimate of Sander's
 #'  rarefaction.
 #' @param object A \eqn{m \times p}{m x p} matrix of count data.
@@ -855,6 +714,16 @@ setGeneric(
 #' @param k A length-one \code{\link{numeric}} vector giving the threshold
 #'  between rare/infrequent and abundant/frequent species. Only used if
 #'  \code{method} is "\code{ace}" or "\code{ice}".
+#' @param jackknife A \code{\link{logical}} scalar: should jackknifed estimates
+#'  be computed?
+#' @param bootstrap A \code{\link{logical}} scalar: should boostraped estimates
+#'  be computed?
+#' @param simulate A \code{\link{logical}} scalar: simulated assemblages
+#'  be computed?
+#' @param level A length-one \code{\link{numeric}} vector giving the
+#'  confidence level. Only used if \code{simulate} is \code{TRUE}.
+#' @param n A non-negative \code{\link{integer}} giving the number of bootstrap
+#' replications. Only used if \code{simulate} is \code{TRUE}.
 #' @param simplify A \code{\link{logical}} scalar: should the result be
 #'  simplified to a matrix? The default value, \code{FALSE}, returns a list.
 #' @param ... Further arguments to be passed to internal methods.
@@ -876,22 +745,29 @@ setGeneric(
 #'
 #'  The following richness measures are available for count data:
 #'  \describe{
-#'   \item{ace}{Abundance-based Coverage Estimator.}
-#'   \item{chao1}{(improved) Chao1 estimator.}
 #'   \item{margalef}{Margalef richness index.}
 #'   \item{menhinick}{Menhinick richness index.}
 #'   \item{none}{Returns the number of observed taxa/types.}
 #'  }
 #'
-#'  The following richness measures are available for replicated incidence data:
+#' @section Asymptotic Species Richness:
+#'  The following measures are available for count data:
+#'  \describe{
+#'   \item{ace}{Abundance-based Coverage Estimator.}
+#'   \item{chao1}{(improved/unbiased) Chao1 estimator.}
+#'  }
+#'
+#'  The following measures are available for replicated incidence data:
 #'  \describe{
 #'   \item{ice}{Incidence-based Coverage Estimator.}
-#'   \item{chao2}{(improved) Chao2 estimator.}
+#'   \item{chao2}{(improved/unbiased) Chao2 estimator.}
 #'  }
 #' @return
-#'  If \code{simplify} is \code{FALSE}, then \code{rarefaction} and
-#'  \code{richness} return a list (default), else return a matrix
-#'  (for \code{CountMatrix}) or a a numeric vector (for \code{IncidenceMatrix}).
+#'  \code{index_richness} and \code{index_composition} return a
+#'  \linkS4class{DiversityIndex} object.
+#'
+#'  If \code{simplify} is \code{FALSE}, then \code{rarefaction} returns a list
+#'  (default), else return a matrix.
 #' @references
 #'  Chao, A. (1984). Nonparametric Estimation of the Number of Classes in a
 #'  Population. \emph{Scandinavian Journal of Statistics}, 11(4), 265-270.
@@ -924,6 +800,9 @@ setGeneric(
 #'  Princeton, NJ: Princeton University Press.
 #'  DOI: \href{https://doi.org/10.1007/978-94-015-7358-0}{10.1007/978-94-015-7358-0}.
 #'
+#'  Magurran, A E. & Brian J. McGill (2011). \emph{Biological Diversity:
+#'  Frontiers in Measurement and Assessment}. Oxford: Oxford University Press.
+#'
 #'  Margalef, R. (1958). Information Theory in Ecology. \emph{General Systems},
 #'  3, 36-71.
 #'
@@ -941,18 +820,25 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family diversity
 #' @docType methods
-#' @name richness
-#' @rdname richness
+#' @name richness-index
+#' @rdname richness-index
 NULL
 
-#' @rdname richness
-#' @aliases richness-method
+#' @rdname richness-index
+#' @aliases index_richness-method
 setGeneric(
-  name = "richness",
-  def = function(object, ...) standardGeneric("richness")
+  name = "index_richness",
+  def = function(object, ...) standardGeneric("index_richness")
 )
 
-#' @rdname richness
+#' @rdname richness-index
+#' @aliases index_composition-method
+setGeneric(
+  name = "index_composition",
+  def = function(object, ...) standardGeneric("index_composition")
+)
+
+#' @rdname richness-index
 #' @aliases rarefaction-method
 setGeneric(
   name = "rarefaction",
@@ -1083,7 +969,7 @@ setGeneric(
 #'  analysis-based ceramic seriation of regional data sets. \emph{Journal of
 #'  Archaeological Science}, 39(8), 2818-2827.
 #'  DOI: \href{https://doi.org/10.1016/j.jas.2012.04.040}{10.1016/j.jas.2012.04.040}.
-#' @seealso \link{refine}, \link[ca]{ca}
+#' @seealso \link[ca]{ca}
 #' @example inst/examples/ex-seriation.R
 #' @author N. Frerebeau
 #' @family seriation
@@ -1106,12 +992,12 @@ setGeneric(
   def = function(object, subset, ...) standardGeneric("seriate_correspondence")
 )
 
-#' @rdname seriation
-#' @aliases seriate_idds-method
-setGeneric(
-  name = "seriate_idds",
-  def = function(object, ...) standardGeneric("seriate_idds")
-)
+# @rdname seriation
+# @aliases seriate_idds-method
+# setGeneric(
+#   name = "seriate_idds",
+#   def = function(object, ...) standardGeneric("seriate_idds")
+# )
 
 #' @rdname seriation
 #' @aliases permute-method
@@ -1233,6 +1119,7 @@ setGeneric(
 #'  Magurran, A. E. (1988). \emph{Ecological Diversity and its Measurement}.
 #'  Princeton, NJ: Princeton University Press.
 #'  DOI: \href{https://doi.org/10.1007/978-94-015-7358-0}{10.1007/978-94-015-7358-0}.
+#' @family test
 #' @name test
 #' @rdname test
 NULL
@@ -1301,7 +1188,11 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family diversity
 #' @docType methods
-#' @rdname turnover-method
+#' @name turnover-index
+#' @rdname turnover-index
+NULL
+
+#' @rdname turnover-index
 #' @aliases turnover-method
 setGeneric(
   name = "turnover",
@@ -1350,6 +1241,18 @@ setGeneric(
 #'  bootstrap replications.
 #' @param axes A \code{\link{numeric}} vector giving the subscripts of the CA
 #'  axes to use.
+#' @param unbiased A \code{\link{logical}} scalar. Should the bias-corrected
+#'  estimator be used? Only used with "\code{chao1}" or "\code{chao2}"
+#'  (improved) estimator.
+#' @param improved A \code{\link{logical}} scalar. Should the improved
+#'  estimator be used? Only used with "\code{chao1}" or "\code{chao2}".
+#' @param sample A length-one \code{\link{numeric}} vector giving the sub-sample
+#'  size.
+#' @param k A length-one \code{\link{numeric}} vector giving the threshold
+#'  between rare/infrequent and abundant/frequent species. Only used if
+#'  \code{method} is "\code{ace}" or "\code{ice}".
+#' @param simplify A \code{\link{logical}} scalar: should the result be
+#'  simplified to a matrix? The default value, \code{FALSE}, returns a list.
 #' @param ... Further arguments to be passed to internal methods.
 #' @docType methods
 #' @name tabula-deprecated
@@ -1386,4 +1289,19 @@ setGeneric(
 setGeneric(
   name = "refine",
   def = function(object, ...) standardGeneric("refine")
+)
+#' @rdname deprecated
+setGeneric(
+  name = "diversity",
+  def = function(object, ...) standardGeneric("diversity")
+)
+#' @rdname deprecated
+setGeneric(
+  name = "evenness",
+  def = function(object, ...) standardGeneric("evenness")
+)
+#' @rdname deprecated
+setGeneric(
+  name = "richness",
+  def = function(object, ...) standardGeneric("richness")
 )

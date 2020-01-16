@@ -6,7 +6,7 @@
 \alias{plot_date-method}
 \alias{plot_time}
 \alias{plot_time-method}
-\alias{plot_date,AbundanceMatrix-method}
+\alias{plot_date,Matrix-method}
 \alias{plot_date,DateModel-method}
 \alias{plot_time,CountMatrix-method}
 \title{Date and Time Plot}
@@ -15,8 +15,7 @@ plot_date(object, ...)
 
 plot_time(object, ...)
 
-\S4method{plot_date}{AbundanceMatrix}(object, select = NULL,
-  sort = "dsc")
+\S4method{plot_date}{Matrix}(object, select = NULL, sort = "dsc")
 
 \S4method{plot_date}{DateModel}(object, type = c("activity", "tempo"),
   event = FALSE, select = 1, n = 500)
@@ -142,8 +141,8 @@ Bellanger, L. & Husi, P. (2012). Statistical Tool for Dating and
 \link{date_event}, \link{test}
 
 Other plot: \code{\link{plot_bar}},
-  \code{\link{plot_line}}, \code{\link{plot_matrix}},
-  \code{\link{plot_spot}}
+  \code{\link{plot_diversity}}, \code{\link{plot_line}},
+  \code{\link{plot_matrix}}, \code{\link{plot_spot}}
 }
 \author{
 N. Frerebeau

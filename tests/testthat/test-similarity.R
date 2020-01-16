@@ -21,7 +21,7 @@ test_that("Similiraty measure (count data)", {
   expect_equal(length(similarity(count, method = "binomial")), ncol(count)^2)
 })
 test_that("Similiraty measure (frequency data)", {
-  freq <- as(birds, "FrequencyMatrix")
+  freq <- as(birds, "AbundanceMatrix")
   method <- c("bray", "jaccard", "morisita", "sorenson")
   expect_error(similarity(freq, method = "bray"))
 })

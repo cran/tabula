@@ -1,8 +1,4 @@
 
-
-
-
-
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # tabula <img width=120px src="man/figures/logo.png" align="right" />
@@ -25,7 +21,10 @@ state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1489944.svg)](https://doi.org/10.5281/zenodo.1489944)
+[![DOI
+Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.1489944.svg)](https://doi.org/10.5281/zenodo.1489944)
+[![DOI
+JOSS](https://joss.theoj.org/papers/10.21105/joss.01821/status.svg)](https://doi.org/10.21105/joss.01821)
 
 ## Overview
 
@@ -41,9 +40,16 @@ and rarefaction (Chao1, Chao2, ACE, ICE, etc.), turnover and similarity
 data and statistical thresholds: rank vs. abundance plots, heatmaps,
 Ford (1962) and Bertin (1977) diagrams.
 
+To cite **tabula** in publications please use:
+
+> Frerebeau, N. (2019). tabula: An R Package for Analysis, Seriation,
+> and Visualization of Archaeological Count Data. *Journal of Open
+> Source Software*, 4(44), 1821. DOI
+> [10.21105/joss.01821](https://doi.org/10.21105/joss.01821).
+
 ## Installation
 
-You can install the released version of `tabula` from
+You can install the released version of **tabula** from
 [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
@@ -62,68 +68,39 @@ remotes::install_github("nfrerebeau/tabula")
 ``` r
 # Load packages
 library(tabula)
+#> Loading required package: codex
+
+library(khroma)
+library(ggplot2)
 library(magrittr)
 ```
 
-`tabula` provides a set of S4 classes that extend the basic `matrix`
-data type. These new classes represent different special types of
-matrix.
+**tabula** uses a set of S4 classes that extend the basic `matrix` data
+type. These new classes represent different special types of matrix:
 
-  - Abundance matrix:
-      - `CountMatrix` represents count data,
-      - `FrequencyMatrix` represents relative frequency data.
+  - Numeric matrix:
+      - `CountMatrix` represents absolute frequency data,
+      - `AbundanceMatrix` represents relative frequency data,
+      - `OccurrenceMatrix` represents a co-occurrence matrix,
+      - `SimilarityMatrix` represents a (dis)similarity matrix,
   - Logical matrix:
-      - `IncidenceMatrix` represents presence/absence data.
-  - Other numeric matrix:
-      - `OccurrenceMatrix` represents a co-occurrence matrix.
-      - `SimilarityMatrix` represents a (dis)similarity matrix.
+      - `IncidenceMatrix` represents presence/absence data,
+      - `StratigraphicMatrix` represents stratigraphic relationships.
 
 *It assumes that you keep your data tidy*: each variable (type/taxa)
 must be saved in its own column and each observation (sample/case) must
 be saved in its own row.
 
-These new classes are of simple use, on the same way as the base
-`matrix`:
+These new classes are of simple use, please refer to the documentation
+of the [**codex**](https://github.com/nfrerebeau/codex) package where
+these classes are defined.
 
-``` r
-# Define a count data matrix
-quanti <- CountMatrix(data = sample(0:10, 100, TRUE),
-                      nrow = 10, ncol = 10)
+### Visualization
 
-# Define a logical matrix
-# Data will be coerced with as.logical()
-quali <- IncidenceMatrix(data = sample(0:1, 100, TRUE),
-                         nrow = 10, ncol = 10)
-```
-
-`tabula` uses coercing mechanisms (with validation methods) for data
-type conversions:
-
-``` r
-## Create a count matrix
-A1 <- CountMatrix(data = sample(0:10, 100, TRUE),
-                  nrow = 10, ncol = 10)
-
-## Coerce counts to frequencies
-B <- as_frequency(A1)
-
-## Row sums are internally stored before coercing to a frequency matrix
-## (use totals() to get these values)
-## This allows to restore the source data
-A2 <- as_count(B)
-all(A1 == A2)
-#> [1] TRUE
-
-## Coerce to presence/absence
-C <- as_incidence(A1)
-
-## Coerce to a co-occurrence matrix
-D <- as_occurrence(A1)
-```
-
-Several types of graphs are available in `tabula` which uses `ggplot2`
-for plotting informations. This makes it easy to customize diagrams
-(e.g. using themes and scales).
+Several types of graphs are available in **tabula** which uses
+[**ggplot2**](https://github.com/tidyverse/ggplot2) for plotting
+informations. This makes it easy to customize diagrams (e.g. using
+themes and scales).
 
 Spot matrix\[1\] allows direct examination of data:
 
@@ -173,11 +150,11 @@ incidence <- IncidenceMatrix(data = sample(0:1, 400, TRUE, c(0.6, 0.4)),
 # Get seriation order on rows and columns
 # Correspondance analysis-based seriation
 (indices <- seriate_reciprocal(incidence, margin = c(1, 2)))
-#> Permutation order for matrix seriation: 
-#>    Matrix ID: 7ff145b5-32f6-4f16-a298-37c6eb6a46a9 
-#>    Row order: 1 4 20 3 9 16 19 10 13 2 11 7 17 5 6 18 14 15 8 12 
-#>    Column order: 1 16 9 4 8 14 3 20 13 2 6 18 7 17 5 11 19 12 15 10 
-#>    Method: reciprocal
+#> <PermutationOrder: 4bffe51c-75f2-4bc3-a2d0-7c005a75b349>
+#> Permutation order for matrix seriation:
+#> - Row order: 1 4 20 3 9 16 19 10 13 2 11 7 17 5 6 18 14 15 8 12...
+#> - Column order: 1 16 9 4 8 14 3 20 13 2 6 18 7 17 5 11 19 12 15 10...
+#> - Method: reciprocal
 
 # Permute matrix rows and columns
 incidence2 <- permute(incidence, indices)
@@ -238,15 +215,30 @@ referred to as indices of *heterogeneity*):
 ``` r
 mississippi %>%
   as_count() %>%
-  diversity(simplify = TRUE) %>%
-  head()
-#>            berger brillouin  mcintosh   shannon   simpson
-#> 10-P-1  0.4052288 1.1572676 0.4714431 1.2027955 0.3166495
-#> 11-N-9  0.6965699 0.7541207 0.2650711 0.7646565 0.5537760
-#> 11-N-1  0.6638526 0.9192403 0.2975381 0.9293974 0.5047209
-#> 11-O-10 0.6332288 0.8085445 0.2990830 0.8228576 0.5072514
-#> 11-N-4  0.6034755 0.7823396 0.2997089 0.7901428 0.5018826
-#> 13-N-5  0.4430380 0.9442803 0.4229570 0.9998430 0.3823434
+  index_heterogeneity(method = "shannon")
+#> <HeterogeneityIndex: 05b1f084-1042-4314-b597-72a5b9bb6d79>
+#> - Method: shannon
+#>             size     index
+#> 10-P-1       153 1.2027955
+#> 11-N-9       758 0.7646565
+#> 11-N-1      1303 0.9293974
+#> 11-O-10      638 0.8228576
+#> 11-N-4      1266 0.7901428
+#> 13-N-5        79 0.9998430
+#> 13-N-4       241 1.2051989
+#> 13-N-16      171 1.1776226
+#> 13-O-11      128 1.1533432
+#> 13-O-10      226 1.2884172
+#> 13-P-1       360 1.1725355
+#> 13-P-8       192 1.5296294
+#> 13-P-10       91 1.7952443
+#> 13-O-7      1233 1.1627477
+#> 13-O-5      1709 1.0718463
+#> 13-N-21      614 0.9205717
+#> 12-O-5       424 1.1751002
+#> Holden Lake  360 0.7307620
+#> 13-N-15     1300 1.1270126
+#> 12-N-3       983 1.0270291
 
 ## Test difference in Shannon diversity between assemblages
 ## (returns a matrix of adjusted p values)
@@ -311,7 +303,7 @@ plot_time(merzbach_count, highlight = "FIT", roll = TRUE) +
 
 ## Contributing
 
-Please note that the `tabula` project is released with a [Contributor
+Please note that the **tabula** project is released with a [Contributor
 Code of
 Conduct](https://github.com/nfrerebeau/tabula/blob/master/.github/CODE_OF_CONDUCT.md).
 By contributing to this project, you agree to abide by its terms.

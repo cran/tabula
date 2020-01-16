@@ -5,7 +5,7 @@
 \alias{plot_spot}
 \alias{plot_spot-method}
 \alias{plot_spot,CountMatrix-method}
-\alias{plot_spot,FrequencyMatrix-method}
+\alias{plot_spot,AbundanceMatrix-method}
 \alias{plot_spot,SimilarityMatrix-method}
 \alias{plot_spot,OccurrenceMatrix-method}
 \title{Spot Plot}
@@ -14,7 +14,7 @@ plot_spot(object, ...)
 
 \S4method{plot_spot}{CountMatrix}(object, threshold = NULL)
 
-\S4method{plot_spot}{FrequencyMatrix}(object, threshold = NULL)
+\S4method{plot_spot}{AbundanceMatrix}(object, threshold = NULL)
 
 \S4method{plot_spot}{SimilarityMatrix}(object)
 
@@ -67,8 +67,8 @@ plot_spot(occ)
 }
 \seealso{
 Other plot: \code{\link{plot_bar}},
-  \code{\link{plot_date}}, \code{\link{plot_line}},
-  \code{\link{plot_matrix}}
+  \code{\link{plot_date}}, \code{\link{plot_diversity}},
+  \code{\link{plot_line}}, \code{\link{plot_matrix}}
 }
 \author{
 N. Frerebeau

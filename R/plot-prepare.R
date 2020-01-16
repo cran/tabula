@@ -169,8 +169,9 @@ prepare_spot <- function(object, threshold = NULL, diag = TRUE) {
   if (!diag) {
     data <- data[data$type != data$case, ]
   }
-  if (is_square(object)) {
+  if (nrow(object) == ncol(object)) {
     max_value <- unique(diag(object))
+    if (max_value == 0) max_value <- max(data$value)
     data <- cbind.data.frame(max = max_value, data)
   }
   if (is.function(threshold)) {

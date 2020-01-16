@@ -13,6 +13,7 @@ setMethod(
 
     seriation(object, method = "reciprocal", EPPM = EPPM, margin = margin,
               stop = stop)
+
   }
 )
 
@@ -25,6 +26,7 @@ setMethod(
   definition = function(object, margin = c(1, 2), stop = 100) {
 
     seriation(object, method = "reciprocal", margin = margin, stop = stop)
+
   }
 )
 
@@ -38,6 +40,7 @@ setMethod(
   definition = function(object, margin = c(1, 2), ...) {
 
     seriation(object, method = "correspondence", margin = margin, ...)
+
   }
 )
 
@@ -50,6 +53,7 @@ setMethod(
   definition = function(object, margin = c(1, 2), ...) {
 
     seriation(object, method = "correspondence", margin = margin, ...)
+
   }
 )
 
@@ -90,8 +94,8 @@ setMethod(
     col_coords <- if (2 %in% margin) order(coords$columns[, 2]) else j
 
     # New PermutationOrder object
-    PermutationOrder(
-      id = object[["id"]],
+    .PermutationOrder(
+      id = arkhe::get_id(object),
       rows = row_coords,
       columns = col_coords,
       method = "refined correspondence"
@@ -108,7 +112,8 @@ setMethod(
   signature = signature(object = "CountMatrix", order = "PermutationOrder"),
   definition = function(object, order) {
     # Validation
-    compare_uuid(object[["id"]], order[["id"]])
+    if (arkhe::get_id(object) != order[["id"]])
+      stop("`object` and `order` do not match.")
 
     # Rearrange matrix
     new_matrix <- object[order[["rows"]], order[["columns"]]]
@@ -125,7 +130,8 @@ setMethod(
   signature = signature(object = "IncidenceMatrix", order = "PermutationOrder"),
   definition = function(object, order) {
     # Validation
-    compare_uuid(object[["id"]], order[["id"]])
+    if (arkhe::get_id(object) != order[["id"]])
+      stop("`object` and `order` do not match.")
 
     # Rearrange matrix
     new_matrix <- object[order[["rows"]], order[["columns"]]]

@@ -65,12 +65,12 @@ test_that("Date plot", {
 })
 test_that("Date model", {
   count_zuni <- as(zuni, "CountMatrix")
-  set_dates(count_zuni) <- c(
+  suppressWarnings(set_dates(count_zuni) <- c(
     LZ0569 = 1097, LZ0279 = 1119, CS16 = 1328, LZ0066 = 1111,
     LZ0852 = 1216, LZ1209 = 1251, CS144 = 1262, LZ0563 = 1206,
     LZ0329 = 1076, LZ0005Q = 859, LZ0322 = 1109, LZ0067 = 863,
     LZ0578 = 1180, LZ0227 = 1104, LZ0610 = 1074
-  )
+  ))
   model <- date_event(count_zuni, cutoff = 90)
   expect_s4_class(model, "DateModel")
 
@@ -90,12 +90,12 @@ test_that("Date model", {
 })
 test_that("Refine date model", {
   count_zuni <- as(zuni, "CountMatrix")
-  set_dates(count_zuni) <- c(
+  suppressWarnings(set_dates(count_zuni) <- c(
     LZ0569 = 1097, LZ0279 = 1119, CS16 = 1328, LZ0066 = 1111,
     LZ0852 = 1216, LZ1209 = 1251, CS144 = 1262, LZ0563 = 1206,
     LZ0329 = 1076, LZ0005Q = 859, LZ0322 = 1109, LZ0067 = 863,
     LZ0578 = 1180, LZ0227 = 1104, LZ0610 = 1074
-  )
+  ))
   model <- date_event(count_zuni, cutoff = 90)
 
   # Jackknife

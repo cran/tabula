@@ -1,6 +1,74 @@
 # CLASSES VALIDATION
-#' @include AllClasses.R utilities.R check.R
+#' @include AllClasses.R utilities.R
 NULL
+
+# DiversityIndex ===============================================================
+setValidity(
+  Class = "DiversityIndex",
+  method = function(object) {
+    # Get data
+    id <- object@id
+    index <- object@index
+    size <- object@size
+    jackknife <- object@jackknife
+    boostrap <- object@boostrap
+    simulated <- object@simulated
+    method <- object@method
+
+    n <- length(index)
+
+    errors <- list(
+      # Check id
+      arkhe:::catch_conditions(arkhe:::check_uuid(id)),
+      # Check index
+      arkhe:::catch_conditions(arkhe:::check_missing(index)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(index)),
+      # Check size
+      arkhe:::catch_conditions(arkhe:::check_missing(size)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(size)),
+      arkhe:::catch_conditions(arkhe:::check_length(size, length(index))),
+      # Check method
+      arkhe:::catch_conditions(arkhe:::check_scalar(method, "character")),
+      arkhe:::catch_conditions(arkhe:::check_missing(method))
+    )
+    if (nrow(jackknife) > 0 && n > 0) {
+      errors <- append(
+        errors,
+        list(
+          # Check jackknife
+          arkhe:::catch_conditions(arkhe:::check_missing(jackknife)),
+          # arkhe:::catch_conditions(arkhe:::check_infinite(jackknife)),
+          arkhe:::catch_conditions(arkhe:::check_dimension(jackknife, c(n, 3)))
+        )
+      )
+    }
+    if (nrow(boostrap) > 0 && n > 0) {
+      errors <- append(
+        errors,
+        list(
+          # Check boostrap
+          arkhe:::catch_conditions(arkhe:::check_missing(boostrap)),
+          # arkhe:::catch_conditions(arkhe:::check_infinite(boostrap)),
+          arkhe:::catch_conditions(arkhe:::check_dimension(boostrap, c(n, 5)))
+        )
+      )
+    }
+    if (nrow(simulated) > 0 && n > 0) {
+      errors <- append(
+        errors,
+        list(
+          # Check simulated
+          arkhe:::catch_conditions(arkhe:::check_missing(simulated)),
+          arkhe:::catch_conditions(arkhe:::check_infinite(simulated))
+          # arkhe:::catch_conditions(arkhe:::check_dimension(simulated, c(n, 4)))
+        )
+      )
+    }
+
+    # Return errors if any
+    arkhe:::check_class(object, errors)
+  }
+)
 
 # BootCA =======================================================================
 setValidity(
@@ -15,71 +83,65 @@ setValidity(
     keep <- object@keep
 
     errors <- list(
-      id = c(
-        catch_conditions(check_uuid(id))
-      ),
-      rows = c(
-        unlist(mapply(
-          FUN = function(x, expected) catch_conditions(check_type(x, expected)),
-          rows, list("integer", "numeric", "numeric")
-        )),
-        unlist(lapply(
-          X = rows,
-          FUN = function(x) {
-            c(catch_conditions(check_missing(x)),
-              catch_conditions(check_infinite(x)))
-          }
-        )),
-        catch_conditions(check_length(rows, expected = 3)),
-        catch_conditions(check_lengths(rows)),
-        catch_conditions(check_names(rows, expected = c("id", "x", "y")))
-      ),
-      columns = c(
-        unlist(mapply(
-          FUN = function(x, expected) catch_conditions(check_type(x, expected)),
-          columns, list("integer", "numeric", "numeric")
-        )),
-        unlist(lapply(
-          X = columns,
-          FUN = function(x) {
-            c(catch_conditions(check_missing(x)),
-              catch_conditions(check_infinite(x)))
-          }
-        )),
-        catch_conditions(check_length(columns, expected = 3)),
-        catch_conditions(check_lengths(columns)),
-        catch_conditions(check_names(columns, expected = c("id", "x", "y")))
-      ),
-      lengths = c(
-        unlist(lapply(
-          X = lengths,
-          FUN = function(x) {
-            c(catch_conditions(check_type(x, expected = "numeric")),
-              # catch_conditions(check_names(x)),
-              catch_conditions(check_missing(x)),
-              catch_conditions(check_infinite(x)))
-          }
-        )),
-        catch_conditions(check_length(lengths, expected = 2))
-      ),
-      cutoff = c(
-        catch_conditions(check_length(cutoff, expected = 2)),
-        catch_conditions(check_missing(cutoff)),
-        catch_conditions(check_infinite(cutoff))
-      ),
-      keep = c(
-        unlist(lapply(
-          X = keep,
-          FUN = function(x) {
-            c(catch_conditions(check_type(x, expected = "integer")),
-              catch_conditions(check_missing(x)))
-          }
-        )),
-        catch_conditions(check_length(keep, expected = 2))
-      )
+      # Check id
+      arkhe:::catch_conditions(arkhe:::check_uuid(id)),
+      # Check rows
+      arkhe:::catch_conditions(arkhe:::check_length(rows, 3)),
+      arkhe:::catch_conditions(arkhe:::check_lengths(rows)),
+      arkhe:::catch_conditions(arkhe:::check_names(rows, c("id", "x", "y"))),
+      arkhe:::catch_conditions(arkhe:::check_type(rows[[1]], "integer")),
+      arkhe:::catch_conditions(arkhe:::check_type(rows[[2]], "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_type(rows[[3]], "numeric")),
+      unlist(lapply(
+        X = rows,
+        FUN = function(x) {
+          c(arkhe:::catch_conditions(arkhe:::check_missing(x)),
+            arkhe:::catch_conditions(arkhe:::check_infinite(x)))
+        }
+      )),
+      # Check columns
+      arkhe:::catch_conditions(arkhe:::check_length(columns, 3)),
+      arkhe:::catch_conditions(arkhe:::check_lengths(columns)),
+      arkhe:::catch_conditions(arkhe:::check_names(columns, c("id", "x", "y"))),
+      arkhe:::catch_conditions(arkhe:::check_type(columns[[1]], "integer")),
+      arkhe:::catch_conditions(arkhe:::check_type(columns[[2]], "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_type(columns[[3]], "numeric")),
+      unlist(lapply(
+        X = columns,
+        FUN = function(x) {
+          c(arkhe:::catch_conditions(arkhe:::check_missing(x)),
+            arkhe:::catch_conditions(arkhe:::check_infinite(x)))
+        }
+      )),
+      # Check lenghts
+      arkhe:::catch_conditions(arkhe:::check_length(lengths, expected = 2)),
+      arkhe:::catch_conditions(arkhe:::check_type(lengths[[1]], "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_type(lengths[[2]], "numeric")),
+      unlist(lapply(
+        X = lengths,
+        FUN = function(x) {
+          c(# catch_conditions(check_names(x)),
+            arkhe:::catch_conditions(arkhe:::check_missing(x)),
+            arkhe:::catch_conditions(arkhe:::check_infinite(x)))
+        }
+      )),
+      # Check cutoff
+      arkhe:::catch_conditions(arkhe:::check_length(cutoff, 2)),
+      arkhe:::catch_conditions(arkhe:::check_missing(cutoff)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(cutoff)),
+      # Check keep
+      unlist(lapply(
+        X = keep,
+        FUN = function(x) {
+          c(arkhe:::catch_conditions(arkhe:::check_type(x, expected = "integer")),
+            arkhe:::catch_conditions(arkhe:::check_missing(x)))
+        }
+      )),
+      arkhe:::catch_conditions(arkhe:::check_length(keep, 2))
     )
+
     # Return errors if any
-    throw_error_class(object, errors)
+    arkhe:::check_class(object, errors)
   }
 )
 
@@ -98,44 +160,38 @@ setValidity(
     accumulation <- object@accumulation
 
     errors <- list(
-      id = c(
-        catch_conditions(check_uuid(id))
-      ),
-      counts = c(
-        catch_conditions(check_type(counts, expected = "numeric")),
-        catch_conditions(check_missing(counts)),
-        catch_conditions(check_infinite(counts))
-      ),
-      level = c(
-        catch_conditions(check_scalar(level, expected = "numeric")),
-        catch_conditions(check_missing(level)),
-        catch_conditions(check_infinite(level))
-      ),
-      rows = c(
-        catch_conditions(check_type(rows, expected = "numeric")),
-        catch_conditions(check_missing(rows)),
-        catch_conditions(check_infinite(rows)),
-        catch_conditions(check_names(rows, expected = c("date", "lower", "upper", "error"),
-                                     margin = 2))
-      ),
-      columns = c(
-        catch_conditions(check_type(columns, expected = "numeric")),
-        catch_conditions(check_missing(columns)),
-        catch_conditions(check_infinite(columns)),
-        catch_conditions(check_names(columns, expected = c("date", "lower", "upper", "error"),
-                                     margin = 2))
-      ),
-      accumulation = c(
-        catch_conditions(check_type(accumulation, expected = "numeric")),
-        catch_conditions(check_missing(accumulation)),
-        catch_conditions(check_infinite(accumulation)),
-        catch_conditions(check_names(accumulation, expected = c("date", "error"),
-                                     margin = 2))
-      )
+      # Check id
+      arkhe:::catch_conditions(arkhe:::check_uuid(id)),
+      # Check counts
+      arkhe:::catch_conditions(arkhe:::check_type(counts, "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_missing(counts)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(counts)),
+      # Check level
+      arkhe:::catch_conditions(arkhe:::check_scalar(level, "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_missing(level)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(level)),
+      # Check rows
+      arkhe:::catch_conditions(arkhe:::check_type(rows, "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_missing(rows)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(rows)),
+      arkhe:::catch_conditions(arkhe:::check_names(rows, c("date", "lower", "upper", "error"),
+                                                   margin = 2)),
+      # Check columns
+      arkhe:::catch_conditions(arkhe:::check_type(columns, "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_missing(columns)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(columns)),
+      arkhe:::catch_conditions(arkhe:::check_names(columns, c("date", "lower", "upper", "error"),
+                                                   margin = 2)),
+      # Check accumulation
+      arkhe:::catch_conditions(arkhe:::check_type(accumulation, "numeric")),
+      arkhe:::catch_conditions(arkhe:::check_missing(accumulation)),
+      arkhe:::catch_conditions(arkhe:::check_infinite(accumulation)),
+      arkhe:::catch_conditions(arkhe:::check_names(accumulation, c("date", "error"),
+                                                   margin = 2))
     )
 
     # Return errors if any
-    throw_error_class(object, errors)
+    arkhe:::check_class(object, errors)
   }
 )
 
@@ -150,252 +206,22 @@ setValidity(
     method <- object@method
 
     errors <- list(
-      id = c(
-        catch_conditions(check_uuid(id))
-      ),
-      rows = c(
-        catch_conditions(check_missing(rows)),
-        catch_conditions(check_numbers(rows, expected = "positive",
-                                       strict = TRUE))
-      ),
-      columns = c(
-        catch_conditions(check_missing(columns)),
-        catch_conditions(check_numbers(columns, expected = "positive",
-                                       strict = TRUE))
-      ),
-      method = c(
-        catch_conditions(check_scalar(method, expected = "character")),
-        catch_conditions(check_missing(method))
-      )
-    )
-
-    # Return errors if any
-    throw_error_class(object, errors)
-  }
-)
-
-# SpaceTime ====================================================================
-setValidity(
-  Class = "SpaceTime",
-  method = function(object) {
-    # Get data
-    dates <- object@dates
-    coordinates <- object@coordinates
-    epsg <- object@epsg
-
-    # Check dates
-    errors <- list(
-      dates = c(
-        catch_conditions(check_type(dates, expected = "numeric")),
-        catch_conditions(check_infinite(dates)),
-        catch_conditions(check_names(dates, expected = c("value", "error"),
-                                     margin = 2))
-      ),
-      coordinates = c(
-        catch_conditions(check_type(coordinates, expected = "numeric")),
-        catch_conditions(check_infinite(coordinates)),
-        catch_conditions(check_names(coordinates, expected = c("X", "Y", "Z"),
-                                     margin = 2))
-      ),
-      epsg = c(
-        catch_conditions(check_scalar(epsg, expected = "integer")),
-        catch_conditions(check_missing(epsg))
-      )
-    )
-
-    # Return errors if any
-    throw_error_class(object, errors)
-  }
-)
-# Matrix =======================================================================
-setValidity(
-  Class = "Matrix",
-  method = function(object) {
-    # Get data
-    data <- S3Part(object, strictS3 = TRUE, "matrix")
-    id <- object@id
-
-    errors <- list(
-      # Check data
-      data = c(
-        catch_conditions(check_missing(data)),
-        catch_conditions(check_infinite(data))
-      ),
       # Check id
-      id = c(
-        catch_conditions(check_uuid(id))
-      )
-    )
-
-    # Return errors if any
-    throw_error_class(object, errors)
-  }
-)
-setValidity(
-  Class = "AbundanceMatrix",
-  method = function(object) {
-    # Get data
-    data <- S3Part(object, strictS3 = TRUE, "matrix")
-    dates <- object@dates
-    coordinates <- object@coordinates
-    n <- nrow(data)
-
-    errors <- list()
-    if (length(dates) != 0 && nrow(dates) > 0) {
-      # Check dates
-      errors[["dates"]] <- c(
-        catch_conditions(check_length(dates, expected = n * 2))
-      )
-    }
-    if (length(coordinates) != 0 && nrow(coordinates) > 0) {
-      # Check coordinates
-      errors[["coordinates"]] <- c(
-        catch_conditions(check_length(coordinates, expected = n * 3))
-      )
-    }
-
-    # Return errors if any
-    throw_error_class(object, errors)
-  }
-)
-
-# NumericMatrix ================================================================
-setValidity(
-  Class = "NumericMatrix",
-  method = function(object) {
-    # Get data
-    data <- S3Part(object, strictS3 = TRUE, "matrix")
-
-    errors <- list(
-      # Check data
-      data = catch_conditions(check_type(data, expected = "numeric"))
-    )
-
-    # Return errors if any
-    throw_error_class(object, errors)
-  }
-)
-
-## CountMatrix -----------------------------------------------------------------
-setValidity(
-  Class = "CountMatrix",
-  method = function(object) {
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-
-    errors <- list(
-      # Check data
-      data = c(
-        catch_conditions(check_numbers(data, expected = "positive",
-                                       strict = FALSE)),
-        catch_conditions(check_numbers(data, expected = "whole"))
-      )
-    )
-    # Messages
-    # TODO: warning instead of message?
-    if (all(is_binary(data)))
-      message("Your matrix contains only 0s and 1s.\n",
-              "You should consider using an incidence matrix instead.")
-
-    # Return errors, if any
-    throw_error_class(object, errors)
-  }
-)
-
-## FrequencyMatrix -------------------------------------------------------------
-setValidity(
-  Class = "FrequencyMatrix",
-  method = function(object) {
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    totals <- object@totals
-    dates <- object@dates
-    coordinates <- object@coordinates
-    n <- nrow(data)
-
-    errors <- list(
-      # Check data
-      data = c(
-        catch_conditions(check_numbers(data, expected = "positive",
-                                       strict = FALSE)),
-        catch_conditions(check_constant(data))
-      ),
-      # Check totals
-      totals = c(
-        catch_conditions(check_length(totals, expected = n))
-      )
-    )
-
-    # Return errors, if any
-    throw_error_class(object, errors)
-  }
-)
-
-## OccurrenceMatrix ------------------------------------------------------------
-setValidity(
-  Class = "OccurrenceMatrix",
-  method = function(object) {
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-
-    errors <- list(
-      # Check data
-      data = c(
-        catch_conditions(check_matrix(data, expected = "symmetric"))
-      )
-    )
-
-    # Return errors, if any
-    throw_error_class(object, errors)
-  }
-)
-
-## SimilarityMatrix ------------------------------------------------------------
-setValidity(
-  Class = "SimilarityMatrix",
-  method = function(object) {
-    # Get data
-    data <- methods::S3Part(object, strictS3 = TRUE, "matrix")
-    method <- object@method
-
-    errors <- list(
-      # Check data
-      data = c(
-        catch_conditions(check_matrix(data, expected = "symmetric"))
-      ),
+      arkhe:::catch_conditions(arkhe:::check_uuid(id)),
+      # Check rows
+      arkhe:::catch_conditions(arkhe:::check_missing(rows)),
+      arkhe:::catch_conditions(arkhe:::check_numbers(rows, "positive",
+                                                     strict = TRUE)),
+      # Check columns
+      arkhe:::catch_conditions(arkhe:::check_missing(columns)),
+      arkhe:::catch_conditions(arkhe:::check_numbers(columns, "positive",
+                                                     strict = TRUE)),
       # Check method
-      method = c(
-        catch_conditions(check_scalar(method, expected = "character")),
-        catch_conditions(check_missing(method))
-      )
-    )
-
-    # Return errors, if any
-    throw_error_class(object, errors)
-  }
-)
-
-# LogicalMatrix ================================================================
-setValidity(
-  Class = "LogicalMatrix",
-  method = function(object) {
-    # Get data
-    data <- S3Part(object, strictS3 = TRUE, "matrix")
-
-    errors <- list(
-      # Check data
-      data = catch_conditions(check_type(data, expected = "logical"))
+      arkhe:::catch_conditions(arkhe:::check_scalar(method, "character")),
+      arkhe:::catch_conditions(arkhe:::check_missing(method))
     )
 
     # Return errors if any
-    throw_error_class(object, errors)
+    arkhe:::check_class(object, errors)
   }
 )
-
-## IncidenceMatrix -------------------------------------------------------------
-# setValidity(
-#   Class = "IncidenceMatrix",
-#   method = function(object) {
-#
-#   }
-# )

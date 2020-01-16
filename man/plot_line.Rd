@@ -6,14 +6,14 @@
 \alias{plot_rank}
 \alias{plot_rank-method}
 \alias{plot_rank,CountMatrix-method}
-\alias{plot_rank,FrequencyMatrix-method}
+\alias{plot_rank,AbundanceMatrix-method}
 \title{Line Plot}
 \usage{
 plot_rank(object, ...)
 
 \S4method{plot_rank}{CountMatrix}(object, log = NULL, facet = TRUE)
 
-\S4method{plot_rank}{FrequencyMatrix}(object, log = NULL, facet = TRUE)
+\S4method{plot_rank}{AbundanceMatrix}(object, log = NULL, facet = TRUE)
 }
 \arguments{
 \item{object}{An object to be plotted.}
@@ -52,8 +52,8 @@ Magurran, A. E. (1988). \emph{Ecological Diversity and its Measurement}.
 }
 \seealso{
 Other plot: \code{\link{plot_bar}},
-  \code{\link{plot_date}}, \code{\link{plot_matrix}},
-  \code{\link{plot_spot}}
+  \code{\link{plot_date}}, \code{\link{plot_diversity}},
+  \code{\link{plot_matrix}}, \code{\link{plot_spot}}
 }
 \author{
 N. Frerebeau

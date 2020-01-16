@@ -13,9 +13,9 @@
 
 <meta name="author" content="N. Frerebeau" />
 
-<meta name="date" content="2019-09-20" />
+<meta name="date" content="2020-01-14" />
 
-<title>4. Dating Methods</title>
+<title>Dating Methods</title>
 
 
 
@@ -304,9 +304,9 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 
 
-<h1 class="title toc-ignore">4. Dating Methods</h1>
+<h1 class="title toc-ignore">Dating Methods</h1>
 <h4 class="author">N. Frerebeau</h4>
-<h4 class="date">2019-09-20</h4>
+<h4 class="date">2020-01-14</h4>
 
 
 <div id="TOC">
@@ -331,7 +331,8 @@ code > span.fu { color: #900; font-weight: bold; }  code > span.er { color: #a61
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="co"># Load packages</span></a>
 <a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(tabula)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(magrittr)</a></code></pre></div>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="co">#&gt; Loading required package: arkhe</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="kw">library</span>(magrittr)</a></code></pre></div>
 <div id="not-all-dates-are-created-equal" class="section level1">
 <h1><span class="header-section-number">1</span> Not All Dates Are Created Equal</h1>
 <p>This vignette presents different methods for dating archaeological assemblages using artifact count data. Here, dating refers to “the placement in time of events relative to one another or to any established scale of temporal measurement” <span class="citation">(Dean 1978)</span>. This involves distinguishing between <em>relative</em> (that provide only a chronological sequence of events) and <em>absolute</em> dating methods (that yield a calendric indication and may provide the duration of an event) <span class="citation">(O’Brien and Lyman 2002)</span>. Strictly speaking, there is no absolute dating given how dates are produced and given that any date refers to a scale. The distinction between absolute and relative time can be rephrased more clearly as quantifiable vs. non-quantifiable <span class="citation">(O’Brien and Lyman 2002)</span>: absolute dates “are expressed as points on standard scales of time measurement” <span class="citation">(Dean 1978)</span>.</p>
@@ -397,13 +398,13 @@ t^{MCD}_i = \sum_{j = 1}^{p} t_j \times \frac{x_{ij}}{x_{i \cdot}}
 <a class="sourceLine" id="cb2-19" data-line-number="19"><span class="co">## (we use a bootstrapping procedure to estimate the confidence interval)</span></a>
 <a class="sourceLine" id="cb2-20" data-line-number="20">zuni_mcd &lt;-<span class="st"> </span><span class="kw">date_mcd</span>(zuni_count, <span class="dt">dates =</span> zuni_mid, <span class="dt">errors =</span> zuni_error)</a>
 <a class="sourceLine" id="cb2-21" data-line-number="21"><span class="kw">head</span>(zuni_mcd)</a>
-<a class="sourceLine" id="cb2-22" data-line-number="22"><span class="co">#&gt;       id      date    error    lower    upper</span></a>
-<a class="sourceLine" id="cb2-23" data-line-number="23"><span class="co">#&gt; 1 LZ1105 1162.5000 49.03861 1161.766 1163.975</span></a>
-<a class="sourceLine" id="cb2-24" data-line-number="24"><span class="co">#&gt; 2 LZ1103 1137.8378 18.82518 1136.045 1139.249</span></a>
-<a class="sourceLine" id="cb2-25" data-line-number="25"><span class="co">#&gt; 3 LZ1100 1154.4643 24.20615 1153.155 1156.802</span></a>
-<a class="sourceLine" id="cb2-26" data-line-number="26"><span class="co">#&gt; 4 LZ1099 1090.6250 26.51650 1090.423 1090.952</span></a>
-<a class="sourceLine" id="cb2-27" data-line-number="27"><span class="co">#&gt; 5 LZ1097 1092.1875 26.51650 1087.666 1094.422</span></a>
-<a class="sourceLine" id="cb2-28" data-line-number="28"><span class="co">#&gt; 6 LZ1096  841.0714 43.59484  834.200  841.625</span></a>
+<a class="sourceLine" id="cb2-22" data-line-number="22"><span class="co">#&gt;       id      date    error     lower     upper</span></a>
+<a class="sourceLine" id="cb2-23" data-line-number="23"><span class="co">#&gt; 1 LZ1105 1162.5000 49.03861 1160.3368 1162.4913</span></a>
+<a class="sourceLine" id="cb2-24" data-line-number="24"><span class="co">#&gt; 2 LZ1103 1137.8378 18.82518 1135.3360 1138.5160</span></a>
+<a class="sourceLine" id="cb2-25" data-line-number="25"><span class="co">#&gt; 3 LZ1100 1154.4643 24.20615 1151.4732 1155.0608</span></a>
+<a class="sourceLine" id="cb2-26" data-line-number="26"><span class="co">#&gt; 4 LZ1099 1090.6250 26.51650 1090.3359 1090.8578</span></a>
+<a class="sourceLine" id="cb2-27" data-line-number="27"><span class="co">#&gt; 5 LZ1097 1092.1875 26.51650 1091.2279 1097.6284</span></a>
+<a class="sourceLine" id="cb2-28" data-line-number="28"><span class="co">#&gt; 6 LZ1096  841.0714 43.59484  835.7059  843.4334</span></a>
 <a class="sourceLine" id="cb2-29" data-line-number="29"></a>
 <a class="sourceLine" id="cb2-30" data-line-number="30"><span class="co">## Plot dates</span></a>
 <a class="sourceLine" id="cb2-31" data-line-number="31"><span class="kw">set_dates</span>(zuni_count) &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">value =</span> zuni_mcd<span class="op">$</span>date, <span class="dt">error =</span> zuni_mcd<span class="op">$</span>error)</a>
@@ -539,18 +540,19 @@ t^A_i \sim \frac{x_{ij}}{x_{i \cdot}} \mathcal{N}(\widehat{t^E_j},\widehat{V_j}^
 <a class="sourceLine" id="cb3-41" data-line-number="41"><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></a>
 <a class="sourceLine" id="cb3-42" data-line-number="42"><span class="co">#&gt; </span></a>
 <a class="sourceLine" id="cb3-43" data-line-number="43"><span class="co">#&gt; Residual standard error: 2.584 on 90 degrees of freedom</span></a>
-<a class="sourceLine" id="cb3-44" data-line-number="44"><span class="co">#&gt; Multiple R-squared:  0.9997, Adjusted R-squared:  0.9997 </span></a>
-<a class="sourceLine" id="cb3-45" data-line-number="45"><span class="co">#&gt; F-statistic: 3.92e+04 on 9 and 90 DF,  p-value: &lt; 2.2e-16</span></a>
-<a class="sourceLine" id="cb3-46" data-line-number="46"></a>
-<a class="sourceLine" id="cb3-47" data-line-number="47"><span class="co">## Estimated event dates</span></a>
-<a class="sourceLine" id="cb3-48" data-line-number="48"><span class="kw">head</span>(model[[<span class="st">&quot;rows&quot;</span>]])</a>
-<a class="sourceLine" id="cb3-49" data-line-number="49"><span class="co">#&gt;             date     lower     upper     error</span></a>
-<a class="sourceLine" id="cb3-50" data-line-number="50"><span class="co">#&gt; LZ1105 1160.9936 1159.5885 1162.3986 0.7072351</span></a>
-<a class="sourceLine" id="cb3-51" data-line-number="51"><span class="co">#&gt; LZ1103 1139.2874 1138.4197 1140.1552 0.4367789</span></a>
-<a class="sourceLine" id="cb3-52" data-line-number="52"><span class="co">#&gt; LZ1100 1156.3392 1155.3922 1157.2862 0.4766701</span></a>
-<a class="sourceLine" id="cb3-53" data-line-number="53"><span class="co">#&gt; LZ1099 1093.4200 1091.4810 1095.3590 0.9759917</span></a>
-<a class="sourceLine" id="cb3-54" data-line-number="54"><span class="co">#&gt; LZ1097 1092.5475 1090.9819 1094.1130 0.7880311</span></a>
-<a class="sourceLine" id="cb3-55" data-line-number="55"><span class="co">#&gt; LZ1096  841.6006  840.2618  842.9394 0.6738873</span></a></code></pre></div>
+<a class="sourceLine" id="cb3-44" data-line-number="44"><span class="co">#&gt;   (320 observations deleted due to missingness)</span></a>
+<a class="sourceLine" id="cb3-45" data-line-number="45"><span class="co">#&gt; Multiple R-squared:  0.9997, Adjusted R-squared:  0.9997 </span></a>
+<a class="sourceLine" id="cb3-46" data-line-number="46"><span class="co">#&gt; F-statistic: 3.92e+04 on 9 and 90 DF,  p-value: &lt; 2.2e-16</span></a>
+<a class="sourceLine" id="cb3-47" data-line-number="47"></a>
+<a class="sourceLine" id="cb3-48" data-line-number="48"><span class="co">## Estimated event dates</span></a>
+<a class="sourceLine" id="cb3-49" data-line-number="49"><span class="kw">head</span>(model[[<span class="st">&quot;rows&quot;</span>]])</a>
+<a class="sourceLine" id="cb3-50" data-line-number="50"><span class="co">#&gt;             date     lower     upper     error</span></a>
+<a class="sourceLine" id="cb3-51" data-line-number="51"><span class="co">#&gt; LZ1105 1160.9936 1159.5885 1162.3986 0.7072351</span></a>
+<a class="sourceLine" id="cb3-52" data-line-number="52"><span class="co">#&gt; LZ1103 1139.2874 1138.4197 1140.1552 0.4367789</span></a>
+<a class="sourceLine" id="cb3-53" data-line-number="53"><span class="co">#&gt; LZ1100 1156.3392 1155.3922 1157.2862 0.4766701</span></a>
+<a class="sourceLine" id="cb3-54" data-line-number="54"><span class="co">#&gt; LZ1099 1093.4200 1091.4810 1095.3590 0.9759917</span></a>
+<a class="sourceLine" id="cb3-55" data-line-number="55"><span class="co">#&gt; LZ1097 1092.5475 1090.9819 1094.1130 0.7880311</span></a>
+<a class="sourceLine" id="cb3-56" data-line-number="56"><span class="co">#&gt; LZ1096  841.6006  840.2618  842.9394 0.6738873</span></a></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="co">## Activity plot</span></a>
 <a class="sourceLine" id="cb4-2" data-line-number="2"><span class="kw">plot_date</span>(model, <span class="dt">type =</span> <span class="st">&quot;activity&quot;</span>, <span class="dt">select =</span> <span class="st">&quot;LZ1105&quot;</span>) <span class="op">+</span></a>
 <a class="sourceLine" id="cb4-3" data-line-number="3"><span class="st">  </span>ggplot2<span class="op">::</span><span class="kw">theme_bw</span>()</a>
@@ -611,7 +613,7 @@ t^A_i \sim \frac{x_{ij}}{x_{i \cdot}} \mathcal{N}(\widehat{t^E_j},\widehat{V_j}^
 <p>O’Brien, Michael J, and R. Lee Lyman. 2002. <em>Seriation, Stratigraphy, and Index Fossils: The Backbone of Archaeological Dating</em>. Dordrecht: Springer.</p>
 </div>
 <div id="ref-poblome2003">
-<p>Poblome, J., and P. J. F. Groenen. 2003. “Constrained Correspondence Analysis for Seriation of Sagalassos Tablewares.” In <em>The Digital Heritage of Archaeology</em>, edited by M. Doerr and A. Sarris. Athens: Hellenic Ministry of Culture.</p>
+<p>Poblome, J., and P. J. F. Groenen. 2003. “Constrained Correspondence Analysis for Seriation of Sagalassos Tablewares.” In <em>The Digital Heritage of Archaeology</em>, edited by M. Doerr and A. Sarris. Hellenic Ministry of Culture.</p>
 </div>
 <div id="ref-south1977">
 <p>South, S. A. 1977. <em>Method and Theory in Historical Archaeology</em>. Studies in Archeology. New York: Academic Press.</p>

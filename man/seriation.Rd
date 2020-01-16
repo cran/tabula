@@ -8,8 +8,6 @@
 \alias{seriate_reciprocal-method}
 \alias{seriate_correspondence}
 \alias{seriate_rank-method}
-\alias{seriate_idds}
-\alias{seriate_idds-method}
 \alias{permute}
 \alias{permute-method}
 \alias{refine_seriation}
@@ -31,8 +29,6 @@
 seriate_reciprocal(object, ...)
 
 seriate_correspondence(object, subset, ...)
-
-seriate_idds(object, ...)
 
 permute(object, order, ...)
 
@@ -230,7 +226,7 @@ Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
  DOI: \href{https://doi.org/10.1016/j.jas.2012.04.040}{10.1016/j.jas.2012.04.040}.
 }
 \seealso{
-\link{refine}, \link[ca]{ca}
+\link[ca]{ca}
 }
 \author{
 N. Frerebeau

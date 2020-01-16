@@ -12,30 +12,43 @@ library(magrittr)
 ## ----richness------------------------------------------------------------
 mississippi %>%
   as_count() %>%
-  richness(method = c("chao1", "margalef", "menhinick"), 
-           unbiased = TRUE, simplify = TRUE) %>%
+  index_richness(method = "margalef")
+
+## ----asymptotic-richness-------------------------------------------------
+mississippi %>%
+  as_count() %>%
+  index_composition(method = "chao1")
+
+## ----rarefaction---------------------------------------------------------
+mississippi %>%
+  as_count() %>%
+  rarefaction(sample = 10, method = "hurlbert", simplify = TRUE) %>%
   head()
 
 ## ----diversity-----------------------------------------------------------
 mississippi %>%
   as_count() %>%
-  diversity(simplify = TRUE) %>%
-  head()
+  index_heterogeneity(method = "shannon")
 
 ## ----evenness------------------------------------------------------------
 mississippi %>%
   as_count() %>%
-  evenness(simplify = TRUE) %>%
-  head()
+  index_evenness(method = "shannon")
 
 ## ----similarity, fig.width=7, fig.height=5, fig.align="center"-----------
-# Brainerd-Robinson index
+# Brainerd-Robinson (similarity between assemblages)
 mississippi %>%
   as_count() %>%
   similarity(method = "brainerd") %>%
   plot_spot() +
-  ggplot2::labs(size = "Similarity", colour = "Similarity") +
   khroma::scale_colour_YlOrBr()
+
+# Binomial co-occurrence (similarity between types)
+mississippi %>%
+  as_count() %>%
+  similarity(method = "binomial") %>%
+  plot_spot() +
+  khroma::scale_colour_PRGn()
 
 ## ----plot-rank, fig.width=7, fig.height=5, fig.align="center"------------
 mississippi %>%

@@ -9,6 +9,50 @@ knitr::opts_chunk$set(
 library(tabula)
 library(magrittr)
 
+## ----plot-freq, fig.cap="Spot plot", fig.width=4, fig.height=6, fig.align="center"----
+## Plot frequencies with the column means as a threshold
+mississippi %>%
+  as_count() %>%
+  plot_spot(threshold = mean) +
+  ggplot2::labs(size = "Frequency", colour = "Mean") +
+  khroma::scale_colour_vibrant()
+
+## ----plot-occ, fig.cap="Spot plot of co-occurrence", fig.width=6, fig.height=4, fig.align="center"----
+## Plot co-occurrence of types
+## (i.e. how many times (percent) each pairs of taxa occur together 
+## in at least one sample.)
+mississippi %>%
+  as_occurrence() %>%
+  plot_spot() +
+  ggplot2::labs(size = "", colour = "Co-occurrence") +
+  ggplot2::theme(legend.box = "horizontal") +
+  khroma::scale_colour_YlOrBr()
+
+## ----plot-matrix, fig.cap="Heatmap", fig.width=7, fig.height=3.5, fig.align="center"----
+boves %>%
+  as_count() %>%
+  plot_heatmap() +
+  khroma::scale_fill_YlOrBr()
+
+## ----plot-matrigraphe, fig.cap="Matrigraphe", fig.width=7, fig.height=3.5, fig.align="center"----
+## Reproduce B. Desachy's matrigraphe
+boves %>%
+  as_count() %>%
+  plot_heatmap(PVI = TRUE) +
+  khroma::scale_fill_BuRd(midpoint = 1)
+
+## ----plot-bertin, fig.cap="Bertin diagram", fig.width=7, fig.height=7, fig.align="center"----
+mississippi %>%
+  as_count() %>%
+  plot_bertin(threshold = mean) +
+  khroma::scale_fill_bright()
+
+## ----plot-ford, fig.cap="Ford diagram", fig.width=7, fig.height=3.5, fig.align="center"----
+boves %>%
+  as_count() %>%
+  plot_ford(EPPM = TRUE) +
+  khroma::scale_fill_contrast()
+
 ## ----ranking, fig.show='hold'--------------------------------------------
 ## Build an incidence matrix with random data
 set.seed(12345)
