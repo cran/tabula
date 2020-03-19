@@ -1,16 +1,16 @@
-## ----setup, include = FALSE, echo=FALSE----------------------------------
+## ----setup, include = FALSE, echo=FALSE---------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   out.width = NULL
 )
 
-## ----packages------------------------------------------------------------
+## ----packages-----------------------------------------------------------------
 # Load packages
 library(tabula)
 library(magrittr)
 
-## ----mcd-model, fig.width=7, fig.height=3.5, fig.align="center"----------
+## ----mcd-model, fig.width=7, fig.height=3.5, fig.align="center"---------------
 ## Coerce the zuni dataset to an abundance (count) matrix
 zuni_count <- as_count(zuni)
 
@@ -40,7 +40,7 @@ plot_date(zuni_count, select = 1:15, sort = "asc") +
   ggplot2::theme_bw() +
   ggplot2::theme(legend.position = "none")
 
-## ----event-model---------------------------------------------------------
+## ----event-model--------------------------------------------------------------
 ## Bellanger et al. did not publish the data supporting their
 ## demonstration: no replication of their results is possible. 
 ## Here is a pseudo-replication using the zuni dataset and results of the 
@@ -64,7 +64,7 @@ summary(model[["model"]])
 ## Estimated event dates
 head(model[["rows"]])
 
-## ----event-plot, fig.show="hold"-----------------------------------------
+## ----event-plot, fig.show="hold"----------------------------------------------
 ## Activity plot
 plot_date(model, type = "activity", select = "LZ1105") +
   ggplot2::theme_bw()
@@ -72,7 +72,7 @@ plot_date(model, type = "activity", select = "LZ1105") +
 plot_date(model, type = "tempo", select = "LZ1105") +
   ggplot2::theme_bw()
 
-## ----event-refine--------------------------------------------------------
+## ----event-refine-------------------------------------------------------------
 ## Check model variability
 ## Jackknife fabrics
 refined_jack <- refine_dates(model, method = "jackknife", n = 1000)

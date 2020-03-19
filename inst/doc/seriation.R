@@ -1,10 +1,10 @@
-## ----setup, include = FALSE, echo=FALSE----------------------------------
+## ----setup, include = FALSE, echo=FALSE---------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 
-## ----packages------------------------------------------------------------
+## ----packages-----------------------------------------------------------------
 # Load packages
 library(tabula)
 library(magrittr)
@@ -53,7 +53,7 @@ boves %>%
   plot_ford(EPPM = TRUE) +
   khroma::scale_fill_contrast()
 
-## ----ranking, fig.show='hold'--------------------------------------------
+## ----ranking, fig.show='hold'-------------------------------------------------
 ## Build an incidence matrix with random data
 set.seed(12345)
 incidence1 <- IncidenceMatrix(data = sample(0:1, 400, TRUE, c(0.6, 0.4)),
@@ -75,7 +75,7 @@ plot_heatmap(incidence2) +
   ggplot2::labs(title = "Rearranged matrix") +
   ggplot2::scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"))
 
-## ----averaging, fig.width=7, fig.height=3.5, fig.show='hold'-------------
+## ----averaging, fig.width=7, fig.height=3.5, fig.show='hold'------------------
 ## Replicates Desachy 2004 results
 
 ## Coerce dataset to an abundance matrix
@@ -98,7 +98,7 @@ plot_ford(compiegne_seriation, EPPM = TRUE) +
   ggplot2::labs(title = "Reordered dataset") +
   khroma::scale_fill_bright()
 
-## ----ca------------------------------------------------------------------
+## ----ca-----------------------------------------------------------------------
 ## Coerce dataset to an abundance matrix
 zuni_counts <- as_count(zuni)
 
@@ -115,7 +115,7 @@ ggplot2::ggplot(mapping = ggplot2::aes(x = Dim1, y = Dim2)) +
   ggplot2::coord_fixed() + 
   ggplot2::theme_bw()
 
-## ----ca-seriation, fig.width=7, fig.height=7-----------------------------
+## ----ca-seriation, fig.width=7, fig.height=7----------------------------------
 ## Get row permutations from CA coordinates
 zuni_indices <- zuni_counts %>%
   seriate_correspondence(margin = 1)
@@ -129,7 +129,7 @@ plot_ford(zuni_seriation) +
   ggplot2::theme(axis.text = ggplot2::element_blank(),
                  axis.ticks = ggplot2::element_blank())
 
-## ----refine, fig.show='hold'---------------------------------------------
+## ----refine, fig.show='hold'--------------------------------------------------
 ## Replicates Peeples and Schachner 2012 results
 
 ## Samples with convex hull maximum dimension length greater than the cutoff
@@ -177,7 +177,7 @@ ggplot2::ggplot(data = hull_length, mapping = ggplot2::aes(x = length)) +
                 x = "Maximum length", y = "Count") + 
   ggplot2::theme_bw()
 
-## ----refine-ca-----------------------------------------------------------
+## ----refine-ca----------------------------------------------------------------
 ## Get CA-based seriation order
 (zuni_refined <- seriate_correspondence(zuni_counts, zuni_keep, margin = 1))
 
