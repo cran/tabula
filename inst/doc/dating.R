@@ -6,13 +6,14 @@ knitr::opts_chunk$set(
 )
 
 ## ----packages-----------------------------------------------------------------
-# Load packages
+## Load packages
 library(tabula)
+library(folio) # Datasets
 library(magrittr)
 
 ## ----mcd-model, fig.width=7, fig.height=3.5, fig.align="center"---------------
 ## Coerce the zuni dataset to an abundance (count) matrix
-zuni_count <- as_count(zuni)
+zuni_counts <- as_count(zuni)
 
 ## Set the start and end dates for each ceramic type
 zuni_dates <- list(
@@ -26,59 +27,57 @@ zuni_dates <- list(
 
 ## Calculate date midpoint
 zuni_mid <- vapply(X = zuni_dates, FUN = mean, FUN.VALUE = numeric(1))
-zuni_error <- vapply(X = zuni_dates, FUN = diff, FUN.VALUE = numeric(1)) / 2
 
 ## Calculate MCD
-## (we use a bootstrapping procedure to estimate the confidence interval)
-zuni_mcd <- date_mcd(zuni_count, dates = zuni_mid, errors = zuni_error)
-head(zuni_mcd)
+zuni_mcd <- date_mcd(zuni_counts, dates = zuni_mid)
 
-## Plot dates
-set_dates(zuni_count) <- list(value = zuni_mcd$date, error = zuni_mcd$error)
-plot_date(zuni_count, select = 1:15, sort = "asc") +
-  ggplot2::labs(title = "Mean Ceramic Date") +
-  ggplot2::theme_bw() +
-  ggplot2::theme(legend.position = "none")
+zuni_mcd %>% 
+  as.data.frame() %>% 
+  head()
 
 ## ----event-model--------------------------------------------------------------
-## Bellanger et al. did not publish the data supporting their
-## demonstration: no replication of their results is possible. 
-## Here is a pseudo-replication using the zuni dataset and results of the 
-## previous example.
+## Bellanger et al. did not publish the data supporting their demonstration: 
+## no replication of their results is possible. 
+## Here is a pseudo-replication using the zuni dataset
 
-## Coerce the zuni dataset to an abundance (count) matrix
-zuni_count <- as_count(zuni)
-
-## Randomly picks 100 assemblages and assume that they are reliably dated
-## (this is NOT a real example)
-set.seed(12345)
-train_index <- sample(seq_len(nrow(zuni_count)), size = 100, replace = FALSE)
-train_dates <- zuni_mcd[train_index, 2]
-names(train_dates) <- zuni_mcd[train_index, 1]
-set_dates(zuni_count) <- train_dates
+## Assume that some assemblages are reliably dated (this is NOT a real example)
+## The names of the vector entries must match the names of the assemblages
+zuni_dates <- c(
+  LZ0569 = 1097, LZ0279 = 1119, CS16 = 1328, LZ0066 = 1111,
+  LZ0852 = 1216, LZ1209 = 1251, CS144 = 1262, LZ0563 = 1206,
+  LZ0329 = 1076, LZ0005Q = 859, LZ0322 = 1109, LZ0067 = 863,
+  LZ0578 = 1180, LZ0227 = 1104, LZ0610 = 1074
+)
 
 ## Model the event and accumulation date for each assemblage
-model <- date_event(zuni_count, cutoff = 90)
+model <- date_event(zuni_counts, dates = zuni_dates, cutoff = 90)
 summary(model[["model"]])
 
-## Estimated event dates
-head(model[["rows"]])
+## Estimate event dates
+event <- predict_event(model, margin = 1, level = 0.95)
+head(event)
+
+## Estimate accumulation dates
+acc <- predict_accumulation(model, level = 0.95)
+head(acc)
 
 ## ----event-plot, fig.show="hold"----------------------------------------------
 ## Activity plot
-plot_date(model, type = "activity", select = "LZ1105") +
+plot_date(model, type = "activity", event = TRUE, select = "LZ1105") +
   ggplot2::theme_bw()
+
 ## Tempo plot
 plot_date(model, type = "tempo", select = "LZ1105") +
   ggplot2::theme_bw()
 
-## ----event-refine-------------------------------------------------------------
+## ----event-refine, warning=FALSE----------------------------------------------
 ## Check model variability
+## Warning: this may take a few seconds
 ## Jackknife fabrics
-refined_jack <- refine_dates(model, method = "jackknife", n = 1000)
-head(refined_jack)
+jack <- jackknife_event(model)
+head(jack)
 
 ## Bootstrap of assemblages
-refined_boot <- refine_dates(model, method = "bootstrap", n = 1000)
-head(refined_boot)
+boot <- bootstrap_event(model, n = 30)
+head(boot)
 

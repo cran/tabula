@@ -4,16 +4,13 @@
 \name{PermutationOrder-class}
 \alias{PermutationOrder-class}
 \alias{.PermutationOrder}
-\title{Permutation order}
+\title{Permutation Order}
 \description{
 An S4 class to represent a permutation order.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{id}}{A \code{\link{character}} string specifying the unique
-identifier of the corresponding matrix (UUID v4).}
-
 \item{\code{rows}}{An \code{\link{integer}} vector giving the rows permutation.}
 
 \item{\code{columns}}{An \code{\link{integer}} vector giving the columns permutation.}
@@ -38,9 +35,11 @@ Numeric values are coerced to \code{\link{integer}} as by
 
 \seealso{
 Other class: 
-\code{\link{BootCA-class}},
-\code{\link{DateModel-class}},
-\code{\link{DiversityIndex}}
+\code{\link{DateEvent-class}},
+\code{\link{DateMCD-class}},
+\code{\link{DiversityIndex}},
+\code{\link{IncrementTest-class}},
+\code{\link{RefineCA-class}}
 }
 \author{
 N. Frerebeau

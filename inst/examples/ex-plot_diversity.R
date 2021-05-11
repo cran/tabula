@@ -1,20 +1,13 @@
-library(magrittr)
-
-merzbach %>%
-  as_count() %>%
-  index_evenness(method = "shannon", simulate = FALSE) %>%
-  plot_diversity()
-
 \donttest{
+## Coerce data to a count matrix
+data("chevelon", package = "folio")
+chevelon <- as_count(chevelon)
+
 ## Assemblage diversity size comparison
 ## Warning: this may take a few seconds!
-merzbach %>%
-  as_count() %>%
-  index_evenness(method = "shannon", simulate = TRUE) %>%
-  plot_diversity()
+sim_evenness <- simulate_evenness(chevelon, method = "shannon")
+plot(sim_evenness)
 
-merzbach %>%
-  as_count() %>%
-  index_richness(method = "none", simulate = TRUE) %>%
-  plot_diversity()
+sim_richness <- simulate_richness(chevelon, method = "none")
+plot(sim_richness)
 }

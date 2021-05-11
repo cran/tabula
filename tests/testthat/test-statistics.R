@@ -1,9 +1,10 @@
-context("Statistics")
-
 test_that("Compute thresholds", {
-  expect_type(independance(compiegne, "EPPM"), "double") # matrix
-  expect_type(independance(compiegne, "PVI"), "double") # matrix
-  expect_error(independance(LETTERS))
+  skip_if_not_installed("folio")
+  data("compiegne", package = "folio")
+  counts <- arkhe::as_count(compiegne)
+
+  expect_type(eppm(counts), "double") # matrix
+  expect_type(pvi(counts), "double") # matrix
 })
 test_that("Binomial coefficient", {
   expect_equal(combination(4, 3), 4)
@@ -21,14 +22,8 @@ test_that("Confidence interval for a proportion", {
   expect_error(confidence_proportion(LETTERS))
 })
 test_that("Jackknife estimation", {
-  jack <- jackknife(1:10, sum)
-  expect_type(jack, "list")
-  expect_type(jack$values, "double")
-  expect_type(jack$bias, "double")
-  expect_type(jack$error, "double")
-  expect_type(jack$values, "double")
-  expect_equal(jack$values, c(54, 53, 52, 51, 50, 49, 48, 47, 46, 45))
-  expect_length(jack$values, 10)
+  jack <- stats_jackknife(1:10, sum)
+  expect_equal(round(jack, 2), c(mean = 49.50, bias = -49.50, error = 8.62))
 })
 test_that("FIT test", {
   ## Data from Feder et al. 2014 (table S2)

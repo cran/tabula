@@ -1,18 +1,10 @@
-## Plot spot diagram...
+## Plot spot diagram of count data...
+data("mississippi", package = "folio")
+counts <- as_count(mississippi)
 
-## ...of count data...
-mississippi_count <- as_count(mississippi)
 ### ...without threshod
-plot_spot(mississippi_count)
+plot_spot(counts)
 ### ...with the  column means as threshold
-plot_spot(mississippi_count, threshold = mean)
+plot_spot(counts, threshold = mean)
 ### ...with the column medians as threshold
-plot_spot(mississippi_count, threshold = median)
-
-## ...of a similarity matrix
-sim <- similarity(mississippi_count, method = "brainerd")
-plot_spot(sim)
-
-## ...of a co-occurrence matrix
-occ <- as_occurrence(mississippi)
-plot_spot(occ)
+plot_spot(counts, threshold = median)

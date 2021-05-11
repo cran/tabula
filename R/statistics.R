@@ -1,49 +1,53 @@
-# HELPERS
+# STATISTICS
+#' @include AllClasses.R AllGenerics.R
+NULL
 
-#' Independance
-#'
-#' @param x A \eqn{m \times p}{m x p} \code{\link{numeric}} matrix.
-#' @param method A \code{\link{character}} string giving the method to be used.
-#'  This must be one of "\code{EPPM}" or "\code{PVI}" (see details). Any
-#'  unambiguous substring can be given.
-#' @details
-#'  Computes for each cell of a numeric matrix one of the following thresholds:
-#'  \describe{
-#'   \item{EPPM}{The positive deviation from the column mean percentage (in
-#'    french "écart positif au pourcentage moyen", EPPM)}
-#'   \item{PVI}{The percentage of independence value (in french,
-#'   "pourcentage de valeur d'indépendance", PVI).}
-#'  }
-#' @return A \eqn{m \times p}{m x p} \code{\link{numeric}} matrix.
-#' @author N. Frerebeau
-#' @keywords internal
-#' @noRd
-independance <- function(x, method = c("EPPM", "PVI")) {
-  # Validation
-  method <- match.arg(method, several.ok = FALSE)
-  if (!is.matrix(x) || !is.numeric(x))
-    stop("A numeric matrix is expected.", call. = FALSE)
-
-  # Independance
-  values <- apply(
-    X = x, MARGIN = 1, FUN = function(x, column_total, grand_total) {
-      sum(x) * column_total / grand_total
-    },
-    column_total = colSums(x),
-    grand_total = sum(x)
-  )
-  # Threshold
-  if (method == "EPPM") {
-    threshold <- (x - t(values)) / rowSums(x)
+#' @export
+#' @rdname independance
+#' @aliases eppm,CountMatrix-method
+setMethod(
+  f = "eppm",
+  signature = signature(object = "CountMatrix"),
+  definition = function(object) {
+    # Independance
+    values <- apply(
+      X = object, MARGIN = 1, FUN = function(x, column_total, grand_total) {
+        sum(x) * column_total / grand_total
+      },
+      column_total = colSums(object),
+      grand_total = sum(object)
+    )
+    # Threshold
+    threshold <- (object - t(values)) / rowSums(object)
     threshold[threshold < 0] <- 0
-  }
-  if (method == "PVI") {
-    threshold <- x / t(values)
-  }
 
-  dimnames(threshold) <- dimnames(x)
-  return(threshold)
-}
+    dimnames(threshold) <- dimnames(object)
+    threshold
+  }
+)
+
+#' @export
+#' @rdname independance
+#' @aliases pvi,CountMatrix-method
+setMethod(
+  f = "pvi",
+  signature = signature(object = "CountMatrix"),
+  definition = function(object) {
+    # Independance
+    values <- apply(
+      X = object, MARGIN = 1, FUN = function(x, column_total, grand_total) {
+        sum(x) * column_total / grand_total
+      },
+      column_total = colSums(object),
+      grand_total = sum(object)
+    )
+    # Threshold
+    threshold <- object / t(values)
+
+    dimnames(threshold) <- dimnames(object)
+    threshold
+  }
+)
 
 #' Binomial Coefficient
 #'
@@ -87,7 +91,7 @@ combination <- function(n, k) {
 #' @param do A \code{\link{function}} that takes \code{x} as an argument
 #'  and returns a single numeric value.
 #' @param ... Extra arguments passed to \code{do}.
-#' @return A list with the following elements:
+#' @return A \code{numeric} vector with the following elements:
 #'  \describe{
 #'   \item{values}{The \eqn{n} leave-one-out values.}
 #'   \item{mean}{The jackknife estimate of mean.}
@@ -95,10 +99,10 @@ combination <- function(n, k) {
 #'   \item{error}{he jackknife estimate of standard error.}
 #'  }
 #' @keywords internal
-#' @noRd
-jackknife <- function(x, do, ...) {
+stats_jackknife <- function(x, do, ...) {
   n <- length(x)
   hat <- do(x, ...)
+
   jack_values <- vapply(
     X = seq_len(n),
     FUN = function(i, x, do, ...) {
@@ -107,43 +111,53 @@ jackknife <- function(x, do, ...) {
     FUN.VALUE = double(1),
     x, do, ...
   )
+
   jack_mean <- mean(jack_values)
   jack_bias <- (n - 1) * (jack_mean - hat)
   jack_error <- sqrt(((n - 1) / n) * sum((jack_values - jack_mean)^2))
 
-  list(values = jack_values, mean = jack_mean,
-       bias = jack_bias, error = jack_error)
+  results <- c(jack_mean, jack_bias, jack_error)
+  names(results) <- c("mean", "bias", "error")
+  results
 }
+
 #' Bootstrap Estimation
 #'
 #' @param x A vector.
 #' @param do A \code{\link{function}} that takes \code{x} as an argument
 #'  and returns a single numeric value.
+#' @param probs A \code{\link{numeric}} vector of probabilities with values in
+#'  \eqn{[0,1]} (see \code{\link[stats:quantile]{quantile}}).
 #' @param n A non-negative \code{\link{integer}} giving the number of bootstrap
 #' replications.
+#' @param na.rm A \code{\link{logical}} scalar: should missing values be removed
+#' from \code{x} before the quantiles are computed?
 #' @param ... Extra arguments passed to \code{do}.
-#' @return A list with the following elements:
+#' @return A \code{numeric} vector with the following elements:
 #'  \describe{
 #'   \item{min}{Minimum value.}
-#'   \item{Q05}{Sample quantile to 0.05 probability.}
-#'   \item{mean}{Mean value (event date).}
-#'   \item{Q95}{Sample quantile to 0.95 probability.}
+#'   \item{mean}{Mean value.}
 #'   \item{max}{Maximum value.}
+#'   \item{Q*}{Sample quantile to * probability.}
 #'  }
 #' @keywords internal
-#' @noRd
-bootstrap <- function(x, do, n = 1000, ...) {
-
-  replicates <- stats::rmultinom(n, size = sum(x), prob = x / sum(x))
+stats_bootstrap <- function(x, do, probs = c(0.05, 0.95),
+                            n = 1000, na.rm = FALSE, ...) {
+  total <- sum(x)
+  replicates <- stats::rmultinom(n, size = total, prob = x / total)
   boot_values <- apply(X = replicates, MARGIN = 2, FUN = do, ...)
 
-  list(
-    min = min(boot_values),
-    Q05 = stats::quantile(boot_values, probs = 0.05),
-    mean = mean(boot_values),
-    Q95 = stats::quantile(boot_values, probs = 0.95),
-    max = max(boot_values)
+  Q <- stats::quantile(boot_values, probs = probs, na.rm = na.rm, names = FALSE)
+  quant <- paste0("Q", round(probs * 100, 0))
+
+  results <- c(
+    min(boot_values, na.rm = na.rm),
+    mean(boot_values, na.rm = na.rm),
+    max(boot_values, na.rm = na.rm),
+    Q
   )
+  names(results) <- c("min", "mean", "max", quant)
+  results
 }
 
 #' Confidence Interval for a Proportion

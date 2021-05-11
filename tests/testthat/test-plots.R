@@ -1,41 +1,9 @@
-context("Plots")
-
-test_count <- as(mississippi, "CountMatrix")
-test_freq <- as(mississippi, "AbundanceMatrix")
-test_incid <- as(mississippi, "IncidenceMatrix")
-test_occ <- as(mississippi, "OccurrenceMatrix")
-test_sim <- similarity(test_count)
-
-test_that("Deprecated plot", {
-  # Deprecated
-  gg_old_bar1 <- suppressWarnings(
-    plotBar(test_count, level = FALSE, EPPM = FALSE,
-            center = TRUE, horizontal = FALSE)
-  )
-  vdiffr::expect_doppelganger("gg_old_bar1", gg_old_bar1)
-  gg_old_bar2 <- suppressWarnings(
-    plotBar(test_count, level = 0.95, EPPM = FALSE,
-            center = TRUE, horizontal = FALSE)
-  )
-  vdiffr::expect_doppelganger("gg_old_bar2", gg_old_bar2)
-  gg_old_bar3 <- suppressWarnings(
-    plotBar(test_count, level = 0.95, EPPM = TRUE,
-            center = TRUE, horizontal = FALSE)
-  )
-  vdiffr::expect_doppelganger("gg_old_bar3", gg_old_bar3)
-  gg_old_bar4 <- suppressWarnings(
-    plotBar(test_count, level = FALSE, EPPM = TRUE,
-            center = FALSE, horizontal = TRUE)
-  )
-  vdiffr::expect_doppelganger("gg_old_bar4", gg_old_bar4)
-
-  expect_warning(plotBar(test_count), "deprecated")
-  expect_warning(plotBar(test_freq), "deprecated")
-  expect_warning(plotMatrix(test_count), "deprecated")
-  expect_warning(plotRank(test_count), "deprecated")
-  expect_warning(plotSpot(test_count), "deprecated")
-})
 test_that("Bertin plot", {
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("mississippi", package = "folio")
+  test_count <- arkhe::as_count(mississippi)
+
   # Count data
   # No threshold, no scale
   gg_bertin <- plot_bertin(test_count)
@@ -44,24 +12,32 @@ test_that("Bertin plot", {
   gg_bertin_threshold <- plot_bertin(test_count, threshold = mean)
   vdiffr::expect_doppelganger("bertin_threshold", gg_bertin_threshold)
   # No threshold, scale
-  scale_01 <- function(x) (x - min(x)) / (max(x) - min(x))
   gg_bertin_scale <- plot_bertin(test_count, scale = scale_01)
   vdiffr::expect_doppelganger("bertin_scale", gg_bertin_scale)
 })
 test_that("Ford plot", {
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("mississippi", package = "folio")
+  test_count <- arkhe::as_count(mississippi)
+
   # Count data
   for (i in c(TRUE, FALSE)) {
-    # Count data
     gg_ford <- plot_ford(test_count, EPPM = i)
     vdiffr::expect_doppelganger(paste0("ford_count_EPPM-", i), gg_ford)
   }
 })
 test_that("Matrix plot", {
-  for (i in c(TRUE, FALSE)) {
-    # Count data
-    gg_mtx_count <- plot_heatmap(test_count, PVI = i)
-    vdiffr::expect_doppelganger(paste0("mtx_count_PVI-", i), gg_mtx_count)
-  }
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("mississippi", package = "folio")
+  test_count <- arkhe::as_count(mississippi)
+  test_freq <- arkhe::as_composition(mississippi)
+  test_incid <- arkhe::as_incidence(mississippi)
+
+  # Count data
+  gg_mtx_count <- plot_heatmap(test_count)
+  vdiffr::expect_doppelganger("mtx_count", gg_mtx_count)
   # Frequency data
   gg_mtx_freq <- plot_heatmap(test_freq)
   vdiffr::expect_doppelganger("mtx_freq", gg_mtx_freq)
@@ -70,6 +46,12 @@ test_that("Matrix plot", {
   vdiffr::expect_doppelganger("mtx_incid", gg_mtx_incid)
 })
 test_that("Rank plot", {
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("mississippi", package = "folio")
+  test_count <- arkhe::as_count(mississippi)
+  test_freq <- arkhe::as_composition(mississippi)
+
   for (i in c(TRUE, FALSE)) {
     # Count data
     gg_rank_count <- plot_rank(test_count, facet = i)
@@ -85,6 +67,12 @@ test_that("Rank plot", {
   }
 })
 test_that("Spot plot - Abundance", {
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("mississippi", package = "folio")
+  test_count <- arkhe::as_count(mississippi)
+  test_freq <- arkhe::as_composition(mississippi)
+
   # Count data, no threshold
   gg_spot_count <- plot_spot(test_count)
   vdiffr::expect_doppelganger("spot_count", gg_spot_count)
@@ -93,10 +81,63 @@ test_that("Spot plot - Abundance", {
   vdiffr::expect_doppelganger("spot_freq", gg_spot_freq)
 })
 test_that("Spot plot - Similarity", {
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("merzbach", package = "folio")
+  test_count <- arkhe::as_count(mississippi)
+  test_sim <- similarity(test_count, method = "brainerd")
+
   gg_spot_sim <- plot_spot(test_sim)
   vdiffr::expect_doppelganger("spot_sim", gg_spot_sim)
 })
 test_that("Spot plot - Co-Occurrence", {
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("merzbach", package = "folio")
+  test_occ <- arkhe::as_occurrence(mississippi)
+
   gg_spot_occ <- plot_spot(test_occ)
   vdiffr::expect_doppelganger("spot_occ", gg_spot_occ)
+})
+test_that("Time plot", {
+  skip_if_not_installed("vdiffr")
+  skip_if_not_installed("folio")
+  data("merzbach", package = "folio")
+
+  # Keep only decoration types that have a maximum frequency of at least 50
+  keep <- apply(X = merzbach, MARGIN = 2, FUN = function(x) max(x) >= 50)
+  counts <- as(merzbach[, keep], "CountMatrix")
+  # Use the row names as time coordinates (roman numerals)
+  dates <- as.numeric(as.roman(rownames(counts)))
+
+  # Plot time vs abundance
+  for (i in c(TRUE, FALSE)) {
+    gg_time_facet <- plot_time(counts, dates, facet = i)
+    vdiffr::expect_doppelganger(paste0("time_facet-", i), gg_time_facet)
+  }
+
+  # Plot time vs abundance and highlight selection
+  # Frequency Increment Test
+  freq <- test_fit(counts, dates)
+  for (i in c(TRUE, FALSE)) {
+    gg_time_roll <- plot_time(freq, roll = i, window = 5)
+    vdiffr::expect_doppelganger(paste0("time_FIT_roll-", i), gg_time_roll)
+  }
+
+  # Errors
+  expect_error(plot_time(freq, roll = TRUE, window = 2), "odd integer")
+})
+test_that("Diversity", {
+  skip_if_not_installed("folio")
+  data("chevelon", package = "folio")
+  counts <- as_count(chevelon)
+
+  skip_if_not_installed("vdiffr")
+  idx_heterogeneity <- with_seed(12345, simulate_heterogeneity(counts, method = "shannon", n = 100))
+  gg_heterogeneity <- plot(idx_heterogeneity)
+  vdiffr::expect_doppelganger("idx_heterogeneity", gg_heterogeneity)
+
+  idx_richness <- with_seed(12345, simulate_richness(counts, method = "none", n = 100))
+  gg_richness <- plot(idx_richness)
+  vdiffr::expect_doppelganger("idx_richness", gg_richness)
 })

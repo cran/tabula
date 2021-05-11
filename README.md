@@ -3,35 +3,28 @@
 
 # tabula <img width=120px src="man/figures/logo.png" align="right" />
 
-[![Appveyor build
-status](https://ci.appveyor.com/api/projects/status/t1qmnis4ekqwslgs/branch/master?svg=true)](https://ci.appveyor.com/project/nfrerebeau/tabula/branch/master)
-[![Travis build
-Status](https://travis-ci.org/nfrerebeau/tabula.svg?branch=master)](https://travis-ci.org/nfrerebeau/tabula)
-[![codecov](https://codecov.io/gh/nfrerebeau/tabula/branch/master/graph/badge.svg)](https://codecov.io/gh/nfrerebeau/tabula)
+<!-- badges: start -->
 
-[![CRAN
-Version](http://www.r-pkg.org/badges/version/tabula)](https://cran.r-project.org/package=tabula)
-[![CRAN
-checks](https://cranchecks.info/badges/worst/tabula)](https://cran.r-project.org/web/checks/check_results_tabula.html)
-[![CRAN
-Downloads](http://cranlogs.r-pkg.org/badges/tabula)](https://cran.r-project.org/package=tabula)
+[![R build
+status](https://github.com/tesselle/tabula/workflows/R-CMD-check/badge.svg)](https://github.com/tesselle/tabula/actions)
+[![codecov](https://codecov.io/gh/tesselle/tabula/branch/master/graph/badge.svg)](https://codecov.io/gh/tesselle/tabula)
 
 [![Project Status: Active – The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![lifecycle](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://www.tidyverse.org/lifecycle/#stable)
 
 [![DOI
 Zenodo](https://zenodo.org/badge/DOI/10.5281/zenodo.1489944.svg)](https://doi.org/10.5281/zenodo.1489944)
 [![DOI
 JOSS](https://joss.theoj.org/papers/10.21105/joss.01821/status.svg)](https://doi.org/10.21105/joss.01821)
+<!-- badges: end -->
 
 ## Overview
 
-An easy way to examine archaeological count data. This package provides
-a convenient and reproducible toolkit for relative and absolute dating
-and analysis of (chronological) patterns. It includes functions for
-matrix seriation (reciprocal ranking, CA-based seriation), chronological
+An easy way to examine archaeological count data. **tabula** provides a
+convenient and reproducible toolkit for relative and absolute dating and
+analysis of (chronological) patterns. It includes functions for matrix
+seriation (reciprocal ranking, CA-based seriation), chronological
 modeling and dating of archaeological assemblages and/or objects. Beyond
 these, the package provides several tests and measures of diversity:
 heterogeneity and evenness (Brillouin, Shannon, Simpson, etc.), richness
@@ -56,112 +49,101 @@ You can install the released version of **tabula** from
 install.packages("tabula")
 ```
 
-Or install the development version from GitHub with:
+And the development version from [GitHub](https://github.com/) with:
 
 ``` r
-# install.packages("devtools")
-remotes::install_github("nfrerebeau/tabula")
+# install.packages("remotes")
+remotes::install_github("tesselle/tabula")
 ```
 
 ## Usage
 
 ``` r
-# Load packages
+## Load packages
 library(tabula)
-#> Loading required package: arkhe
 
-library(khroma)
+library(folio) # Datasets
+library(khroma) # Color scales
 library(ggplot2)
 library(magrittr)
 ```
 
-**tabula** uses a set of S4 classes that extend the basic `matrix` data
-type. These new classes represent different special types of matrix:
-
-  - Numeric matrix:
-      - `CountMatrix` represents absolute frequency data,
-      - `AbundanceMatrix` represents relative frequency data,
-      - `OccurrenceMatrix` represents a co-occurrence matrix,
-      - `SimilarityMatrix` represents a (dis)similarity matrix,
-  - Logical matrix:
-      - `IncidenceMatrix` represents presence/absence data,
-      - `StratigraphicMatrix` represents stratigraphic relationships.
+**tabula** uses a set of S4 classes that represent different special
+types of matrix. Please refer to the documentation of the
+[**arkhe**](https://github.com/tesselle/arkhe) package where these
+classes are defined.
 
 *It assumes that you keep your data tidy*: each variable (type/taxa)
 must be saved in its own column and each observation (sample/case) must
 be saved in its own row.
 
-These new classes are of simple use, please refer to the documentation
-of the [**arkhe**](https://github.com/nfrerebeau/arkhe) package where
-these classes are defined.
-
 ### Visualization
 
 Several types of graphs are available in **tabula** which uses
-[**ggplot2**](https://github.com/tidyverse/ggplot2) for plotting
-informations. This makes it easy to customize diagrams (e.g. using
-themes and scales).
-
-Spot matrix\[1\] allows direct examination of data:
-
-``` r
-# Plot co-occurrence of types
-# (i.e. how many times (percent) each pairs of taxa occur together 
-# in at least one sample.)
-mississippi %>%
-  as_occurrence() %>%
-  plot_spot() +
-  ggplot2::labs(size = "", colour = "Co-occurrence") +
-  ggplot2::theme(legend.box = "horizontal") +
-  khroma::scale_colour_YlOrBr()
-```
-
-<img src="man/figures/README-plot-occ-1.png" style="display: block; margin: auto;" />
+[**ggplot2**](https://ggplot2.tidyverse.org) for plotting informations.
+This makes it easy to customize diagrams (e.g. using themes and scales).
 
 Bertin or Ford (battleship curve) diagrams can be plotted, with
 statistic threshold (including B. Desachy’s
 [sériographe](https://doi.org/10.3406/pica.2004.2396)).
 
 ``` r
+## Bertin matrix with variables scaled to 0-1 and the variable mean as threshold
+scale_01 <- function(x) (x - min(x)) / (max(x) - min(x))
 mississippi %>%
   as_count() %>%
-  plot_bertin(threshold = mean) +
-  khroma::scale_fill_vibrant()
+  plot_bertin(threshold = mean, scale = scale_01) +
+  khroma::scale_fill_vibrant(name = "Mean")
 ```
 
 <img src="man/figures/README-bertin-1.png" style="display: block; margin: auto;" />
 
 ``` r
-compiegne %>%
+## Ford diagram
+mississippi %>%
   as_count() %>%
   plot_ford()
 ```
 
 <img src="man/figures/README-ford-1.png" style="display: block; margin: auto;" />
 
+Spot matrix[1] allows direct examination of data:
+
+``` r
+## Plot co-occurrence of types
+## (i.e. how many times (percent) each pairs of taxa occur together 
+## in at least one sample.)
+mississippi %>%
+  as_occurrence() %>%
+  plot_spot() +
+  ggplot2::labs(size = "Co-occurrence", colour = "Co-occurrence") +
+  khroma::scale_colour_YlOrBr()
+```
+
+<img src="man/figures/README-plot-occ-1.png" style="display: block; margin: auto;" />
+
 ### Seriation
 
 ``` r
-# Build an incidence matrix with random data
+## Build an incidence matrix with random data
 set.seed(12345)
-incidence <- IncidenceMatrix(data = sample(0:1, 400, TRUE, c(0.6, 0.4)),
-                             nrow = 20)
+binary <- sample(0:1, 400, TRUE, c(0.6, 0.4))
+incidence <- IncidenceMatrix(data = binary, nrow = 20)
 
-# Get seriation order on rows and columns
-# Correspondance analysis-based seriation
-(indices <- seriate_reciprocal(incidence, margin = c(1, 2)))
-#> <PermutationOrder: 2116a2a1-18fa-4b40-b68b-37906e31a8c6>
+## Get seriation order on rows and columns
+## Correspondance analysis-based seriation
+(indices <- seriate_rank(incidence, margin = c(1, 2)))
+#> <PermutationOrder: reciprocal ranking>
 #> Permutation order for matrix seriation:
 #> - Row order: 1 4 20 3 9 16 19 10 13 2 11 7 17 5 6 18 14 15 8 12...
 #> - Column order: 1 16 9 4 8 14 3 20 13 2 6 18 7 17 5 11 19 12 15 10...
-#> - Method: reciprocal
 
-# Permute matrix rows and columns
+## Permute matrix rows and columns
 incidence2 <- permute(incidence, indices)
 ```
 
 ``` r
-# Plot matrix
+## Plot matrix
 plot_heatmap(incidence) + 
   ggplot2::labs(title = "Original matrix") +
   ggplot2::scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"))
@@ -180,44 +162,47 @@ method developed by Bellanger and Husi
 slightly modified here and allows the construction of different
 probability density curves of archaeological assemblage dates (*event*,
 *activity* and *tempo*). Note that this implementation is experimental
-(see `help(date_event)`).
+(see `vignette("dating")`).
 
 ``` r
-# Coerce dataset to abundance (count) matrix
+## Coerce dataset to abundance (count) matrix
 zuni_counts <- as_count(zuni)
-# Assume that some assemblages are reliably dated (this is NOT a real example)
-# The names of the vector entries must match the names of the assemblages
-set_dates(zuni_counts) <- c(
+## Assume that some assemblages are reliably dated (this is NOT a real example)
+## The names of the vector entries must match the names of the assemblages
+zuni_dates <- c(
   LZ0569 = 1097, LZ0279 = 1119, CS16 = 1328, LZ0066 = 1111,
   LZ0852 = 1216, LZ1209 = 1251, CS144 = 1262, LZ0563 = 1206,
   LZ0329 = 1076, LZ0005Q = 859, LZ0322 = 1109, LZ0067 = 863,
   LZ0578 = 1180, LZ0227 = 1104, LZ0610 = 1074
 )
 
-# Model the event date for each assemblage
-model <- date_event(zuni_counts, cutoff = 90)
-# Plot activity and tempo distributions
-plot_date(model, type = "activity", select = "LZ1105") +
+## Model the event date for each assemblage
+event <- date_event(zuni_counts, dates = zuni_dates, cutoff = 90)
+
+## Plot activity and tempo distributions
+plot_date(event, type = "activity", select = "LZ1105") +
   ggplot2::labs(title = "Activity plot") +
   ggplot2::theme_bw()
-plot_date(model, type = "tempo", select = "LZ1105") +
+plot_date(event, type = "tempo", select = "LZ1105") +
   ggplot2::labs(title = "Tempo plot") +
   ggplot2::theme_bw()
 ```
 
 ![](man/figures/README-date-1.png)![](man/figures/README-date-2.png)
 
-### Analysis
+### Diversity
 
-*Diversity* can be measured according to several indices (sometimes
-referred to as indices of *heterogeneity*):
+*Diversity* can be measured according to several indices (referred to as
+indices of *heterogeneity* – see `vignette("diversity")`). Corresponding
+*evenness* (i.e. a measure of how evenly individuals are distributed
+across the sample) can also be computed, as well as *richness* and
+*rarefaction*.
 
 ``` r
 mississippi %>%
   as_count() %>%
   index_heterogeneity(method = "shannon")
-#> <HeterogeneityIndex: bdd1c08f-43f6-4396-a7ae-484565a00345>
-#> - Method: shannon
+#> <HeterogeneityIndex: shannon>
 #>             size     index
 #> 10-P-1       153 1.2027955
 #> 11-N-9       758 0.7646565
@@ -239,26 +224,24 @@ mississippi %>%
 #> Holden Lake  360 0.7307620
 #> 13-N-15     1300 1.1270126
 #> 12-N-3       983 1.0270291
-
-## Test difference in Shannon diversity between assemblages
-## (returns a matrix of adjusted p values)
-mississippi[1:5, ] %>%
-  as_count() %>%
-  test_diversity()
-#>               10-P-1       11-N-9       11-N-1   11-O-10
-#> 11-N-9  0.000000e+00           NA           NA        NA
-#> 11-N-1  3.609626e-08 8.538298e-05           NA        NA
-#> 11-O-10 2.415845e-13 4.735511e-01 2.860461e-02        NA
-#> 11-N-4  0.000000e+00 7.116363e-01 7.961107e-05 0.7116363
 ```
 
-Note that `berger`, `mcintosh` and `simpson` methods return a
-*dominance* index, not the reciprocal form usually adopted, so that an
-increase in the value of the index accompanies a decrease in diversity.
+``` r
+## Data from Conkey 1980, Kintigh 1989, p. 28
+chevelon <- as_count(chevelon)
 
-Corresponding *evenness* (i.e. a measure of how evenly individuals are
-distributed across the sample) can also be computed, as well as
-*richness* and *rarefaction*.
+sim_heterogeneity <- simulate_heterogeneity(chevelon, method = "shannon")
+plot(sim_heterogeneity) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "bottom")
+
+sim_richness <- simulate_richness(chevelon, method = "none")
+plot(sim_richness) +
+  ggplot2::theme_bw() +
+  ggplot2::theme(legend.position = "bottom")
+```
+
+![](man/figures/README-sample-size-1.png)![](man/figures/README-sample-size-2.png)
 
 Several methods can be used to ascertain the degree of *turnover* in
 taxa composition along a gradient on qualitative (presence/absence)
@@ -275,41 +258,16 @@ mississippi %>%
   as_count() %>%
   similarity(method = "brainerd") %>%
   plot_spot() +
-  ggplot2::labs(size = "Similarity", colour = "Similarity") +
-  khroma::scale_colour_iridescent()
+  khroma::scale_colour_iridescent(name = "brainerd")
 ```
 
 <img src="man/figures/README-similarity-brainerd-1.png" style="display: block; margin: auto;" />
 
-The Frequency Increment Test can be used to assess the detection and
-quantification of selective processes in the archaeological
-record\[2\].
-
-``` r
-## Keep only decoration types that have a maximum frequency of at least 50
-keep <- apply(X = merzbach, MARGIN = 2, FUN = function(x) max(x) >= 50)
-merzbach_count <- as_count(merzbach[, keep])
-
-## The data are grouped by phase
-## We use the row names as time coordinates (roman numerals)
-set_dates(merzbach_count) <- rownames(merzbach)
-## Plot time vs abundance and highlight selection
-plot_time(merzbach_count, highlight = "FIT", roll = TRUE) +
-  ggplot2::theme_bw() +
-  khroma::scale_color_contrast()
-```
-
-<img src="man/figures/README-plot-time-1.png" style="display: block; margin: auto;" />
-
 ## Contributing
 
 Please note that the **tabula** project is released with a [Contributor
-Code of
-Conduct](https://github.com/nfrerebeau/tabula/blob/master/.github/CODE_OF_CONDUCT.md).
-By contributing to this project, you agree to abide by its terms.
+Code of Conduct](https://www.tesselle.org/conduct.html). By contributing
+to this project, you agree to abide by its terms.
 
-1.  Adapted from Dan Gopstein’s original
-    [idea](https://dgopstein.github.io/articles/spot-matrix/).
-
-2.  Adapted from Ben Marwick’s original
-    [idea](https://github.com/benmarwick/signatselect/).
+[1] Adapted from Dan Gopstein’s original
+[idea](https://dgopstein.github.io/articles/spot-matrix/).

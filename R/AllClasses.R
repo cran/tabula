@@ -1,22 +1,19 @@
 # CLASSES DEFINITION AND INITIALIZATION
-#' @include utilities.R
 NULL
 
-# DEFINITION ===================================================================
+# Register S3 classes ==========================================================
+setOldClass("dist")
+
+# DiversityIndex ===============================================================
 #' Diversity Index
 #'
 #' An S4 class to represent a diversity measure.
-#' @slot id A \code{\link{character}} string specifying the unique
-#'  identifier of the corresponding matrix (UUID v4).
-#' @slot index A \code{\link{numeric}} vector giving the diversity index values.
+#' @slot data A \code{\link{numeric}} matrix of count data.
+#' @slot values A \code{\link{numeric}} vector giving the diversity index values.
 #' @slot size A \code{\link{integer}} vector giving the sample sizes.
-#' @slot jackknife A numeric \code{\link{matrix}} vector giving the jackknifed
-#'  estimates.
-#' @slot boostrap A numeric \code{\link{matrix}} vector giving the boostraped
-#'  estimates.
-#' @slot simulated A numeric \code{\link{matrix}} vector giving the diversity
+#' @slot simulation A \code{\link{numeric}} matrix giving the diversity
 #'  measures for the simulated assemblage.
-#' @slot method A \code{\link{character}} string indicating the method used.
+#' @slot method A \code{\link{character}} string specifying the method used.
 #' @section Subset:
 #'  In the code snippets below, \code{x} is a \code{DiversityIndex} object.
 #'  \describe{
@@ -36,56 +33,133 @@ NULL
 .DiversityIndex <- setClass(
   Class = "DiversityIndex",
   slots = c(
-    id = "character",
-    index = "numeric",
+    names = "character",
+    values = "numeric",
     size = "integer",
-    jackknife = "matrix",
-    boostrap = "matrix",
-    simulated = "matrix",
+    simulation = "matrix",
     method = "character"
+  ),
+  prototype = list(
+    names = character(0),
+    values = numeric(0),
+    size = integer(0),
+    simulation = matrix(data = 0, nrow = 0, ncol = 3),
+    method = "none"
   )
 )
 #' @rdname DiversityIndex
-#' @aliases HeterogeneityIndex HeterogeneityIndex-class
+#' @aliases HeterogeneityIndex-class
 .HeterogeneityIndex <- setClass(
   Class = "HeterogeneityIndex",
   contains = "DiversityIndex"
 )
 #' @rdname DiversityIndex
-#' @aliases EvennessIndex EvennessIndex-class
+#' @aliases EvennessIndex-class
 .EvennessIndex <- setClass(
   Class = "EvennessIndex",
   contains = "DiversityIndex"
 )
 #' @rdname DiversityIndex
-#' @aliases RichnessIndex RichnessIndex-class
+#' @aliases RichnessIndex-class
 .RichnessIndex <- setClass(
   Class = "RichnessIndex",
   contains = "DiversityIndex"
 )
+#' @rdname DiversityIndex
+#' @aliases CompositionIndex-class
+.CompositionIndex <- setClass(
+  Class = "CompositionIndex",
+  contains = "DiversityIndex"
+)
 
-## -----------------------------------------------------------------------------
+# IncrementTest ================================================================
+#' Frequency Increment Test
+#'
+#' An S4 class to represent a Frequency Increment Test results.
+#' @slot data A \code{\link{numeric}} matrix of count data.
+#' @slot dates A \code{\link{numeric}} vector of dates.
+#' @slot statistic A \code{\link{numeric}} vector giving the values of the
+#'  t-statistic.
+#' @slot parameter An \code{\link{integer}} giving the degrees of freedom for
+#'  the t-statistic.
+#' @slot p_value A \code{\link{numeric}} vector giving the the p-value for the
+#'  test.
+#' @section Subset:
+#'  In the code snippets below, \code{x} is a \code{IncrementTest} object.
+#'  \describe{
+#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
+#'   subscript \code{i}. \code{i} is a length-one \code{\link{character}}
+#'   vector. Returns the corresponding slot values.}
+#'  }
+#' @author N. Frerebeau
+#' @family class
+#' @docType class
+#' @aliases IncrementTest-class
+.IncrementTest <- setClass(
+  Class = "IncrementTest",
+  slots = c(
+    data = "matrix",
+    dates = "numeric",
+    statistic = "numeric",
+    parameter = "integer",
+    p_value = "numeric"
+  )
+)
+
+# DateMCD ======================================================================
+#' Mean Ceramic Date
+#'
+#' S4 classes to store the Mean Ceramic Date of archaeological assemblages.
+#' @slot data A \code{\link{numeric}} matrix of count data.
+#' @slot dates A \code{\link{numeric}} vector of dates.
+#' @slot mcd_values A \code{\link{numeric}} vector of errors.
+#' @slot mcd_errors A \code{\link{numeric}} vector of errors.
+#' @section Subset:
+#'  In the code snippets below, \code{x} is a \code{DateMCD} object.
+#'  \describe{
+#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
+#'   subscript \code{i}. \code{i} is a length-one \code{\link{character}}
+#'   vector. Returns the corresponding slot values.}
+#'  }
+#' @author N. Frerebeau
+#' @family class
+#' @docType class
+#' @aliases DateMCD-class
+.DateMCD <- setClass(
+  Class = "DateMCD",
+  slots = c(
+    data = "matrix",
+    dates = "numeric",
+    mcd_values = "numeric",
+    mcd_errors = "numeric"
+  )
+)
+
+# DateModel ====================================================================
 #' Date Model
 #'
-#' An S4 class to store the event and accumulation times of archaeological
+#' S4 classes to store the event and accumulation times of archaeological
 #'  assemblages.
-#' @slot id A \code{\link{character}} string specifying the unique
-#'  identifier of the corresponding matrix (UUID v4).
-#' @slot counts A numeric matrix of count data.
-#' @slot level A length-one \code{\link{numeric}} vector giving the
-#'  confidence level.
+#' @slot data A \code{\link{numeric}} matrix of count data.
+#' @slot dates A \code{\link{numeric}} vector of dates.
 #' @slot model A \code{\link[stats:lm]{multiple linear model}}: the Gaussian
 #'  multiple linear regression model fitted for event date estimation and
 #'  prediction.
-#' @slot rows A four columns \code{\link{numeric}} matrix giving the predicted
-#'  event dates for each archaeological assemblage, with the following columns:
+#' @slot cutoff An \code{\link{integer}} vector giving the cutoff value.
+#' @slot dimension An \code{\link{integer}} vector giving the CA dimensions
+#'  kept.
+#' @slot level A length-one \code{\link{numeric}} vector giving the
+#'  confidence level.
+#' @slot row_events A four columns \code{\link{numeric}} matrix giving the
+#'  predicted event dates for each archaeological assemblage, with the following
+#'  columns:
 #'  \describe{
 #'   \item{date}{The event date estimation.}
 #'   \item{lower}{The lower boundary of the confidence interval.}
 #'   \item{upper}{The upper boundary of the confidence interval.}
 #'   \item{error}{The standard error of predicted dates.}
 #'  }
-#' @slot columns A four columns \code{\link{numeric}} matrix giving the
+#' @slot column_events A four columns \code{\link{numeric}} matrix giving the
 #'  predicted event dates for each archaeological type or fabric, with the
 #'  following columns:
 #'  \describe{
@@ -105,40 +179,38 @@ NULL
 #' @author N. Frerebeau
 #' @family class
 #' @docType class
-#' @aliases DateModel-class
-.DateModel <- setClass(
-  Class = "DateModel",
+#' @aliases DateEvent-class
+.DateEvent <- setClass(
+  Class = "DateEvent",
   slots = c(
-    id = "character",
-    counts = "matrix",
-    level = "numeric",
+    dates = "numeric",
     model = "lm",
-    rows = "matrix",
-    columns = "matrix",
-    accumulation = "matrix"
-  )
+    cutoff = "integer",
+    keep = "integer"
+  ),
+  contains = "CA"
 )
 
-## -----------------------------------------------------------------------------
-#' Partial bootstrap CA
+# RefineCA =======================================================================
+#' Partial Bootstrap CA
 #'
 #' An S4 class to store partial bootstrap correspondence analysis results.
-#' @slot id A \code{\link{character}} string specifying the unique
-#'  identifier of the corresponding matrix (UUID v4).
-#' @slot rows A list of length three giving the vertices coordinates
+#' @slot row_chull A list of length three giving the vertices coordinates
 #'  (\code{x}, \code{y}) of the samples convex hull and a identifier
 #'  (\code{id}) to link each row to a sample.
-#' @slot columns A list of length three giving the vertices coordinates
+#' @slot column_chull A list of length three giving the vertices coordinates
 #'  (\code{x}, \code{y}) of the variables convex hull and a identifier
 #'  (\code{id}) to link each row to a variable.
-#' @slot lengths A list of two named \code{\link{numeric}} vectors giving the
+#' @slot row_lengths A list of two named \code{\link{numeric}} vectors giving the
+#'  convex hull maximum dimension length of samples and variables, respectively.
+#' @slot column_lengths A list of two named \code{\link{numeric}} vectors giving the
 #'  convex hull maximum dimension length of samples and variables, respectively.
 #' @slot cutoff A length-two \code{\link{numeric}} vector giving the cutoff
 #'  value for samples and variables selection, respectively.
 #' @slot keep A list of two \code{\link{integer}} vectors giving the subscript
 #'  of the samples and variables to be kept, respectively.
 #' @section Subset:
-#'  In the code snippets below, \code{x} is a \code{BootCA} object.
+#'  In the code snippets below, \code{x} is a \code{RefineCA} object.
 #'  \describe{
 #'   \item{\code{x[i, j, drop]}}{Extracts informations from a slot selected by
 #'   subscript \code{i} thru \code{j} (see examples). \code{i} should be one of
@@ -158,25 +230,25 @@ NULL
 #' @author N. Frerebeau
 #' @family class
 #' @docType class
-#' @aliases BootCA-class
-.BootCA <- setClass(
-  Class = "BootCA",
+#' @aliases RefineCA-class
+.RefineCA <- setClass(
+  Class = "RefineCA",
   slots = c(
-    id = "character",
-    rows = "list",
-    columns = "list",
-    lengths = "list",
-    cutoff = "numeric",
-    keep = "list"
-  )
+    row_chull = "matrix",
+    row_length = "numeric",
+    row_keep = "numeric",
+    column_chull = "matrix",
+    column_length = "numeric",
+    column_keep = "numeric",
+    cutoff = "numeric"
+  ),
+  contains = "CA"
 )
 
-## -----------------------------------------------------------------------------
-#' Permutation order
+# PermutationOrder =============================================================
+#' Permutation Order
 #'
 #' An S4 class to represent a permutation order.
-#' @slot id A \code{\link{character}} string specifying the unique
-#'  identifier of the corresponding matrix (UUID v4).
 #' @slot rows An \code{\link{integer}} vector giving the rows permutation.
 #' @slot columns An \code{\link{integer}} vector giving the columns permutation.
 #' @slot method A \code{\link{character}} string indicating the seriation
@@ -198,110 +270,13 @@ NULL
 .PermutationOrder <- setClass(
   Class = "PermutationOrder",
   slots = c(
-    id = "character",
     rows = "integer",
     columns = "integer",
     method = "character"
+  ),
+  prototype = list(
+    rows = integer(0),
+    columns = integer(0),
+    method = "none"
   )
-)
-
-# INITIALIZATION ===============================================================
-## DateModel -------------------------------------------------------------------
-setMethod(
-  f = "initialize",
-  signature = "DateModel",
-  definition = function(.Object, ..., id, counts, level, model,
-                        rows, columns, accumulation) {
-
-    mtx <- matrix(0, 0, 4, dimnames = list(NULL, c("date", "lower", "upper", "error")))
-    acc <- matrix(0, 0, 2, dimnames = list(NULL, c("date", "error")))
-
-    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
-    .Object@counts <- if (missing(counts)) matrix(0, 0, 0) else counts
-    .Object@level <- if (missing(level)) numeric(1) else level
-    .Object@model <- if (missing(model)) stats::lm(0 ~ 0) else model
-    .Object@rows <- if (missing(rows)) mtx else rows
-    .Object@columns <- if (missing(columns)) mtx else columns
-    .Object@accumulation <- if (missing(accumulation)) acc else accumulation
-
-    .Object <- methods::callNextMethod()
-    methods::validObject(.Object)
-    .Object
-  }
-)
-## DiversityIndex --------------------------------------------------------------
-setMethod(
-  f = "initialize",
-  signature = "DiversityIndex",
-  definition = function(.Object, ..., id, index, size, jackknife, boostrap,
-                        simulated, method) {
-
-    jack <- matrix(0, 0, 3, dimnames = list(NULL, c("mean", "bias", "error")))
-    boot <- matrix(0, 0, 5, dimnames = list(NULL, c("min","Q05", "mean", "Q95", "max")))
-    sim <- matrix(0, 0, 4, dimnames = list(NULL, c("size", "mean", "lower", "upper")))
-
-    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
-    .Object@index <- if (missing(index)) numeric(0) else index
-    .Object@size <- if (missing(size)) integer(0) else as.integer(size)
-    .Object@jackknife <- if (missing(jackknife)) jack else jackknife
-    .Object@boostrap <- if (missing(boostrap)) boot else boostrap
-    .Object@simulated <- if (missing(simulated)) sim else simulated
-    .Object@method <- if (missing(method)) "unknown" else method
-
-    .Object <- methods::callNextMethod()
-    methods::validObject(.Object)
-    .Object
-  }
-)
-## BootCA ----------------------------------------------------------------------
-setMethod(
-  f = "initialize",
-  signature = "BootCA",
-  definition = function(.Object, ..., id, rows, columns, lengths,
-                        cutoff, keep) {
-
-    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
-    if (missing(rows)) {
-      rows <- list(id = character(0), x = numeric(0), y = numeric(0))
-    } else {
-      rows
-    }
-    .Object@rows <- rows
-    if (missing(columns)) {
-      columns <- list(id = character(0), x = numeric(0), y = numeric(0))
-    } else {
-      columns
-    }
-    .Object@columns <- columns
-    .Object@lengths <- if (missing(lengths)) {
-      list(numeric(0), numeric(0))
-    } else {
-      mapply(FUN = `names<-`,
-             lengths, list(unique(rows$id), unique(columns$id)),
-             SIMPLIFY = FALSE)
-    }
-    .Object@cutoff <- if (missing(cutoff)) c(0, 0) else cutoff
-    .Object@keep <- if (missing(keep)) list(integer(0), integer(0)) else keep
-
-    .Object <- methods::callNextMethod()
-    methods::validObject(.Object)
-    .Object
-  }
-)
-
-## PermutationOrder ------------------------------------------------------------
-setMethod(
-  f = "initialize",
-  signature = "PermutationOrder",
-  definition = function(.Object, ..., id, rows, columns, method) {
-
-    .Object@id <- if (missing(id)) arkhe:::generate_uuid() else id
-    .Object@rows <- if (missing(rows)) integer(0) else rows
-    .Object@columns <- if (missing(columns)) integer(0) else columns
-    .Object@method <- if (missing(method)) "unknown" else method
-
-    .Object <- methods::callNextMethod()
-    methods::validObject(.Object)
-    .Object
-  }
 )

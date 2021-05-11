@@ -1,5 +1,3 @@
-context("Similarity")
-
 birds_unmanaged <- c(1.4, 4.3, 2.9, 8.6, 4.2, 15.7, 2.0, 50, 1, 11.4, 11.4, 4.3,
                      13.0, 14.3, 8.6, 7.1, 10.0, 1.4, 2.9, 5.7, 1.4, 11.4, 2.9,
                      4.3, 1.4, 2.9)
@@ -8,22 +6,17 @@ birds_managed <- c(0, 0, 0, 2.9, 0, 0, 0, 10, 0, 0, 5.7, 2.5, 5.7, 8.6, 5.7,
 birds <- rbind(birds_unmanaged, birds_managed)
 
 test_that("Similiraty measure (count data)", {
-  count <- as(birds * 10, "CountMatrix")
+  count <- arkhe::as_count(birds * 10)
   method <- c("brainerd", "bray", "jaccard", "morisita", "sorenson")
 
   for (i in 1:length(method)) {
     index <- similarity(count, method = method[i])
-    expect_is(index, "matrix")
-    expect_equal(length(index), nrow(count)^2, info = method[i])
+    expect_s3_class(index, "dist")
+    expect_length(index, 1)
   }
 
-  expect_is(similarity(count, method = "binomial"), "matrix")
-  expect_equal(length(similarity(count, method = "binomial")), ncol(count)^2)
-})
-test_that("Similiraty measure (frequency data)", {
-  freq <- as(birds, "AbundanceMatrix")
-  method <- c("bray", "jaccard", "morisita", "sorenson")
-  expect_error(similarity(freq, method = "bray"))
+  expect_s3_class(similarity(count, method = "binomial"), "dist")
+  expect_length(similarity(count, method = "binomial"), (26^2 - 26) / 2)
 })
 test_that("Similiraty measure (presence/absence data)", {
   bin <- as(birds, "IncidenceMatrix")
@@ -32,8 +25,8 @@ test_that("Similiraty measure (presence/absence data)", {
 
   for (i in 1:length(method1)) {
     index <- similarity(bin, method = method1[i])
-    expect_is(index, "matrix")
-    expect_equal(length(index), nrow(bin) * 2)
+    expect_s3_class(index, "dist")
+    expect_length(index, 1)
     expect_error(similarity(bin, method = method2[i]), info = method[i])
   }
 })

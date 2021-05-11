@@ -1,21 +1,22 @@
-context("Richness")
-
 # Richness =====================================================================
 test_that("Richness", {
-  # Data from Magurran 1988, p. 128-129
-  trap <- CountMatrix(data = c(9, 3, 0, 4, 2, 1, 1, 0, 1, 0, 1, 1,
-                               1, 0, 1, 0, 0, 0, 1, 2, 0, 5, 3, 0),
-                      nrow = 2, byrow = TRUE)
+  skip_if_not_installed("folio")
+  data("chevelon", package = "folio")
+  counts <- as_count(chevelon)
+
   method <- c("margalef", "menhinick", "none")
   for (i in method) {
-    index <- index_richness(trap, method = i)
-    expect_s4_class(index, "RichnessIndex")
-    expect_length(index@index, 2)
+    index <- index_richness(counts, method = i)
+    expect_length(index@values, nrow(counts))
+    expect_equal(get_method(index), i)
   }
+  expect_type(get_index(index), "closure")
 
-  # Frequency data
-  freq <- as(trap, "AbundanceMatrix")
-  expect_error(index_richness(freq))
+  boot <- with_seed(12345, bootstrap_richness(counts, method = "none", n = 30))
+  expect_snapshot(boot)
+
+  jack <- jackknife_richness(counts, method = "none")
+  expect_snapshot(jack)
 })
 test_that("Chao richness", {
   # Data from Magurran 1988, p. 128-129
@@ -27,8 +28,8 @@ test_that("Chao richness", {
   method <- c("chao2", "ice")
   for (i in method) {
     index <- index_composition(incid, method = i)
-    expect_s4_class(index, "RichnessIndex")
-    expect_length(index@index, 1)
+    expect_s4_class(index, "CompositionIndex")
+    expect_length(index@values, 1)
   }
 })
 # Indices ======================================================================
