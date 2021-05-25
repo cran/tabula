@@ -8,18 +8,19 @@ setOldClass("dist")
 #' Diversity Index
 #'
 #' An S4 class to represent a diversity measure.
-#' @slot data A \code{\link{numeric}} matrix of count data.
-#' @slot values A \code{\link{numeric}} vector giving the diversity index values.
-#' @slot size A \code{\link{integer}} vector giving the sample sizes.
-#' @slot simulation A \code{\link{numeric}} matrix giving the diversity
-#'  measures for the simulated assemblage.
-#' @slot method A \code{\link{character}} string specifying the method used.
+#' @slot names A [`character`] vector giving the sample names.
+#' @slot values A [`numeric`] vector giving the diversity index values.
+#' @slot size A [`integer`] vector giving the sample sizes.
+#' @slot simulation A four columns [`numeric`] matrix giving the diversity
+#'  measures for the simulated assemblage (sample `size`, `mean` estimate,
+#'  `lower` and `upper` boundaries of the confidence interval).
+#' @slot method A [`character`] string specifying the method used.
 #' @section Subset:
-#'  In the code snippets below, \code{x} is a \code{DiversityIndex} object.
+#'  In the code snippets below, `x` is a `DiversityIndex` object.
 #'  \describe{
-#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
-#'   subscript \code{i}. \code{i} is a length-one \code{\link{character}}
-#'   vector. Returns the corresponding slot values.}
+#'   \item{`x[[i]]`}{Extracts information from a slot selected by subscript `i`.
+#'   `i` is a length-one [`character`] vector. Returns the corresponding slot
+#'   values.}
 #'  }
 #' @author N. Frerebeau
 #' @family class
@@ -72,161 +73,34 @@ NULL
   contains = "DiversityIndex"
 )
 
-# IncrementTest ================================================================
-#' Frequency Increment Test
-#'
-#' An S4 class to represent a Frequency Increment Test results.
-#' @slot data A \code{\link{numeric}} matrix of count data.
-#' @slot dates A \code{\link{numeric}} vector of dates.
-#' @slot statistic A \code{\link{numeric}} vector giving the values of the
-#'  t-statistic.
-#' @slot parameter An \code{\link{integer}} giving the degrees of freedom for
-#'  the t-statistic.
-#' @slot p_value A \code{\link{numeric}} vector giving the the p-value for the
-#'  test.
-#' @section Subset:
-#'  In the code snippets below, \code{x} is a \code{IncrementTest} object.
-#'  \describe{
-#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
-#'   subscript \code{i}. \code{i} is a length-one \code{\link{character}}
-#'   vector. Returns the corresponding slot values.}
-#'  }
-#' @author N. Frerebeau
-#' @family class
-#' @docType class
-#' @aliases IncrementTest-class
-.IncrementTest <- setClass(
-  Class = "IncrementTest",
-  slots = c(
-    data = "matrix",
-    dates = "numeric",
-    statistic = "numeric",
-    parameter = "integer",
-    p_value = "numeric"
-  )
-)
-
-# DateMCD ======================================================================
-#' Mean Ceramic Date
-#'
-#' S4 classes to store the Mean Ceramic Date of archaeological assemblages.
-#' @slot data A \code{\link{numeric}} matrix of count data.
-#' @slot dates A \code{\link{numeric}} vector of dates.
-#' @slot mcd_values A \code{\link{numeric}} vector of errors.
-#' @slot mcd_errors A \code{\link{numeric}} vector of errors.
-#' @section Subset:
-#'  In the code snippets below, \code{x} is a \code{DateMCD} object.
-#'  \describe{
-#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
-#'   subscript \code{i}. \code{i} is a length-one \code{\link{character}}
-#'   vector. Returns the corresponding slot values.}
-#'  }
-#' @author N. Frerebeau
-#' @family class
-#' @docType class
-#' @aliases DateMCD-class
-.DateMCD <- setClass(
-  Class = "DateMCD",
-  slots = c(
-    data = "matrix",
-    dates = "numeric",
-    mcd_values = "numeric",
-    mcd_errors = "numeric"
-  )
-)
-
-# DateModel ====================================================================
-#' Date Model
-#'
-#' S4 classes to store the event and accumulation times of archaeological
-#'  assemblages.
-#' @slot data A \code{\link{numeric}} matrix of count data.
-#' @slot dates A \code{\link{numeric}} vector of dates.
-#' @slot model A \code{\link[stats:lm]{multiple linear model}}: the Gaussian
-#'  multiple linear regression model fitted for event date estimation and
-#'  prediction.
-#' @slot cutoff An \code{\link{integer}} vector giving the cutoff value.
-#' @slot dimension An \code{\link{integer}} vector giving the CA dimensions
-#'  kept.
-#' @slot level A length-one \code{\link{numeric}} vector giving the
-#'  confidence level.
-#' @slot row_events A four columns \code{\link{numeric}} matrix giving the
-#'  predicted event dates for each archaeological assemblage, with the following
-#'  columns:
-#'  \describe{
-#'   \item{date}{The event date estimation.}
-#'   \item{lower}{The lower boundary of the confidence interval.}
-#'   \item{upper}{The upper boundary of the confidence interval.}
-#'   \item{error}{The standard error of predicted dates.}
-#'  }
-#' @slot column_events A four columns \code{\link{numeric}} matrix giving the
-#'  predicted event dates for each archaeological type or fabric, with the
-#'  following columns:
-#'  \describe{
-#'   \item{date}{The event date estimation.}
-#'   \item{lower}{The lower boundary of the confidence interval.}
-#'   \item{upper}{The upper boundary of the confidence interval.}
-#'   \item{error}{The standard error of predicted dates.}
-#'  }
-#' @slot accumulation A two columns \code{\link{numeric}} matrix giving the
-#'  point estimate of the accumulation dates and the corresponding error.
-#' @section Subset:
-#'  \describe{
-#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
-#'   subscript \code{i}. \code{i} is a length-one \code{\link{character}}
-#'   vector. Returns the corresponding slot values.}
-#'  }
-#' @author N. Frerebeau
-#' @family class
-#' @docType class
-#' @aliases DateEvent-class
-.DateEvent <- setClass(
-  Class = "DateEvent",
-  slots = c(
-    dates = "numeric",
-    model = "lm",
-    cutoff = "integer",
-    keep = "integer"
-  ),
-  contains = "CA"
-)
-
 # RefineCA =======================================================================
 #' Partial Bootstrap CA
 #'
 #' An S4 class to store partial bootstrap correspondence analysis results.
-#' @slot row_chull A list of length three giving the vertices coordinates
-#'  (\code{x}, \code{y}) of the samples convex hull and a identifier
-#'  (\code{id}) to link each row to a sample.
-#' @slot column_chull A list of length three giving the vertices coordinates
-#'  (\code{x}, \code{y}) of the variables convex hull and a identifier
-#'  (\code{id}) to link each row to a variable.
-#' @slot row_lengths A list of two named \code{\link{numeric}} vectors giving the
-#'  convex hull maximum dimension length of samples and variables, respectively.
-#' @slot column_lengths A list of two named \code{\link{numeric}} vectors giving the
-#'  convex hull maximum dimension length of samples and variables, respectively.
-#' @slot cutoff A length-two \code{\link{numeric}} vector giving the cutoff
-#'  value for samples and variables selection, respectively.
-#' @slot keep A list of two \code{\link{integer}} vectors giving the subscript
-#'  of the samples and variables to be kept, respectively.
+#' @slot row_chull A three columns [`numeric`] matrix giving the vertices
+#'  coordinates (`x`, `y`) of the samples convex hull and a identifier (`id`) to
+#'  link each row to a sample.
+#' @slot row_lengths A named [`numeric`] vector giving the convex hull maximum
+#'  dimension length of samples.
+#' @slot row_keep An [`integer`] vector giving the subscript of the samples to
+#'  be kept.
+#' @slot column_chull A three columns [`numeric`] matrix giving the vertices
+#'  coordinates (`x`, `y`) of the variables convex hull and a identifier (`id`)
+#'  to link each row to a variable.
+#' @slot column_lengths A [`numeric`] vector giving the convex hull maximum
+#'  dimension length of variables.
+#' @slot column_keep An [`integer`] vector giving the subscript of the variables
+#'  to be kept.
+#' @slot cutoff A length-two [`numeric`] vector giving the cutoff value for
+#'  samples and variables selection, respectively.
 #' @section Subset:
-#'  In the code snippets below, \code{x} is a \code{RefineCA} object.
+#'  In the code snippets below, `x` is a `RefineCA` object.
 #'  \describe{
-#'   \item{\code{x[i, j, drop]}}{Extracts informations from a slot selected by
-#'   subscript \code{i} thru \code{j} (see examples). \code{i} should be one of
-#'   "\code{rows}" or "\code{columns}". Any unambiguous substring can be
-#'   given. \code{j} is a \code{\link{numeric}}, \code{\link{integer}} or
-#'   \code{\link{character}} vector or empty (missing) or \code{NULL}.
-#'   Numeric values are coerced to \code{\link{integer}} as by
-#'   \code{\link{as.integer}} (and hence truncated towards zero). Character
-#'   vectors will be matched to the name of the elements. An empty index
-#'   (a comma separated blank) indicates that all entries in that dimension are
-#'   selected.}
-#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
-#'   subscript \code{i}. \code{i} should be one of "\code{id}",
-#'   "\code{rows}", "\code{columns}", "\code{lengths}", "\code{cutoff}" or
-#'   "\code{keep}". Any unambiguous substring can be given.}
+#'   \item{`x[[i]]`}{Extracts information from a slot selected by subscript `i`.
+#'   `i` is a length-one [`character`] vector. Returns the corresponding slot
+#'   values.}
 #'  }
+#' @seealso [`dimensio::CA-class`]
 #' @author N. Frerebeau
 #' @family class
 #' @docType class
@@ -236,10 +110,10 @@ NULL
   slots = c(
     row_chull = "matrix",
     row_length = "numeric",
-    row_keep = "numeric",
+    row_keep = "integer",
     column_chull = "matrix",
     column_length = "numeric",
-    column_keep = "numeric",
+    column_keep = "integer",
     cutoff = "numeric"
   ),
   contains = "CA"
@@ -249,20 +123,16 @@ NULL
 #' Permutation Order
 #'
 #' An S4 class to represent a permutation order.
-#' @slot rows An \code{\link{integer}} vector giving the rows permutation.
-#' @slot columns An \code{\link{integer}} vector giving the columns permutation.
-#' @slot method A \code{\link{character}} string indicating the seriation
-#'  method used.
+#' @slot rows An [`integer`] vector giving the rows permutation.
+#' @slot columns An [`integer`] vector giving the columns permutation.
+#' @slot method A [`character`] string indicating the seriation method used.
 #' @section Subset:
+#'  In the code snippets below, `x` is a `PermutationOrder` object.
 #'  \describe{
-#'   \item{\code{x[[i]]}}{Extracts informations from a slot selected by
-#'   subscript \code{i}. \code{i} should be one of "\code{id}",
-#'   "\code{rows}", "\code{columns}" or "\code{method}". Any unambiguous
-#'   substring can be given.}
+#'   \item{`x[[i]]`}{Extracts information from a slot selected by subscript `i`.
+#'   `i` is a length-one [`character`] vector. Returns the corresponding slot
+#'   values.}
 #'  }
-#' @note
-#'  Numeric values are coerced to \code{\link{integer}} as by
-#'  \code{\link[base]{as.integer}} (and hence truncated towards zero).
 #' @author N. Frerebeau
 #' @family class
 #' @docType class

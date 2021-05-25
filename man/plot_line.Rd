@@ -17,18 +17,18 @@ plot_rank(object, ...)
 
 \item{...}{Further arguments to be passed to internal methods.}
 
-\item{log}{A \code{\link{character}} string which contains "\code{x}" if the
-x axis is to be logarithmic, "\code{y}" if the y axis is to be logarithmic
-and "\code{xy}" or "\code{yx}" if both axes are to be logarithmic (base 10).}
+\item{log}{A \code{\link{character}} string which contains "\code{x}" if the x axis is to be
+logarithmic, "\code{y}" if the y axis is to be logarithmic and "\code{xy}" or "\code{yx}"
+if both axes are to be logarithmic (base 10).}
 
-\item{facet}{A \code{\link{logical}} scalar: should a matrix of panels
-defined by case/sample be drawn?}
+\item{facet}{A \code{\link{logical}} scalar: should a matrix of panels defined by
+case/sample be drawn?}
 }
 \value{
-A \code{\link[ggplot2]{ggplot}} object.
+A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
 }
 \description{
-\code{plot_rank} plots a rank \emph{vs} relative abundance diagram.
+Plots a rank \emph{vs} relative abundance diagram.
 }
 \examples{
 ## Abundance matrix
@@ -42,12 +42,11 @@ plot_rank(counts, facet = TRUE)
 }
 \references{
 Magurran, A. E. (1988). \emph{Ecological Diversity and its Measurement}.
- Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
+Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
 }
 \seealso{
 Other plot: 
 \code{\link{plot_bar}},
-\code{\link{plot_date}()},
 \code{\link{plot_diversity}},
 \code{\link{plot_matrix}},
 \code{\link{plot_spot}()}

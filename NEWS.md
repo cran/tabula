@@ -1,4 +1,15 @@
+# tabula 1.6.1
+
+## Bugfixes & changes
+* Remove all previously deprecated methods.
+
+## Breaking changes
+* Remove dating methods: `*_mcd()`, `*_event()`, `*_accumulation()`, `plot_date()` now belong to **fasti**.
+* Remove frequency increment test: `test_fit()` and `plot_time()` now belong to **fasti**.
+
 # tabula 1.6.0
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4748807.svg)](https://doi.org/10.5281/zenodo.4748807)
+
 ## New classes and methods
 * Add `DateEvent`: S4 class to store the event and accumulation times of archaeological assemblages.
 * Add `CompositionIndex`: S4 class that represent an asymptotic species richness.

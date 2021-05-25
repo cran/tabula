@@ -5,37 +5,34 @@
 \alias{tabula-package}
 \alias{_PACKAGE}
 \alias{tabula}
-\title{tabula: Analysis, Seriation and Visualization of Archaeological
-    Count Data}
+\title{tabula: Analysis, Seriation and Visualization of Archaeological Count Data}
 \description{
 \if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
 
-An easy way to examine archaeological count data. This package 
-    provides a convenient and reproducible toolkit for relative and absolute 
-    dating and analysis of (chronological) patterns. It includes functions for 
-    matrix seriation (reciprocal ranking, CA-based seriation), chronological 
-    modeling and dating of archaeological assemblages and/or objects. 
-    Beyond these, the package provides several tests and measures of diversity: 
-    heterogeneity and evenness (Brillouin, Shannon, Simpson, etc.), 
-    richness and rarefaction (Chao1, Chao2, ACE, ICE, etc.), 
-    turnover and similarity (Brainerd-Robinson, etc.). 
-    The package make it easy to visualize count data and statistical thresholds: 
-    rank vs abundance plots, heatmaps, Ford (1962) and Bertin (1977) diagrams.
+An easy way to examine archaeological count data. This
+    package provides a convenient and reproducible toolkit for relative
+    dating by matrix seriation (reciprocal ranking, CA-based seriation).
+    It also provides several tests and measures of diversity:
+    heterogeneity and evenness (Brillouin, Shannon, Simpson, etc.),
+    richness and rarefaction (Chao1, Chao2, ACE, ICE, etc.), turnover and
+    similarity (Brainerd-Robinson, etc.). The package make it easy to
+    visualize count data and statistical thresholds: rank vs abundance
+    plots, heatmaps, Ford (1962) and Bertin (1977) diagrams.
 }
 \details{
 \tabular{ll}{
- \strong{Package:} \tab tabula \cr
- \strong{Type:} \tab Package \cr
- \strong{Version:} \tab 1.6.0 \cr
- \strong{License:} \tab GPL-3 \cr
- \strong{DOI:} \tab \doi{10.5281/zenodo.1489944} \cr
- \strong{JOSS:} \tab \doi{10.21105/joss.01821} \cr
+\strong{Package:} \tab tabula \cr
+\strong{Type:} \tab Package \cr
+\strong{Version:} \tab 1.6.1 \cr
+\strong{License:} \tab GPL-3 \cr
+\strong{Zenodo:} \tab \doi{10.5281/zenodo.1489944} \cr
+\strong{JOSS:} \tab \doi{10.21105/joss.01821} \cr
 }
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://tabula.tesselle.org}
+  \item \url{https://packages.tesselle.org/tabula/}
   \item \url{https://github.com/tesselle/tabula}
   \item Report bugs at \url{https://github.com/tesselle/tabula/issues}
 }
@@ -45,12 +42,12 @@ Useful links:
 \strong{Full list of authors and contributors} (alphabetic order)
 
 \tabular{ll}{
- Jean-Baptiste Fourvel \tab \emph{CNRS, France} \cr
- Nicolas Frerebeau \tab \emph{Université Bordeaux Montaigne, France} \cr
- Brice Lebrun \tab \emph{Université Bordeaux Montaigne, France} \cr
- Ben Marwick \tab \emph{University of Washington, USA} \cr
- Matthew Peeples \tab \emph{Arizona State University, USA} \cr
- Anne Philippe \tab \emph{Université de Nantes, France} \cr
+Jean-Baptiste Fourvel \tab \emph{CNRS, France} \cr
+Nicolas Frerebeau \tab \emph{Université Bordeaux Montaigne, France} \cr
+Brice Lebrun \tab \emph{Université Bordeaux Montaigne, France} \cr
+Ben Marwick \tab \emph{University of Washington, USA} \cr
+Matthew Peeples \tab \emph{Arizona State University, USA} \cr
+Anne Philippe \tab \emph{Université de Nantes, France} \cr
 }
 
 \strong{Package maintainer}

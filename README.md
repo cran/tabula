@@ -9,6 +9,13 @@
 status](https://github.com/tesselle/tabula/workflows/R-CMD-check/badge.svg)](https://github.com/tesselle/tabula/actions)
 [![codecov](https://codecov.io/gh/tesselle/tabula/branch/master/graph/badge.svg)](https://codecov.io/gh/tesselle/tabula)
 
+[![CRAN
+Version](http://www.r-pkg.org/badges/version/tabula)](https://cran.r-project.org/package=tabula)
+[![CRAN
+checks](https://cranchecks.info/badges/worst/tabula)](https://cran.r-project.org/web/checks/check_results_tabula.html)
+[![CRAN
+Downloads](http://cranlogs.r-pkg.org/badges/tabula)](https://cran.r-project.org/package=tabula)
+
 [![Project Status: Active – The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
@@ -22,23 +29,34 @@ JOSS](https://joss.theoj.org/papers/10.21105/joss.01821/status.svg)](https://doi
 ## Overview
 
 An easy way to examine archaeological count data. **tabula** provides a
-convenient and reproducible toolkit for relative and absolute dating and
-analysis of (chronological) patterns. It includes functions for matrix
-seriation (reciprocal ranking, CA-based seriation), chronological
-modeling and dating of archaeological assemblages and/or objects. Beyond
-these, the package provides several tests and measures of diversity:
-heterogeneity and evenness (Brillouin, Shannon, Simpson, etc.), richness
-and rarefaction (Chao1, Chao2, ACE, ICE, etc.), turnover and similarity
+convenient and reproducible toolkit for relative dating by matrix
+seriation (reciprocal ranking, CA-based seriation). This package
+provides several tests and measures of diversity: heterogeneity and
+evenness (Brillouin, Shannon, Simpson, etc.), richness and rarefaction
+(Chao1, Chao2, ACE, ICE, etc.), turnover and similarity
 (Brainerd-Robinson, etc.). The package make it easy to visualize count
 data and statistical thresholds: rank vs. abundance plots, heatmaps,
 Ford (1962) and Bertin (1977) diagrams.
 
-To cite **tabula** in publications please use:
-
-> Frerebeau, N. (2019). tabula: An R Package for Analysis, Seriation,
-> and Visualization of Archaeological Count Data. *Journal of Open
-> Source Software*, 4(44), 1821. DOI
-> [10.21105/joss.01821](https://doi.org/10.21105/joss.01821).
+    #> 
+    #> To cite tabula in publications use:
+    #> 
+    #>   Frerebeau, Nicolas (2019). tabula: An R Package for Analysis,
+    #>   Seriation, and Visualization of Archaeological Count Data. Journal of
+    #>   Open Source Software, 4(44), 1821. DOI 10.21105/joss.01821.
+    #> 
+    #> A BibTeX entry for LaTeX users is
+    #> 
+    #>   @Article{,
+    #>     title = {{tabula}: An R Package for Analysis, Seriation, and Visualization of Archaeological Count Data},
+    #>     author = {Nicolas Frerebeau},
+    #>     year = {2019},
+    #>     journal = {Journal of Open Source Software},
+    #>     volume = {4},
+    #>     number = {44},
+    #>     page = {1821},
+    #>     doi = {10.21105/joss.01821},
+    #>   }
 
 ## Installation
 
@@ -153,42 +171,6 @@ plot_heatmap(incidence2) +
 ```
 
 ![](man/figures/README-permute-incidence-1.png)![](man/figures/README-permute-incidence-2.png)
-
-### Dating
-
-This package provides an implementation of the chronological modeling
-method developed by Bellanger and Husi
-([2012](https://doi.org/10.1016/j.jas.2011.06.031)). This method is
-slightly modified here and allows the construction of different
-probability density curves of archaeological assemblage dates (*event*,
-*activity* and *tempo*). Note that this implementation is experimental
-(see `vignette("dating")`).
-
-``` r
-## Coerce dataset to abundance (count) matrix
-zuni_counts <- as_count(zuni)
-## Assume that some assemblages are reliably dated (this is NOT a real example)
-## The names of the vector entries must match the names of the assemblages
-zuni_dates <- c(
-  LZ0569 = 1097, LZ0279 = 1119, CS16 = 1328, LZ0066 = 1111,
-  LZ0852 = 1216, LZ1209 = 1251, CS144 = 1262, LZ0563 = 1206,
-  LZ0329 = 1076, LZ0005Q = 859, LZ0322 = 1109, LZ0067 = 863,
-  LZ0578 = 1180, LZ0227 = 1104, LZ0610 = 1074
-)
-
-## Model the event date for each assemblage
-event <- date_event(zuni_counts, dates = zuni_dates, cutoff = 90)
-
-## Plot activity and tempo distributions
-plot_date(event, type = "activity", select = "LZ1105") +
-  ggplot2::labs(title = "Activity plot") +
-  ggplot2::theme_bw()
-plot_date(event, type = "tempo", select = "LZ1105") +
-  ggplot2::labs(title = "Tempo plot") +
-  ggplot2::theme_bw()
-```
-
-![](man/figures/README-date-1.png)![](man/figures/README-date-2.png)
 
 ### Diversity
 
