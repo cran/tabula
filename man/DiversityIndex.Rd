@@ -13,6 +13,8 @@
 \alias{.RichnessIndex}
 \alias{CompositionIndex-class}
 \alias{.CompositionIndex}
+\alias{RarefactionIndex-class}
+\alias{.RarefactionIndex}
 \title{Diversity Index}
 \description{
 An S4 class to represent a diversity measure.
@@ -21,8 +23,6 @@ An S4 class to represent a diversity measure.
 
 \describe{
 \item{\code{names}}{A \code{\link{character}} vector giving the sample names.}
-
-\item{\code{values}}{A \code{\link{numeric}} vector giving the diversity index values.}
 
 \item{\code{size}}{A \code{\link{integer}} vector giving the sample sizes.}
 
@@ -33,6 +33,9 @@ measures for the simulated assemblage (sample \code{size}, \code{mean} estimate,
 \item{\code{method}}{A \code{\link{character}} string specifying the method used.}
 }}
 
+\note{
+This class inherits from base \code{\link{numeric}}.
+}
 \section{Subset}{
 
 In the code snippets below, \code{x} is a \code{DiversityIndex} object.
@@ -43,12 +46,15 @@ values.}
 }
 }
 
-\seealso{
-Other class: 
-\code{\link{PermutationOrder-class}},
-\code{\link{RefineCA-class}}
+\section{Coerce}{
+
+In the code snippets below, \code{x} is an \code{DiversityIndex} object.
+\describe{
+\item{\code{as.data.frame(x)}}{Coerces to a \code{\link{data.frame}}.}
 }
+}
+
 \author{
 N. Frerebeau
 }
-\concept{class}
+\concept{classes}

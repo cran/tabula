@@ -5,25 +5,17 @@
 \alias{tabula-package}
 \alias{_PACKAGE}
 \alias{tabula}
-\title{tabula: Analysis, Seriation and Visualization of Archaeological Count Data}
+\title{tabula: Analysis and Visualization of Archaeological Count Data}
 \description{
-\if{html}{\figure{logo.png}{options: align='right' alt='logo' width='120'}}
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-An easy way to examine archaeological count data. This
-    package provides a convenient and reproducible toolkit for relative
-    dating by matrix seriation (reciprocal ranking, CA-based seriation).
-    It also provides several tests and measures of diversity:
-    heterogeneity and evenness (Brillouin, Shannon, Simpson, etc.),
-    richness and rarefaction (Chao1, Chao2, ACE, ICE, etc.), turnover and
-    similarity (Brainerd-Robinson, etc.). The package make it easy to
-    visualize count data and statistical thresholds: rank vs abundance
-    plots, heatmaps, Ford (1962) and Bertin (1977) diagrams.
+An easy way to examine archaeological count data. This package provides several tests and measures of diversity: heterogeneity and evenness (Brillouin, Shannon, Simpson, etc.), richness and rarefaction (Chao1, Chao2, ACE, ICE, etc.), turnover and similarity (Brainerd-Robinson, etc.). The package make it easy to visualize count data and statistical thresholds: rank vs abundance plots, heatmaps, Ford (1962) and Bertin (1977) diagrams.
 }
 \details{
 \tabular{ll}{
 \strong{Package:} \tab tabula \cr
 \strong{Type:} \tab Package \cr
-\strong{Version:} \tab 1.6.1 \cr
+\strong{Version:} \tab 1.7.0 \cr
 \strong{License:} \tab GPL-3 \cr
 \strong{Zenodo:} \tab \doi{10.5281/zenodo.1489944} \cr
 \strong{JOSS:} \tab \doi{10.21105/joss.01821} \cr
@@ -55,10 +47,10 @@ Anne Philippe \tab \emph{Université de Nantes, France} \cr
 Nicolas Frerebeau\cr
 \email{nicolas.frerebeau@u-bordeaux-montaigne.fr}
 
-IRAMAT-CRP2A (UMR 5060)\cr
+Archéosciences Bordeaux (UMR 6034)\cr
 Maison de l'Archéologie\cr
 Université Bordeaux Montaigne\cr
-F-33607 Pessac cedex\cr
+33607 Pessac cedex\cr
 France
 }
 \keyword{internal}

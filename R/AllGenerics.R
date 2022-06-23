@@ -3,8 +3,7 @@
 NULL
 
 # S4 dispatch to base S3 generic ===============================================
-if (!isGeneric("plot"))
-  setGeneric("plot", function(x, y, ...) standardGeneric("plot"))
+setGeneric("autoplot", package = "ggplot2")
 
 # Extract ======================================================================
 ## Mutators --------------------------------------------------------------------
@@ -25,24 +24,10 @@ if (!isGeneric("plot"))
 NULL
 
 #' @rdname mutator
-#' @aliases get_index-method
-setGeneric(
-  name = "get_index",
-  def = function(x) standardGeneric("get_index")
-)
-
-#' @rdname mutator
 #' @aliases get_method-method
 setGeneric(
   name = "get_method",
   def = function(x) standardGeneric("get_method")
-)
-
-#' @rdname mutator
-#' @aliases get_order-method
-setGeneric(
-  name = "get_order",
-  def = function(x) standardGeneric("get_order")
 )
 
 ## Subset ----------------------------------------------------------------------
@@ -64,9 +49,67 @@ setGeneric(
 NULL
 
 # Statistic ====================================================================
+#' Resampling Methods
+#'
+#' @description
+#'  * `resample()` simulate observations from a multinomial distribution.
+#'  * `bootstrap()` generate bootstrap estimations of a statistic.
+#'  * `jackknife()` generate jackknife estimations of a statistic.
+#' @param object A [`numeric`] vector of count data (absolute frequencies).
+#' @param do A [`function`] that takes `object` as an argument
+#'  and returns a single numeric value.
+#' @param n A non-negative [`integer`] specifying the number of bootstrap
+#'  replications.
+#' @param size A non-negative [`integer`] specifying the sample size.
+#' @param f A [`function`] that takes a single numeric vector (the result of
+#'  `do`) as argument.
+#' @param ... Extra arguments passed to `do`.
+#' @return
+#'  If `f` is `NULL`, `resample()` returns the `n` values of `do`. Else,
+#'  returns the result of `f` applied to the `n` values of `do`.
+#'
+#'  If `f` is `NULL`, `bootstrap()` and `jackknife()` return a [`data.frame`]
+#'  with the following elements (else, returns the result of `f` applied to the
+#'  `n` values of `do`) :
+#'  \describe{
+#'   \item{original}{The observed value of `do` applied to `object`.}
+#'   \item{mean}{The bootstrap/jackknife estimate of mean of `do`.}
+#'   \item{bias}{The bootstrap/jackknife estimate of bias of `do`.}
+#'   \item{error}{The boostrap/jackknife estimate of standard error of `do`.}
+#'  }
+#' @seealso [stats::rmultinom()]
+#' @example inst/examples/ex-resample.R
+#' @author N. Frerebeau
+#' @docType methods
+#' @family resampling methods
+#' @name resample
+#' @rdname resample
+NULL
+
+#' @rdname resample
+#' @aliases resample-method
+setGeneric(
+  name = "resample",
+  def = function(object, ...) standardGeneric("resample")
+)
+
+#' @rdname resample
+#' @aliases bootstrap-method
+setGeneric(
+  name = "bootstrap",
+  def = function(object, ...) standardGeneric("bootstrap")
+)
+
+#' @rdname resample
+#' @aliases jackknife-method
+setGeneric(
+  name = "jackknife",
+  def = function(object, ...) standardGeneric("jackknife")
+)
+
 #' Independance
 #'
-#' @param object A [`CountMatrix-class`] object.
+#' @param object A [CountMatrix-class] object.
 #' @param ... Currently not used.
 #' @details
 #'  Computes for each cell of a numeric matrix one of the following statistic.
@@ -75,7 +118,7 @@ NULL
 #'  positif au pourcentage moyen", EPPM) represents a deviation from the
 #'  situation of statistical independence. As independence can be interpreted as
 #'  the absence of relationships between types and the chronological order of
-#'  the assemblages, `EPPM` is a useful graphical tool to explore significance
+#'  the assemblages, `EPPM` is a useful tool to explore significance
 #'  of relationship between rows and columns related to seriation (Desachy
 #'  2004).
 #' @section PVI:
@@ -84,9 +127,9 @@ NULL
 #'  positive deviations from the independence, whereas `PVI` smaller than
 #'  \eqn{1} represent negative deviations (Desachy 2004).
 #'
-#'  The `PVI` matrix allows to explore deviations from independence
-#'  (an intuitive graphical approach to \eqn{\chi^2}{Chi-squared}),
-#'  in such a way that a high-contrast matrix has quite significant deviations,
+#'  The `PVI` matrix allows to explore deviations from independence (an
+#'  intuitive approach to \eqn{\chi^2}{Chi-squared}), in such a way that a
+#'  high-contrast matrix has quite significant deviations,
 #'  with a low risk of being due to randomness (Desachy 2004).
 #' @references
 #'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
@@ -121,24 +164,21 @@ setGeneric(
 #' Heterogeneity and Evenness
 #'
 #' @description
-#'  * `index_heterogeneity()` returns an heterogeneity or dominance index.
-#'  * `index_evenness()` returns an evenness measure.
-#'  * `bootstrap_*()` and `jackknife_*()` perform bootstrap/jackknife
-#'    resampling.
-#' @param object A \eqn{m \times p}{m x p} matrix of count data (typically
-#'  a [`CountMatrix-class`] object).
+#'  * `heterogeneity()` returns an heterogeneity or dominance index.
+#'  * `evenness()` returns an evenness measure.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
 #' @param method A [`character`] string specifying the index to be computed
-#' (see details). Any unambiguous substring can be given.
-#' @param quantiles A [`logical`] scalar: should sample quantiles be used as
-#'  confidence interval? If `TRUE` (the default), sample quantiles are used as
-#'  described in Kintigh (1989), else quantiles of the normal distribution are
-#'  used.
-#' @param level A length-one [`numeric`] vector giving the confidence level.
-#' @param step A non-negative [`integer`] giving the increment of the
-#'  sample size. Only used if `simulate` is `TRUE`.
-#' @param progress A [`logical`] scalar: should a progress bar be displayed?
-#' @inheritParams stats_bootstrap
-#' @param ... Further arguments to be passed to internal methods.
+#'  (see details). Any unambiguous substring can be given.
+#' @param x A [`numeric`] vector of count data (absolute frequencies).
+#' @param evenness A [`logical`] scalar: should an evenness measure be computed
+#'  instead of an heterogeneity/dominance index?
+#' @param base A positive [`numeric`] value specifying the base with respect to
+#'  which logarithms are computed.
+#' @param na.rm A [`numeric`] scalar: should missing values (including `NaN`) be
+#'  removed?
+#' @param ... Currently not used.
 #' @details
 #'  *Diversity* measurement assumes that all individuals in a specific
 #'  taxa are equivalent and that all types are equally different from each
@@ -155,7 +195,7 @@ setGeneric(
 #'
 #'  *Evenness* is a measure of how evenly individuals are distributed across the
 #'  sample.
-#'
+#' @section Heterogeneity and Evenness Measures:
 #'  The following heterogeneity index and corresponding evenness measures
 #'  are available (see Magurran 1988 for details):
 #'  \describe{
@@ -192,9 +232,9 @@ setGeneric(
 #'  not the reciprocal or inverse form usually adopted, so that an increase in
 #'  the value of the index accompanies a decrease in diversity.
 #' @return
-#'  * `index_heterogeneity()`, `index_evenness()` and `simulate_evenness()`
-#'    return a [`DiversityIndex-class`] object.
-#'  * `bootstrap_*()` and `jackknife_*()` return a [`data.frame`].
+#'  * `heterogeneity()` returns an [HeterogeneityIndex-class] object.
+#'  * `evenness()` returns an [EvennessIndex-class] object.
+#'  * `index_*()` return a [`numeric`] vector.
 #' @note
 #'  Ramanujan approximation is used for \eqn{x!} computation if \eqn{x > 170}.
 #' @references
@@ -204,10 +244,6 @@ setGeneric(
 #'
 #'  Brillouin, L. (1956). *Science and information theory*. New York:
 #'  Academic Press.
-#'
-#'  Kintigh, K. W. (1984). Measuring Archaeological Diversity by Comparison
-#'  with Simulated Assemblages. *American Antiquity*, 49(1), 44-54.
-#'  \doi{10.2307/280511}.
 #'
 #'  Kintigh, K. W. (1989). Sample Size, Significance, and Measures of
 #'  Diversity. In Leonard, R. D. and Jones, G. T., *Quantifying Diversity
@@ -241,111 +277,85 @@ setGeneric(
 #'  688-688. \doi{10.1038/163688a0}.
 #' @example inst/examples/ex-diversity.R
 #' @author N. Frerebeau
-#' @family diversity
-#' @seealso [plot_diversity()], [similarity()], [turnover()]
+#' @family diversity measures
 #' @docType methods
-#' @name heterogeneity-index
-#' @rdname heterogeneity-index
+#' @name heterogeneity
+#' @rdname heterogeneity
 NULL
 
-#' @rdname heterogeneity-index
-#' @aliases index_heterogeneity-method
+#' @rdname heterogeneity
+#' @aliases heterogeneity-method
 setGeneric(
-  name = "index_heterogeneity",
-  def = function(object, ...) standardGeneric("index_heterogeneity"),
+  name = "heterogeneity",
+  def = function(object, ...) standardGeneric("heterogeneity"),
   valueClass = "HeterogeneityIndex"
 )
 
-#' @rdname heterogeneity-index
-#' @aliases simulate_heterogeneity-method
+#' @rdname heterogeneity
+#' @aliases evenness-method
 setGeneric(
-  name = "simulate_heterogeneity",
-  def = function(object, ...) standardGeneric("simulate_heterogeneity"),
-  valueClass = "HeterogeneityIndex"
-)
-
-#' @rdname heterogeneity-index
-#' @aliases bootstrap_heterogeneity-method
-setGeneric(
-  name = "bootstrap_heterogeneity",
-  def = function(object, ...) standardGeneric("bootstrap_heterogeneity"),
-  valueClass = "data.frame"
-)
-
-#' @rdname heterogeneity-index
-#' @aliases jackknife_heterogeneity-method
-setGeneric(
-  name = "jackknife_heterogeneity",
-  def = function(object, ...) standardGeneric("jackknife_heterogeneity"),
-  valueClass = "data.frame"
-)
-
-#' @rdname heterogeneity-index
-#' @aliases index_evenness-method
-setGeneric(
-  name = "index_evenness",
-  def = function(object, ...) standardGeneric("index_evenness"),
+  name = "evenness",
+  def = function(object, ...) standardGeneric("evenness"),
   valueClass = "EvennessIndex"
 )
 
-#' @rdname heterogeneity-index
-#' @aliases simulate_evenness-method
+#' @rdname heterogeneity
+#' @aliases index_berger-method
 setGeneric(
-  name = "simulate_evenness",
-  def = function(object, ...) standardGeneric("simulate_evenness"),
-  valueClass = "EvennessIndex"
+  name = "index_berger",
+  def = function(x, ...) standardGeneric("index_berger")
 )
 
-#' @rdname heterogeneity-index
-#' @aliases bootstrap_evenness-method
+#' @rdname heterogeneity
+#' @aliases index_brillouin-method
 setGeneric(
-  name = "bootstrap_evenness",
-  def = function(object, ...) standardGeneric("bootstrap_evenness"),
-  valueClass = "data.frame"
+  name = "index_brillouin",
+  def = function(x, ...) standardGeneric("index_brillouin")
 )
 
-#' @rdname heterogeneity-index
-#' @aliases jackknife_evenness-method
+#' @rdname heterogeneity
+#' @aliases index_mcintosh-method
 setGeneric(
-  name = "jackknife_evenness",
-  def = function(object, ...) standardGeneric("jackknife_evenness"),
-  valueClass = "data.frame"
+  name = "index_mcintosh",
+  def = function(x, ...) standardGeneric("index_mcintosh")
+)
+
+#' @rdname heterogeneity
+#' @aliases index_shannon-method
+setGeneric(
+  name = "index_shannon",
+  def = function(x, ...) standardGeneric("index_shannon")
+)
+
+#' @rdname heterogeneity
+#' @aliases index_simpson-method
+setGeneric(
+  name = "index_simpson",
+  def = function(x, ...) standardGeneric("index_simpson")
 )
 
 ## Richness --------------------------------------------------------------------
-#' Richness and Rarefaction
+#' Richness
 #'
 #' @description
-#'  * `index_richness()` returns sample richness. `index_composition()` returns
-#'    asymptotic species richness.
-#'  * `rarefaction()` returns Hurlbert's unbiased estimate of Sander's
-#'    rarefaction.
-#'  * `bootstrap_*()` and `jackknife_*()` perform bootstrap/jackknife
-#'    resampling.
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
+#'  * `richness()` returns sample richness.
+#'  * `composition()` returns asymptotic species richness.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies).
 #' @param method A [`character`] string or vector of strings specifying the
 #' index to be computed (see details). Any unambiguous substring can be given.
-#' @param quantiles A [`logical`] scalar: should sample quantiles be used as
-#'  confidence interval? If `TRUE` (the default), sample quantiles are used as
-#'  described in Kintigh (1989), else quantiles of the normal distribution are
-#'  used.
-#' @param level A length-one [`numeric`] vector giving the confidence level.
-#' @param step A non-negative [`integer`] giving the increment of the sample
-#'  size. Only used if `simulate` is `TRUE`.
+#' @param x A [`numeric`] vector or matrix of count data (absolute frequencies).
 #' @param unbiased A [`logical`] scalar. Should the bias-corrected estimator be
 #'  used? Only used with "`chao1`" or "`chao2`" (improved) estimator.
 #' @param improved A [`logical`] scalar. Should the improved estimator be used?
 #'  Only used with "`chao1`" or "`chao2`".
-#' @param sample A length-one [`numeric`] vector giving the sub-sample size.
 #' @param k A length-one [`numeric`] vector giving the threshold between
 #'  rare/infrequent and abundant/frequent species. Only used if `method` is
 #'  "`ace`" or "`ice`".
-#' @param progress A [`logical`] scalar: should a progress bar be displayed?
-#' @param simplify A [`logical`] scalar: should the result be simplified to a
-#'  matrix? The default value, `FALSE`, returns a list.
-#' @inheritParams stats_bootstrap
+#' @param na.rm A [`numeric`] scalar: should missing values (including `NaN`) be
+#'  removed?
 #' @param ... Further arguments to be passed to internal methods.
-#' @details
+#' @section Details:
 #'  The number of different taxa, provides an instantly comprehensible
 #'  expression of diversity. While the number of taxa within a sample
 #'  is easy to ascertain, as a term, it makes little sense: some taxa
@@ -360,12 +370,12 @@ setGeneric(
 #'  taxa per fixed number of individuals). Rarefaction assumes that imbalances
 #'  between taxa are due to sampling and not to differences in actual
 #'  abundances.
-#'
+#' @section Richness Measures:
 #'  The following richness measures are available for count data:
 #'  \describe{
+#'   \item{`count`}{Returns the number of observed taxa/types.}
 #'   \item{`margalef`}{Margalef richness index.}
 #'   \item{`menhinick`}{Menhinick richness index.}
-#'   \item{`none`}{Returns the number of observed taxa/types.}
 #'  }
 #'
 #' @section Asymptotic Species Richness:
@@ -381,12 +391,9 @@ setGeneric(
 #'   \item{`chao2`}{(improved/unbiased) Chao2 estimator.}
 #'  }
 #' @return
-#'  * `index_richness()`, `simulate_richness()` and `index_composition()` return a
-#'    [`DiversityIndex-class`] object.
-#'  * `bootstrap_*()` and `jackknife_*()` return a [`data.frame`].
-#'
-#'  If `simplify` is `FALSE`, then `rarefaction()` returns a [`list`] (default),
-#'  else return a [`matrix`].
+#'  * `richness()` returns a [RichnessIndex-class] object.
+#'  * `composition()` returns a [CompositionIndex-class] object.
+#'  * `index_*()` return a [`numeric`] vector.
 #' @references
 #'  Chao, A. (1984). Nonparametric Estimation of the Number of Classes in a
 #'  Population. *Scandinavian Journal of Statistics*, 11(4), 265-270.
@@ -410,10 +417,6 @@ setGeneric(
 #'  frequency formula. *Biometrics*, 70(3), 671-682.
 #'  \doi{10.1111/biom.12200}.
 #'
-#'  Hurlbert, S. H. (1971). The Nonconcept of Species Diversity: A Critique and
-#'  Alternative Parameters. *Ecology*, 52(4), 577-586.
-#'  \doi{10.2307/1934145}.
-#'
 #'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
 #'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
 #'
@@ -435,83 +438,450 @@ setGeneric(
 #'  McIntosh, R. P. (1967). An Index of Diversity and the Relation of Certain
 #'  Concepts to Diversity. *Ecology*, 48(3), 392-404.
 #'  \doi{10.2307/1932674}.
-#'
-#'  Sander, H. L. (1968). Marine Benthic Diversity: A Comparative Study.
-#'  *The American Naturalist*, 102(925), 243-282.
 #' @seealso [plot_diversity()]
 #' @example inst/examples/ex-richness.R
 #' @author N. Frerebeau
-#' @family diversity
+#' @family diversity measures
 #' @docType methods
-#' @name richness-index
-#' @rdname richness-index
+#' @name richness
+#' @rdname richness
 NULL
 
-#' @rdname richness-index
-#' @aliases index_richness-method
+#' @rdname richness
+#' @aliases richness-method
 setGeneric(
-  name = "index_richness",
-  def = function(object, ...) standardGeneric("index_richness"),
+  name = "richness",
+  def = function(object, ...) standardGeneric("richness"),
   valueClass = "RichnessIndex"
 )
 
-#' @rdname richness-index
-#' @aliases simulate_richness-method
+#' @rdname richness
+#' @aliases composition-method
 setGeneric(
-  name = "simulate_richness",
-  def = function(object, ...) standardGeneric("simulate_richness"),
-  valueClass = "RichnessIndex"
+  name = "composition",
+  def = function(object, ...) standardGeneric("composition"),
+  valueClass = "CompositionIndex"
 )
 
-#' @rdname richness-index
-#' @aliases bootstrap_richness-method
+#' @rdname richness
+#' @aliases index_ace-method
 setGeneric(
-  name = "bootstrap_richness",
-  def = function(object, ...) standardGeneric("bootstrap_richness"),
-  valueClass = "data.frame"
+  name = "index_ace",
+  def = function(x, ...) standardGeneric("index_ace")
 )
 
-#' @rdname richness-index
-#' @aliases jackknife_richness-method
+#' @rdname richness
+#' @aliases index_ice-method
 setGeneric(
-  name = "jackknife_richness",
-  def = function(object, ...) standardGeneric("jackknife_richness"),
-  valueClass = "data.frame"
+  name = "index_ice",
+  def = function(x, ...) standardGeneric("index_ice")
 )
 
-#' @rdname richness-index
-#' @aliases index_composition-method
+#' @rdname richness
+#' @aliases index_chao1-method
 setGeneric(
-  name = "index_composition",
-  def = function(object, ...) standardGeneric("index_composition")
+  name = "index_chao1",
+  def = function(x, ...) standardGeneric("index_chao1")
 )
 
-#' @rdname richness-index
+#' @rdname richness
+#' @aliases index_chao2-method
+setGeneric(
+  name = "index_chao2",
+  def = function(x, ...) standardGeneric("index_chao2")
+)
+
+#' @rdname richness
+#' @aliases index_margalef-method
+setGeneric(
+  name = "index_margalef",
+  def = function(x, ...) standardGeneric("index_margalef")
+)
+
+#' @rdname richness
+#' @aliases index_menhinick-method
+setGeneric(
+  name = "index_menhinick",
+  def = function(x, ...) standardGeneric("index_menhinick")
+)
+
+#' Rarefaction
+#'
+#' Computes Hurlbert's unbiased estimate of Sander's rarefaction.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies).
+#' @param x A [`numeric`] vector of count data (absolute frequencies).
+#' @param sample A length-one [`numeric`] vector giving the sub-sample size.
+#'  The size of sample should be smaller than total community size.
+#' @param method A [`character`] string or vector of strings specifying the
+#' index to be computed (see details). Any unambiguous substring can be given.
+#' @param step An [`integer`] giving the increment of the sample size.
+#' @param ... Currently not used.
+#' @inheritSection richness Details
+#' @return
+#'  * `rarefaction()` returns a [RarefactionIndex-class] object.
+#'  * `index_*()` return a [`numeric`] vector.
+#' @references
+#'  Hurlbert, S. H. (1971). The Nonconcept of Species Diversity: A Critique and
+#'  Alternative Parameters. *Ecology*, 52(4), 577-586.
+#'  \doi{10.2307/1934145}.
+#'
+#'  Sander, H. L. (1968). Marine Benthic Diversity: A Comparative Study.
+#'  *The American Naturalist*, 102(925), 243-282.
+#' @example inst/examples/ex-richness.R
+#' @author N. Frerebeau
+#' @family diversity measures
+#' @docType methods
+#' @name rarefaction
+#' @rdname rarefaction
+NULL
+
+#' @rdname rarefaction
 #' @aliases rarefaction-method
 setGeneric(
   name = "rarefaction",
   def = function(object, ...) standardGeneric("rarefaction")
 )
 
-# Plot =========================================================================
-## Diversity Plot --------------------------------------------------------------
-#' Diversity Plot
+#' @rdname rarefaction
+#' @aliases index_hurlbert-method
+setGeneric(
+  name = "index_hurlbert",
+  def = function(x, ...) standardGeneric("index_hurlbert")
+)
+
+## Similarity ------------------------------------------------------------------
+#' Similarity
 #'
-#' @param x A [`DiversityIndex-class`] object to be plotted.
+#' @param object A \eqn{m \times p}{m x p} matrix of count data.
+#' @param x,y A length-\eqn{p} [`numeric`] vector of count data.
+#' @param method A [`character`] string specifying the method to be
+#'  used (see details). Any unambiguous substring can be given.
+#' @param ... Currently not used.
+#' @details
+#'  \eqn{\beta}-diversity can be measured by addressing *similarity*
+#'  between pairs of samples/cases (Brainerd-Robinson, Jaccard, Morisita-Horn
+#'  and Sorenson indices). Similarity between pairs of taxa/types can be
+#'  measured by assessing the degree of co-occurrence (binomial co-occurrence).
+#'
+#'  Jaccard, Morisita-Horn and Sorenson indices provide a scale of similarity
+#'  from \eqn{0}-\eqn{1} where \eqn{1} is perfect similarity and \eqn{0} is
+#'  no similarity. The Brainerd-Robinson index is scaled between \eqn{0} and
+#'  \eqn{200}. The Binomial co-occurrence assessment approximates a Z-score.
+#'
+#'  \describe{
+#'   \item{`binomial`}{Binomial co-occurrence assessment. This assesses the
+#'   degree of co-occurrence between taxa/types within a dataset. The strongest
+#'   associations are shown by large positive numbers, the strongest
+#'   segregations by large negative numbers.}
+#'   \item{`brainerd`}{Brainerd-Robinson quantitative index. This is a
+#'   city-block metric of similarity between pairs of samples/cases.}
+#'   \item{`bray`}{Sorenson quantitative index (Bray and Curtis modified version
+#'   of the Sorenson index).}
+#'   \item{`jaccard`}{Jaccard qualitative index.}
+#'   \item{`morisita`}{Morisita-Horn quantitative index.}
+#'   \item{`sorenson`}{Sorenson qualitative index.}
+#'  }
+#' @return
+#'  * `similarity()` returns a [stats::dist] object.
+#'  * `index_*()` return a [`numeric`] vector.
+#' @references
+#'  Brainerd, G. W. (1951). The Place of Chronological Ordering in
+#'  Archaeological Analysis. *American Antiquity*, 16(04), 301-313.
+#'  \doi{10.2307/276979}.
+#'
+#'  Bray, J. R. & Curtis, J. T. (1957). An Ordination of the Upland Forest
+#'  Communities of Southern Wisconsin. *Ecological Monographs*, 27(4),
+#'  325-349. \doi{10.2307/1942268}.
+#'
+#'  Kintigh, K. (2006). Ceramic Dating and Type Associations. In J. Hantman and
+#'  R. Most (eds.), *Managing Archaeological Data: Essays in Honor of
+#'  Sylvia W. Gaines*. Anthropological Research Paper, 57. Tempe, AZ: Arizona
+#'  State University, p. 17-26.
+#'
+#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
+#'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
+#'
+#'  Robinson, W. S. (1951). A Method for Chronologically Ordering Archaeological
+#'  Deposits. *American Antiquity*, 16(04), 293-301. \doi{10.2307/276978}.
+#' @example inst/examples/ex-similarity.R
+#' @author N. Frerebeau
+#' @family diversity measures
+#' @docType methods
+#' @name similarity
+#' @rdname similarity
+NULL
+
+#' @rdname similarity
+#' @aliases similarity-method
+setGeneric(
+  name = "similarity",
+  def = function(object, ...) standardGeneric("similarity")
+)
+
+#' @rdname similarity
+#' @aliases index_jaccard-method
+setGeneric(
+  name = "index_jaccard",
+  def = function(x, y, ...) standardGeneric("index_jaccard")
+)
+
+#' @rdname similarity
+#' @aliases index_sorenson-method
+setGeneric(
+  name = "index_sorenson",
+  def = function(x, y, ...) standardGeneric("index_sorenson")
+)
+
+#' @rdname similarity
+#' @aliases index_bray-method
+setGeneric(
+  name = "index_bray",
+  def = function(x, y, ...) standardGeneric("index_bray")
+)
+
+#' @rdname similarity
+#' @aliases index_morisita-method
+setGeneric(
+  name = "index_morisita",
+  def = function(x, y, ...) standardGeneric("index_morisita")
+)
+
+#' @rdname similarity
+#' @aliases index_brainerd-method
+setGeneric(
+  name = "index_brainerd",
+  def = function(x, y, ...) standardGeneric("index_brainerd")
+)
+
+#' @rdname similarity
+#' @aliases index_binomial-method
+setGeneric(
+  name = "index_binomial",
+  def = function(x, y, ...) standardGeneric("index_binomial")
+)
+
+## Co-Occurrence ---------------------------------------------------------------
+#' Co-Occurrence
+#'
+#' @param object A \eqn{m \times p}{m x p} matrix of count data.
+#' @param ... Currently not used.
+#' @details
+#'  A co-occurrence matrix is a symmetric matrix with zeros on its main
+#'  diagonal, which works out how many times each pairs of taxa/types occur
+#'  together in at least one sample.
+#' @return
+#'  A [stats::dist] object.
+#' @example inst/examples/ex-occurrence.R
+#' @author N. Frerebeau
+#' @family diversity measures
+#' @docType methods
+#' @name occurrence
+#' @rdname occurrence
+NULL
+
+#' @rdname occurrence
+#' @aliases occurrence-method
+setGeneric(
+  name = "occurrence",
+  def = function(object, ...) standardGeneric("occurrence")
+)
+
+## Turnover --------------------------------------------------------------------
+#' Turnover
+#'
+#' Returns the degree of turnover in taxa composition along a gradient or
+#' transect.
+#' @param object,x A \eqn{m \times p}{m x p} matrix of count data or incidence
+#'  data.
+#' @param method A [`character`] string specifying the method to be
+#'  used (see details). Any unambiguous substring can be given.
+#' @param ... Further arguments to be passed to internal methods.
+#' @details
+#'  The following methods can be used to ascertain the degree of *turnover*
+#'  in taxa composition along a gradient (\eqn{\beta}-diversity) on qualitative
+#'  (presence/absence) data. This assumes that the order of the matrix rows
+#'  (from \eqn{1} to \eqn{n}) follows the progression along the
+#'  gradient/transect.
+#'
+#'  \describe{
+#'   \item{`whittaker`}{Whittaker measure.}
+#'   \item{`cody`}{Cody measure.}
+#'   \item{`routledge1`}{Routledge first measure.}
+#'   \item{`routledge2`}{Routledge second measure.}
+#'   \item{`routledge3`}{Routledge third measure. This is the exponential form
+#'   of the second measure.}
+#'   \item{`wilson`}{Wilson measure.}
+#'  }
+#' @return
+#'  A [`numeric`] vector.
+#' @references
+#'  Cody, M. L. (1975). Towards a theory of continental species diversity: Bird
+#'  distributions over Mediterranean habitat gradients. *In* M. L. Cody &
+#'  J. M. Diamond (Eds.), *Ecology and Evolution of Communities*.
+#'  Cambridge, MA: Harvard University Press, p. 214-257.
+#'
+#'  Routledge, R. D. (1977). On Whittaker's Components of Diversity.
+#'  *Ecology*, 58(5), 1120-1127. \doi{10.2307/1936932}.
+#'
+#'  Whittaker, R. H. (1960). Vegetation of the Siskiyou Mountains, Oregon and
+#'  California. *Ecological Monographs*, 30(3), 279-338.
+#'  \doi{10.2307/1943563}.
+#'
+#'  Wilson, M. V., & Shmida, A. (1984). Measuring Beta Diversity with
+#'  Presence-Absence Data. *The Journal of Ecology*, 72(3), 1055-1064.
+#'  \doi{10.2307/2259551}.
+#' @example inst/examples/ex-turnover.R
+#' @author N. Frerebeau
+#' @family diversity measures
+#' @docType methods
+#' @name turnover
+#' @rdname turnover
+NULL
+
+#' @rdname turnover
+#' @aliases turnover-method
+setGeneric(
+  name = "turnover",
+  def = function(object, ...) standardGeneric("turnover")
+)
+
+#' @rdname turnover
+#' @aliases index_whittaker-method
+setGeneric(
+  name = "index_whittaker",
+  def = function(x, ...) standardGeneric("index_whittaker")
+)
+
+#' @rdname turnover
+#' @aliases index_cody-method
+setGeneric(
+  name = "index_cody",
+  def = function(x, ...) standardGeneric("index_cody")
+)
+
+#' @rdname turnover
+#' @aliases index_routledge1-method
+setGeneric(
+  name = "index_routledge1",
+  def = function(x, ...) standardGeneric("index_routledge1")
+)
+
+#' @rdname turnover
+#' @aliases index_routledge2-method
+setGeneric(
+  name = "index_routledge2",
+  def = function(x, ...) standardGeneric("index_routledge2")
+)
+
+#' @rdname turnover
+#' @aliases index_routledge3-method
+setGeneric(
+  name = "index_routledge3",
+  def = function(x, ...) standardGeneric("index_routledge3")
+)
+
+#' @rdname turnover
+#' @aliases index_wilson-method
+setGeneric(
+  name = "index_wilson",
+  def = function(x, ...) standardGeneric("index_wilson")
+)
+
+## Simulate --------------------------------------------------------------------
+#' Measure Diversity by Comparing to Simulated Assemblages
+#'
+#' @param object A [DiversityIndex-class] object.
+#' @param interval A [`character`] string giving the type of confidence
+#'  interval to be returned. It must be one "`percentiles`" (sample quantiles,
+#'  as described in Kintigh 1984; the default), "`student`" or "`normal`".
+#'  Any unambiguous substring can be given.
+#' @param level A length-one [`numeric`] vector giving the confidence level.
+#' @param step An [`integer`] giving the increment of the sample size.
+#' @param n A non-negative [`integer`] giving the number of bootstrap
+#'  replications.
+#' @param progress A [`logical`] scalar: should a progress bar be displayed?
+#' @return
+#'  Returns a [DiversityIndex-class] object.
+#' @references
+#'  Kintigh, K. W. (1984). Measuring Archaeological Diversity by Comparison
+#'  with Simulated Assemblages. *American Antiquity*, 49(1), 44-54.
+#'  \doi{10.2307/280511}.
+#' @seealso [plot_diversity()], [resample()]
 #' @example inst/examples/ex-plot_diversity.R
 #' @author N. Frerebeau
-#' @family plot
-#' @seealso [index_heterogeneity()], [index_evenness()], [index_richness()]
+#' @family diversity measures
+#' @docType methods
+#' @name simulate
+#' @rdname simulate
+NULL
+
+## Plot ------------------------------------------------------------------------
+#' Diversity Plot
+#'
+#' @param object,x A [DiversityIndex-class] object to be plotted.
+#' @param y Currently not used.
+#' @param ... Currently not used.
+#' @return
+#'  * `autoplot()` returns a [`ggplot`][ggplot2::ggplot] object.
+#'  * `plot()` is called it for its side-effects: it results in a graphic being
+#'    displayed (invisibly returns `x`).
+#' @example inst/examples/ex-plot_diversity.R
+#' @author N. Frerebeau
+#' @family diversity measures
+#' @family plot methods
 #' @docType methods
 #' @name plot_diversity
 #' @rdname plot_diversity
 NULL
 
+# Plot =========================================================================
+## Heatmap ---------------------------------------------------------------------
+#' Heatmap
+#'
+#' Plots a heatmap.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
+#' @param diag A [`logical`] scalar indicating whether the diagonal of the
+#'  matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param upper A [`logical`] scalar indicating whether the upper triangle of
+#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param lower A [`logical`] scalar indicating whether the lower triangle of
+#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param freq A [`logical`] scalar indicating whether relative frequency
+#'  should be used instead of counts (absolute frequency).
+#' @param ... Currently not used.
+#' @return
+#'  A [ggplot2::ggplot] object.
+#' @references
+#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
+#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
+#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
+#' @example inst/examples/ex-plot_matrix.R
+#' @author N. Frerebeau
+#' @seealso [pvi()]
+#' @family plot methods
+#' @docType methods
+#' @name plot_heatmap
+#' @rdname plot_heatmap
+#' @aliases matrigraphe
+NULL
+
+#' @rdname plot_heatmap
+#' @aliases plot_heatmap-method
+setGeneric(
+  name = "plot_heatmap",
+  def = function(object, ...) standardGeneric("plot_heatmap")
+)
+
 ## Bar Plot --------------------------------------------------------------------
 #' Bar Plot
 #'
 #' Plots a Bertin, Ford (battleship curve) or Dice-Leraas diagram.
-#' @param object An abundance matrix to be plotted.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
 #' @param threshold A [`function`] that takes a numeric vector as argument and
 #'  returns a numeric threshold value (see below). If `NULL` (the default), no
 #'  threshold is computed.
@@ -552,7 +922,7 @@ NULL
 #' @example inst/examples/ex-plot_bar.R
 #' @author N. Frerebeau
 #' @seealso [eppm()]
-#' @family plot
+#' @family plot methods
 #' @docType methods
 #' @name plot_bar
 #' @rdname plot_bar
@@ -573,40 +943,13 @@ setGeneric(
   def = function(object, ...) standardGeneric("plot_ford")
 )
 
-## Heatmap ---------------------------------------------------------------------
-#' Heatmap
-#'
-#' Plots a heatmap.
-#' @param object An object to be plotted.
-#' @param ... Further arguments to be passed to internal methods.
-#' @return
-#'  A [ggplot2::ggplot] object.
-#' @references
-#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
-#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
-#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
-#' @example inst/examples/ex-plot_matrix.R
-#' @author N. Frerebeau
-#' @seealso [pvi()]
-#' @family plot
-#' @docType methods
-#' @name plot_matrix
-#' @rdname plot_matrix
-#' @aliases matrigraphe
-NULL
-
-#' @rdname plot_matrix
-#' @aliases plot_heatmap-method
-setGeneric(
-  name = "plot_heatmap",
-  def = function(object, ...) standardGeneric("plot_heatmap")
-)
-
 ## Line Plot -------------------------------------------------------------------
 #' Line Plot
 #'
 #' Plots a rank *vs* relative abundance diagram.
-#' @param object An abundance matrix to be plotted.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
 #' @param log A [`character`] string which contains "`x`" if the x axis is to be
 #'  logarithmic, "`y`" if the y axis is to be logarithmic and "`xy`" or "`yx`"
 #'  if both axes are to be logarithmic (base 10).
@@ -620,7 +963,7 @@ setGeneric(
 #'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
 #' @example inst/examples/ex-plot_rank.R
 #' @author N. Frerebeau
-#' @family plot
+#' @family plot methods
 #' @docType methods
 #' @name plot_line
 #' @rdname plot_line
@@ -637,14 +980,23 @@ setGeneric(
 #' Spot Plot
 #'
 #' Plots a spot matrix.
-#' @param object An abundance matrix to be plotted.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
+#' @param type A [`character`] string specifying the graph to be plotted.
+#'  It must be one of "`ring`" (the default) or "`plain`". Any unambiguous
+#'  substring can be given.
 #' @param threshold A [`function`] that takes a numeric vector as argument and
 #'  returns a numeric threshold value. If `NULL` (the default), no threshold is
 #'  computed.
 #' @param diag A [`logical`] scalar indicating whether the diagonal of the
-#'  matrix should be plotted.
+#'  matrix should be plotted. Only used if `object` is a symmetric matrix.
 #' @param upper A [`logical`] scalar indicating whether the upper triangle of
-#'  the matrix should be plotted.
+#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param lower A [`logical`] scalar indicating whether the lower triangle of
+#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param freq A [`logical`] scalar indicating whether relative frequency
+#'  should be used instead of counts (absolute frequency).
 #' @param ... Extra parameters to be passed to `threshold`.
 #' @details
 #'  The spot matrix can be considered as a variant of the
@@ -657,7 +1009,7 @@ setGeneric(
 #'  [idea](https://dgopstein.github.io/articles/spot-matrix/).
 #' @example inst/examples/ex-plot_spot.R
 #' @author N. Frerebeau
-#' @family plot
+#' @family plot methods
 #' @docType methods
 #' @name plot_spot
 #' @rdname plot_spot
@@ -668,221 +1020,6 @@ NULL
 setGeneric(
   name = "plot_spot",
   def = function(object, ...) standardGeneric("plot_spot")
-)
-
-# Seriate ======================================================================
-#' Matrix Seriation
-#'
-#' @description
-#'  * `seriate_*()` computes a permutation order for rows and/or columns.
-#'  * `permute()` rearranges a data matrix according to a permutation order.
-#'  * `get_order()` returns the seriation order for rows and columns.
-#' @param object,x An \eqn{m \times p}{m x p} data matrix (typically an object
-#'  of class [`CountMatrix-class`] or [`IncidenceMatrix-class`].
-#' @param order A [`PermutationOrder-class`] object giving the permutation
-#'  order for rows and columns.
-#' @param EPPM A [`logical`] scalar: should the seriation be computed on EPPM
-#'  instead of raw data?
-#' @param margin A [`numeric`] vector giving the subscripts which the
-#'  rearrangement will be applied over: `1` indicates rows, `2` indicates
-#'  columns, `c(1, 2)` indicates rows then columns, `c(2, 1)` indicates columns
-#'  then rows.
-#' @param axes An [`integer`] vector giving the subscripts of the CA axes to be
-#'  used.
-#' @param stop An [`integer`] giving the stopping rule (i.e. maximum number of
-#'  iterations) to avoid infinite loop.
-#' @param cutoff A function that takes a numeric vector as argument and returns
-#'  a single numeric value (see below).
-#' @param n A non-negative [`integer`] giving the number of bootstrap
-#'  replications.
-#' @param progress A [`logical`] scalar: should a progress bar be displayed?
-#' @param ... Further arguments to be passed to internal methods.
-#' @section Seriation:
-#'  The matrix seriation problem in archaeology is based on three conditions
-#'  and two assumptions, which Dunell (1970) summarizes as follows.
-#'
-#'  The homogeneity conditions state that all the groups included in a
-#'  seriation must:
-#'  \enumerate{
-#'   \item{Be of comparable duration.}
-#'   \item{Belong to the same cultural tradition.}
-#'   \item{Come from the same local area.}
-#'  }
-#'
-#'  The mathematical assumptions state that the distribution of any historical
-#'  or temporal class:
-#'  \enumerate{
-#'   \item{Is continuous through time.}
-#'   \item{Exhibits the form of a unimodal curve.}
-#'  }
-#'  Theses assumptions create a distributional model and ordering is
-#'  accomplished by arranging the matrix so that the class distributions
-#'  approximate the required pattern. The resulting order is inferred
-#'  to be chronological.
-#'
-#'  The following seriation methods are available:
-#'  \describe{
-#'   \item{`seriate_average()`}{Correspondence analysis-based seriation
-#'   (average ranking). Correspondence analysis (CA) is an effective method for
-#'   the seriation of archaeological assemblages. The order of the rows and
-#'   columns is given by the coordinates along one dimension of the CA space,
-#'   assumed to account for temporal variation. The direction of temporal change
-#'   within the correspondence analysis space is arbitrary: additional
-#'   information is needed to determine the actual order in time.}
-#'   \item{`seriate_rank()`}{Reciprocal ranking seriation. These procedures
-#'   iteratively rearrange rows and/or columns according to their weighted rank
-#'   in the data matrix until convergence.
-#'   Note that this procedure could enter into an infinite loop.
-#'   If no convergence is reached before the maximum number of iterations, it
-#'   stops with a warning.}
-#'  }
-#' @section Correspondence Analysis:
-#'  `refine_seriation()` allows to identify samples that are subject to
-#'  sampling error or samples that have underlying structural relationships
-#'  and might be influencing the ordering along the CA space.
-#'
-#'  This relies on a partial bootstrap approach to CA-based seriation where each
-#'  sample is replicated `n` times. The maximum dimension length of
-#'  the convex hull around the sample point cloud allows to remove samples for
-#'  a given `cutoff` value.
-#'
-#'  According to Peebles and Schachner (2012), "\[this\] point removal procedure
-#'  \[results in\] a reduced dataset where the position of individuals within the
-#'  CA are highly stable and which produces an ordering consistent with the
-#'  assumptions of frequency seriation."
-#' @return
-#'  * `seriate_*()` returns a [`PermutationOrder-class`] object.
-#'  * `refine_seriation()` returns a [`RefineCA-class`] object.
-#'  * `permute()` returns either a permuted [`CountMatrix-class`] or an
-#'    [`IncidenceMatrix-class`] (the same as `object`).
-#' @note
-#'  Refining method can lead to much longer execution times and larger output
-#'  objects.
-#' @references
-#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
-#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
-#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
-#'
-#'  Dunnell, R. C. (1970). Seriation Method and Its Evaluation. *American
-#'  Antiquity*, 35(03), 305-319. \doi{10.2307/278341}.
-#'
-#'  Ihm, P. (2005). A Contribution to the History of Seriation in Archaeology.
-#'  In C. Weihs & W. Gaul (Eds.), *Classification: The Ubiquitous
-#'  Challenge*. Berlin Heidelberg: Springer, p. 307-316.
-#'  \doi{10.1007/3-540-28084-7_34}.
-#'
-#'  Peeples, M. A., & Schachner, G. (2012). Refining correspondence
-#'  analysis-based ceramic seriation of regional data sets. *Journal of
-#'  Archaeological Science*, 39(8), 2818-2827.
-#'  \doi{10.1016/j.jas.2012.04.040}.
-#' @seealso [dimensio::ca()]
-#' @example inst/examples/ex-seriation.R
-#' @author N. Frerebeau
-#' @family seriation
-#' @docType methods
-#' @name seriation
-#' @rdname seriation
-NULL
-
-#' @rdname seriation
-#' @aliases seriate_average-method
-setGeneric(
-  name = "seriate_average",
-  def = function(object, ...) standardGeneric("seriate_average"),
-  valueClass = "PermutationOrder"
-)
-
-#' @rdname seriation
-#' @aliases seriate_rank-method
-setGeneric(
-  name = "seriate_rank",
-  def = function(object, ...) standardGeneric("seriate_rank"),
-  valueClass = "PermutationOrder"
-)
-
-# @rdname seriation
-# @aliases seriate_idds-method
-# setGeneric(
-#   name = "seriate_idds",
-#   def = function(object, ...) standardGeneric("seriate_idds")
-# )
-
-#' @rdname seriation
-#' @aliases permute-method
-setGeneric(
-  name = "permute",
-  def = function(object, order, ...) standardGeneric("permute")
-)
-
-#' @rdname seriation
-#' @aliases refine_seriation-method
-setGeneric(
-  name = "refine_seriation",
-  def = function(object, ...) standardGeneric("refine_seriation"),
-  valueClass = "RefineCA"
-)
-
-# Similarity ===================================================================
-#' Similarity
-#'
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
-#' @param method A [`character`] string specifying the method to be
-#'  used (see details). Any unambiguous substring can be given.
-#' @param ... Further arguments to be passed to internal methods.
-#' @details
-#'  \eqn{\beta}-diversity can be measured by addressing *similarity*
-#'  between pairs of samples/cases (Brainerd-Robinson, Jaccard, Morisita-Horn
-#'  and Sorenson indices). Similarity between pairs of taxa/types can be
-#'  measured by assessing the degree of co-occurrence (binomial co-occurrence).
-#'
-#'  Jaccard, Morisita-Horn and Sorenson indices provide a scale of similarity
-#'  from \eqn{0}-\eqn{1} where \eqn{1} is perfect similarity and \eqn{0} is
-#'  no similarity. The Brainerd-Robinson index is scaled between \eqn{0} and
-#'  \eqn{200}. The Binomial co-occurrence assessment approximates a Z-score.
-#'
-#'  \describe{
-#'   \item{`binomial`}{Binomial co-occurrence assessment. This assesses the
-#'   degree of co-occurrence between taxa/types within a dataset. The strongest
-#'   associations are shown by large positive numbers, the strongest
-#'   segregations by large negative numbers.}
-#'   \item{`brainerd`}{Brainerd-Robinson quantitative index. This is a
-#'   city-block metric of similarity between pairs of samples/cases.}
-#'   \item{`bray`}{Sorenson quantitative index (Bray and Curtis modified version
-#'   of the Sorenson index).}
-#'   \item{`jaccard`}{Jaccard qualitative index.}
-#'   \item{`morisita`}{Morisita-Horn quantitative index.}
-#'   \item{`sorenson`}{Sorenson qualitative index.}
-#'  }
-#' @return
-#'  `similarity()` returns a [stats::dist] object.
-#' @references
-#'  Brainerd, G. W. (1951). The Place of Chronological Ordering in
-#'  Archaeological Analysis. *American Antiquity*, 16(04), 301-313.
-#'  \doi{10.2307/276979}.
-#'
-#'  Bray, J. R. & Curtis, J. T. (1957). An Ordination of the Upland Forest
-#'  Communities of Southern Wisconsin. *Ecological Monographs*, 27(4),
-#'  325-349. \doi{10.2307/1942268}.
-#'
-#'  Kintigh, K. (2006). Ceramic Dating and Type Associations. In J. Hantman and
-#'  R. Most (eds.), *Managing Archaeological Data: Essays in Honor of
-#'  Sylvia W. Gaines*. Anthropological Research Paper, 57. Tempe, AZ: Arizona
-#'  State University, p. 17-26.
-#'
-#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
-#'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
-#'
-#'  Robinson, W. S. (1951). A Method for Chronologically Ordering Archaeological
-#'  Deposits. *American Antiquity*, 16(04), 293-301. \doi{10.2307/276978}.
-#' @example inst/examples/ex-similarity.R
-#' @author N. Frerebeau
-#' @family diversity
-#' @docType methods
-#' @rdname similarity-method
-#' @aliases similarity-method
-setGeneric(
-  name = "similarity",
-  def = function(object, ...) standardGeneric("similarity")
 )
 
 # Test =========================================================================
@@ -913,74 +1050,33 @@ setGeneric(
   def = function(object, ...) standardGeneric("test_diversity")
 )
 
-# Turnover =====================================================================
-#' Turnover
-#'
-#' Returns the degree of turnover in taxa composition along a gradient or
-#' transect.
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
-#' @param method A [`character`] string specifying the method to be
-#'  used (see details). Any unambiguous substring can be given.
-#' @param simplify A [`logical`] scalar: should the result be
-#'  simplified to a matrix?
-#' @param ... Further arguments to be passed to internal methods.
-#' @details
-#'  The following methods can be used to ascertain the degree of *turnover*
-#'  in taxa composition along a gradient (\eqn{\beta}-diversity) on qualitative
-#'  (presence/absence) data. This assumes that the order of the matrix rows
-#'  (from \eqn{1} to \eqn{n}) follows the progression along the
-#'  gradient/transect.
-#'
-#'  \describe{
-#'   \item{`whittaker`}{Whittaker measure.}
-#'   \item{`cody`}{Cody measure.}
-#'   \item{`routledge1`}{Routledge first measure.}
-#'   \item{`routledge2`}{Routledge second measure.}
-#'   \item{`routledge3`}{Routledge third measure. This is the exponential form
-#'   of the second measure.}
-#'   \item{`wilson`}{Wilson measure.}
-#'  }
-#' @return
-#'  If `simplify` is `FALSE`, returns a [`list`] (default), else returns a
-#'  [`matrix`].
-#' @references
-#'  Cody, M. L. (1975). Towards a theory of continental species diversity: Bird
-#'  distributions over Mediterranean habitat gradients. *In* M. L. Cody &
-#'  J. M. Diamond (Eds.), *Ecology and Evolution of Communities*.
-#'  Cambridge, MA: Harvard University Press, p. 214-257.
-#'
-#'  Routledge, R. D. (1977). On Whittaker's Components of Diversity.
-#'  *Ecology*, 58(5), 1120-1127. \doi{10.2307/1936932}.
-#'
-#'  Whittaker, R. H. (1960). Vegetation of the Siskiyou Mountains, Oregon and
-#'  California. *Ecological Monographs*, 30(3), 279-338.
-#'  \doi{10.2307/1943563}.
-#'
-#'  Wilson, M. V., & Shmida, A. (1984). Measuring Beta Diversity with
-#'  Presence-Absence Data. *The Journal of Ecology*, 72(3), 1055-1064.
-#'  \doi{10.2307/2259551}.
-#' @example inst/examples/ex-turnover.R
-#' @author N. Frerebeau
-#' @family diversity
-#' @docType methods
-#' @name turnover-index
-#' @rdname turnover-index
-NULL
-
-#' @rdname turnover-index
-#' @aliases turnover-method
-setGeneric(
-  name = "turnover",
-  def = function(object, ...) standardGeneric("turnover")
-)
-
 # Deprecated ===================================================================
-# Deprecated Methods
-#
-# @param object An object.
-# @param ... Currently not used.
-# @author N. Frerebeau
-# @docType methods
-# @name deprecate
-# @rdname deprecate
+#' Deprecated Methods
+#'
+#' @param object A \eqn{m \times p}{m x p} matrix of count data (typically
+#'  a [CountMatrix-class] object).
+#' @param diag A [`logical`] scalar indicating whether the diagonal of the
+#'  matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param upper A [`logical`] scalar indicating whether the upper triangle of
+#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param lower A [`logical`] scalar indicating whether the lower triangle of
+#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
+#' @param method A [`character`] string specifying the index to be computed
+#'  (see details). Any unambiguous substring can be given.
+#' @param quantiles A [`logical`] scalar: should sample quantiles be used as
+#'  confidence interval? If `TRUE` (the default), sample quantiles are used as
+#'  described in Kintigh (1989), else quantiles of the normal distribution are
+#'  used.
+#' @param level A length-one [`numeric`] vector giving the confidence level.
+#' @param step A non-negative [`integer`] giving the increment of the
+#'  sample size. Only used if `simulate` is `TRUE`.
+#' @param progress A [`logical`] scalar: should a progress bar be displayed?
+#' @param ... Further arguments to be passed to internal methods.
+#' @inheritParams stats_bootstrap
+#' @param ... Currently not used.
+#' @author N. Frerebeau
+#' @docType methods
+#' @name deprecate
+#' @rdname deprecate
+#' @keywords internal
 NULL

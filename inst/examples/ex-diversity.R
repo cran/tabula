@@ -1,13 +1,16 @@
-## Coerce dataset to a count matrix
 data("chevelon", package = "folio")
-chevelon <- as_count(chevelon)
 
 ## Shannon diversity index
-(index_h <- index_heterogeneity(chevelon, method = "shannon"))
-(index_e <- index_evenness(chevelon, method = "shannon"))
+(h <- heterogeneity(chevelon, method = "shannon"))
+(e <- evenness(chevelon, method = "shannon"))
 
-## Bootstrap resampling
-(boot_h <- bootstrap_heterogeneity(chevelon, method = "shannon"))
+## Bootstrap resampling (summary statistics)
+bootstrap(h, f = NULL)
+
+bootstrap(h, f = summary)
+
+quant <- function(x) quantile(x, probs = c(0.25, 0.50))
+bootstrap(h, f = quant)
 
 ## Jackknife resampling
-(jack_h <- jackknife_heterogeneity(chevelon, method = "shannon"))
+jackknife(h)

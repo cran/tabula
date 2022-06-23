@@ -2,11 +2,12 @@
 #' \tabular{ll}{
 #'  **Package:** \tab tabula \cr
 #'  **Type:** \tab Package \cr
-#'  **Version:** \tab 1.6.1 \cr
+#'  **Version:** \tab 1.7.0 \cr
 #'  **License:** \tab GPL-3 \cr
 #'  **Zenodo:** \tab \doi{10.5281/zenodo.1489944} \cr
 #'  **JOSS:** \tab \doi{10.21105/joss.01821} \cr
 #' }
+#'
 #' @author
 #' **Full list of authors and contributors** (alphabetic order)
 #'
@@ -24,10 +25,10 @@
 #' Nicolas Frerebeau\cr
 #' \email{nicolas.frerebeau@@u-bordeaux-montaigne.fr}
 #'
-#' IRAMAT-CRP2A (UMR 5060)\cr
+#' Archéosciences Bordeaux (UMR 6034)\cr
 #' Maison de l'Archéologie\cr
 #' Université Bordeaux Montaigne\cr
-#' F-33607 Pessac cedex\cr
+#' 33607 Pessac cedex\cr
 #' France
 #' @name tabula-package
 #' @aliases tabula
@@ -36,7 +37,7 @@
 "_PACKAGE"
 
 #' @import arkhe
-#' @import dimensio
+#' @importFrom boot boot
 #' @importFrom ggplot2 ggplot aes coord_fixed element_blank element_rect
 #' element_text facet_wrap geom_line geom_path geom_point geom_polygon geom_tile
 #' labs scale_size_area scale_x_continuous scale_x_discrete scale_x_log10

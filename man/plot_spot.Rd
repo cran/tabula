@@ -5,32 +5,69 @@
 \alias{plot_spot}
 \alias{plot_spot-method}
 \alias{plot_spot,matrix-method}
+\alias{plot_spot,data.frame-method}
 \alias{plot_spot,dist-method}
-\alias{plot_spot,OccurrenceMatrix-method}
 \title{Spot Plot}
 \usage{
 plot_spot(object, ...)
 
-\S4method{plot_spot}{matrix}(object, threshold = NULL, diag = TRUE, upper = TRUE, ...)
+\S4method{plot_spot}{matrix}(
+  object,
+  type = c("ring", "plain"),
+  threshold = NULL,
+  diag = TRUE,
+  upper = TRUE,
+  lower = TRUE,
+  freq = FALSE,
+  ...
+)
 
-\S4method{plot_spot}{dist}(object, diag = FALSE, upper = FALSE, ...)
+\S4method{plot_spot}{data.frame}(
+  object,
+  type = c("ring", "plain"),
+  threshold = NULL,
+  diag = TRUE,
+  upper = TRUE,
+  lower = TRUE,
+  freq = FALSE,
+  ...
+)
 
-\S4method{plot_spot}{OccurrenceMatrix}(object, diag = FALSE, upper = FALSE, ...)
+\S4method{plot_spot}{dist}(
+  object,
+  type = c("ring", "plain"),
+  diag = FALSE,
+  upper = FALSE,
+  lower = !upper,
+  ...
+)
 }
 \arguments{
-\item{object}{An abundance matrix to be plotted.}
+\item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
+\code{\link{data.frame}} of count data (absolute frequencies giving the number of
+individuals for each class).}
 
 \item{...}{Extra parameters to be passed to \code{threshold}.}
+
+\item{type}{A \code{\link{character}} string specifying the graph to be plotted.
+It must be one of "\code{ring}" (the default) or "\code{plain}". Any unambiguous
+substring can be given.}
 
 \item{threshold}{A \code{\link{function}} that takes a numeric vector as argument and
 returns a numeric threshold value. If \code{NULL} (the default), no threshold is
 computed.}
 
 \item{diag}{A \code{\link{logical}} scalar indicating whether the diagonal of the
-matrix should be plotted.}
+matrix should be plotted. Only used if \code{object} is a symmetric matrix.}
 
 \item{upper}{A \code{\link{logical}} scalar indicating whether the upper triangle of
-the matrix should be plotted.}
+the matrix should be plotted. Only used if \code{object} is a symmetric matrix.}
+
+\item{lower}{A \code{\link{logical}} scalar indicating whether the lower triangle of
+the matrix should be plotted. Only used if \code{object} is a symmetric matrix.}
+
+\item{freq}{A \code{\link{logical}} scalar indicating whether relative frequency
+should be used instead of counts (absolute frequency).}
 }
 \value{
 A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
@@ -50,23 +87,22 @@ Adapted from Dan Gopstein's original
 \examples{
 ## Plot spot diagram of count data...
 data("mississippi", package = "folio")
-counts <- as_count(mississippi)
 
 ### ...without threshod
-plot_spot(counts)
+plot_spot(mississippi)
 ### ...with the  column means as threshold
-plot_spot(counts, threshold = mean)
+plot_spot(mississippi, threshold = mean)
 ### ...with the column medians as threshold
-plot_spot(counts, threshold = median)
+plot_spot(mississippi, threshold = median)
 }
 \seealso{
-Other plot: 
+Other plot methods: 
 \code{\link{plot_bar}},
 \code{\link{plot_diversity}},
-\code{\link{plot_line}},
-\code{\link{plot_matrix}}
+\code{\link{plot_heatmap}()},
+\code{\link{plot_line}}
 }
 \author{
 N. Frerebeau
 }
-\concept{plot}
+\concept{plot methods}

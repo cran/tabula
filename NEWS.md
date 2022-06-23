@@ -1,15 +1,33 @@
-# tabula 1.6.1
+# tabula 1.7.0
+**Seriation methods are now reexported from kairos and will be removed in a future release.**
 
+## New classes and methods
+* Add `RarefactionIndex`: S4 class that represent rarefied species richness.
+* Add `bootstrap()`, `jackknife()` and `simulate()` methods to perform bootstrap and jackknife resampling and to measure diversity in simulated assemblages.
+* Add `heterogeneity()`, `evenness()`, `richness()` and `composition()` methods for `matrix` and `data.frame`.
+* Add `simulate()` to simulate observations from a multinomial distribution.
+* Add `autoplot()` and `plot()` methods for `RarefactionIndex` objects.
+
+## Bugfixes & changes
+* `rarefaction()` now returns a `RarefactionIndex` object.
+* Deprecate `bootstrap_*()`, `jackknife_*()` and `simulate_*()`.
+* Deprecate `index_heterogeneity()`, `index_evenness()`, `index_richness()` and `index_composition()`.
+
+## Breaking changes
+* `turnover()` no longer accept multiple methods as argument.
+* Fix `bootstrap()` method for `DiversityIndex` objects: resample with replacement instead of simulating observations from a multinomial distribution.
+* No longer use classes from **arkhe**: all methods are now defined for `matrix` and `data.frame`.
+* Deprecate seriation methods: `seriate_*()` and `permute()` now belong to **kairos**.
+
+# tabula 1.6.1
 ## Bugfixes & changes
 * Remove all previously deprecated methods.
 
 ## Breaking changes
-* Remove dating methods: `*_mcd()`, `*_event()`, `*_accumulation()`, `plot_date()` now belong to **fasti**.
-* Remove frequency increment test: `test_fit()` and `plot_time()` now belong to **fasti**.
+* Remove dating methods: `*_mcd()`, `*_event()`, `*_accumulation()`, `plot_date()` now belong to **kairos**.
+* Remove frequency increment test: `test_fit()` and `plot_time()` now belong to **kairos**.
 
 # tabula 1.6.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4748807.svg)](https://doi.org/10.5281/zenodo.4748807)
-
 ## New classes and methods
 * Add `DateEvent`: S4 class to store the event and accumulation times of archaeological assemblages.
 * Add `CompositionIndex`: S4 class that represent an asymptotic species richness.
@@ -45,14 +63,10 @@
 * Rewrite `plot_ford()` and `plot_bertin()`.
 
 # tabula 1.5.1
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3716163.svg)](https://doi.org/10.5281/zenodo.3716163)
-
 ## Bugfixes & changes
 * CRAN pacakge check warning (r-devel) has been fixed (use a `stringsAsFactors = FALSE` default).
 
 # tabula 1.5.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3612110.svg)](https://doi.org/10.5281/zenodo.3612110)
-
 ## Bugfixes & changes
 * CRAN package check error with long doubles disabled has been fixed (tested with R-hub `debian-gcc-devel-nold`).
 * CRAN package check notes have been fixed.
@@ -61,8 +75,6 @@
 * Depend on **arkhe**.
 
 # tabula 1.4.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3552904.svg)](https://doi.org/10.5281/zenodo.3552904)
-
 * Published in the [*Journal of Open Source Software*](https://doi.org/10.21105/joss.01821).
 
 ## New classes and methods
@@ -81,8 +93,6 @@
 * Display progress bars only if `interactive()` is `TRUE` and **pbapply** is installed.
 
 # tabula 1.3.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3455385.svg)](https://doi.org/10.5281/zenodo.3455385)
-
 ## New classes and methods
 * `Matrix` S4 class is now the superclass of all matrix-like classes.
 * `AbundanceMatrix` virtual S4 class is defined as the superclass of `CountMatrix`, `FrequencyMatrix` and `IncidenceMatrix`.
@@ -127,8 +137,6 @@
 * `get_features()` allows to convert an `AbundanceMatrix` object to a `data.frame`. It is intended for compatibility with the **sf** package.
 
 # tabula 1.2.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2600844.svg)](https://doi.org/10.5281/zenodo.2600844)
-
 ## New classes and methods
 * The function `dateEvent()` allows to compute chronological models as described in Bellanger and Husi (2006).
 * `DateModel` this S4 class stores the results of `dateEvent()`.
@@ -151,8 +159,6 @@
 * Add an optional progress bars with {pbapply} in long running functions.
 
 # tabula 1.1.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2529084.svg)](https://doi.org/10.5281/zenodo.2529084)
-
 ## Bugfixes & changes
 * `similarity()` now returns a symmetric matrix.
 
@@ -167,8 +173,6 @@
 * Split the documentation for beta-diversity measures.
 
 # tabula 1.0.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1881131.svg)](https://doi.org/10.5281/zenodo.1881131)
-
 * Initial version on CRAN.
 
 ## New classes and methods
@@ -186,6 +190,4 @@
 * Add a vignette for matrix seriation.
 
 # tabula 0.9.0
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1489945.svg)](https://doi.org/10.5281/zenodo.1489945)
-
 * Beta release.

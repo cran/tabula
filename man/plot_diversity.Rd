@@ -3,13 +3,33 @@
 \docType{methods}
 \name{plot_diversity}
 \alias{plot_diversity}
+\alias{autoplot,DiversityIndex-method}
 \alias{plot,DiversityIndex,missing-method}
+\alias{autoplot,RarefactionIndex-method}
+\alias{plot,RarefactionIndex,missing-method}
 \title{Diversity Plot}
 \usage{
-\S4method{plot}{DiversityIndex,missing}(x)
+\S4method{autoplot}{DiversityIndex}(object, ...)
+
+\S4method{plot}{DiversityIndex,missing}(x, y, ...)
+
+\S4method{autoplot}{RarefactionIndex}(object, ...)
+
+\S4method{plot}{RarefactionIndex,missing}(x, y, ...)
 }
 \arguments{
-\item{x}{A \code{\linkS4class{DiversityIndex}} object to be plotted.}
+\item{object, x}{A \linkS4class{DiversityIndex} object to be plotted.}
+
+\item{...}{Currently not used.}
+
+\item{y}{Currently not used.}
+}
+\value{
+\itemize{
+\item \code{autoplot()} returns a \code{\link[ggplot2:ggplot]{ggplot}} object.
+\item \code{plot()} is called it for its side-effects: it results in a graphic being
+displayed (invisibly returns \code{x}).
+}
 }
 \description{
 Diversity Plot
@@ -18,27 +38,36 @@ Diversity Plot
 \donttest{
 ## Coerce data to a count matrix
 data("chevelon", package = "folio")
-chevelon <- as_count(chevelon)
 
 ## Assemblage diversity size comparison
 ## Warning: this may take a few seconds!
-sim_evenness <- simulate_evenness(chevelon, method = "shannon")
-plot(sim_evenness)
+h <- heterogeneity(chevelon, method = "shannon")
+h_sim <- simulate(h)
+plot(h_sim)
 
-sim_richness <- simulate_richness(chevelon, method = "none")
-plot(sim_richness)
+r <- richness(chevelon, method = "count")
+r_sim <- simulate(r)
+plot(r_sim)
 }
 }
 \seealso{
-\code{\link[=index_heterogeneity]{index_heterogeneity()}}, \code{\link[=index_evenness]{index_evenness()}}, \code{\link[=index_richness]{index_richness()}}
+Other diversity measures: 
+\code{\link{heterogeneity}()},
+\code{\link{occurrence}()},
+\code{\link{rarefaction}()},
+\code{\link{richness}()},
+\code{\link{similarity}()},
+\code{\link{simulate}()},
+\code{\link{turnover}()}
 
-Other plot: 
+Other plot methods: 
 \code{\link{plot_bar}},
+\code{\link{plot_heatmap}()},
 \code{\link{plot_line}},
-\code{\link{plot_matrix}},
 \code{\link{plot_spot}()}
 }
 \author{
 N. Frerebeau
 }
-\concept{plot}
+\concept{diversity measures}
+\concept{plot methods}

@@ -2,64 +2,90 @@
 NULL
 
 #' @export
-#' @rdname richness-index
-#' @aliases rarefaction,CountMatrix-method
+#' @rdname rarefaction
+#' @aliases rarefaction,matrix-method
 setMethod(
   f = "rarefaction",
-  signature = signature(object = "CountMatrix"),
-  definition = function(object, sample, method = c("hurlbert"),
-                        simplify = TRUE, ...) {
+  signature = signature(object = "matrix"),
+  definition = function(object, sample = NULL, method = c("hurlbert"),
+                        step = 1) {
+    ## Validation
     method <- match.arg(method, several.ok = FALSE)
-    fun <- switch_rarefaction(method) # Select method
 
-    apply(X = object, MARGIN = 1, FUN = fun, sample)
+    n <- nrow(object)
+    if (is.null(sample)) {
+      sample <- rowSums(object)
+    }
+    if (length(sample) == 1) {
+      sample <- rep(sample, n)
+    }
+    k <- seq(from = 1, to = max(sample), by = step)
+
+    ## Matrix of results
+    z <- matrix(data = NA_real_, nrow = n, ncol = length(k))
+    dimnames(z) <- list(rownames(object), k)
+
+    for (i in seq_len(n)) {
+      spl <- k[k <= sample[[i]]]
+      rare <- vapply(
+        X = spl,
+        FUN = function(s, x, f) f(x, s),
+        FUN.VALUE = numeric(1),
+        x = object[i, ],
+        f = get_index(method) # Select method
+      )
+      z[i, seq_along(rare)] <- rare
+    }
+
+    .RarefactionIndex(
+      z,
+      names = rownames(object),
+      size = as.integer(k),
+      method = method
+    )
   }
 )
 
-switch_rarefaction <- function(x) {
-  switch (
-    x,
-    hurlbert = rarefactionHurlbert,
-    stop(sprintf("There is no such method: %s.", x), call. = FALSE)
-  )
-}
+#' @export
+#' @rdname rarefaction
+#' @aliases rarefaction,data.frame-method
+setMethod(
+  f = "rarefaction",
+  signature = signature(object = "data.frame"),
+  definition = function(object, sample = NULL, method = c("hurlbert"),
+                        step = 1) {
+    object <- data.matrix(object)
+    methods::callGeneric(object, sample = sample, method = method, step = step)
+  }
+)
 
-# ==============================================================================
-#' Rarefaction index
-#'
-#' Returns Hurlbert's unbiased estimate of Sander's rarefaction.
-#' @param n A [`numeric`] vector giving the number of individuals for
-#'  each type.
-#' @param ... Currently not used.
-#' @return A length-one [`numeric`] vector.
-#' @author N. Frerebeau
-#' @family diversity measures
-#' @name index-rarefaction
-#' @keywords internal
-#' @noRd
-rarefactionHurlbert <- function(x, sample) {
-  # Validation
-  if (!is.numeric(x))
-    stop("`x` must be a numeric vector.")
-  if (!is.numeric(sample) || length(sample) != 1)
-    stop("`sample` must be a numeric scalar.")
-  # Strictly positive whole numbers
-  x <- trunc(x, digits = 0)[x > 0]
-  sample <- trunc(sample, digits = 0)
+# Index ========================================================================
+#' @export
+#' @rdname rarefaction
+#' @aliases index_hurlbert,numeric-method
+setMethod(
+  f = "index_hurlbert",
+  signature = signature(x = "numeric"),
+  definition = function(x, sample, ...) {
+    ## Validation
+    arkhe::assert_count(x)
 
-  N <- sum(x)
-  E <- vapply(
-    X = x,
-    FUN = function(x, N, sample) {
-      if (N - x > sample) {
-        1 - combination(N - x, sample) / combination(N, sample)
-      } else {
-        NA
-      }
-    },
-    FUN.VALUE = double(1),
-    N, sample
-  )
-  E <- sum(E)
-  return(E)
-}
+    x <- x[x > 0]
+    N <- sum(x)
+
+    E <- vapply(
+      X = x,
+      FUN = function(x, N, sample) {
+        if (N - x > sample) {
+          combination(N - x, sample) / combination(N, sample)
+        } else {
+          0
+        }
+      },
+      FUN.VALUE = double(1),
+      N, sample
+    )
+    E <- sum(1 - E, na.rm = TRUE)
+    return(E)
+  }
+)
