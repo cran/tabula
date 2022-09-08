@@ -40,21 +40,23 @@ Measure Diversity by Comparing to Simulated Assemblages
 }
 \examples{
 \donttest{
-## Coerce data to a count matrix
-data("chevelon", package = "folio")
+data("cantabria")
 
 ## Assemblage diversity size comparison
 ## Warning: this may take a few seconds!
-h <- heterogeneity(chevelon, method = "shannon")
+h <- heterogeneity(cantabria, method = "shannon")
 h_sim <- simulate(h)
 plot(h_sim)
 
-r <- richness(chevelon, method = "count")
+r <- richness(cantabria, method = "count")
 r_sim <- simulate(r)
 plot(r_sim)
 }
 }
 \references{
+Baxter, M. J. (2001). Methodological Issues in the Study of Assemblage
+Diversity. \emph{American Antiquity}, 66(4), 715-725. \doi{10.2307/2694184}.
+
 Kintigh, K. W. (1984). Measuring Archaeological Diversity by Comparison
 with Simulated Assemblages. \emph{American Antiquity}, 49(1), 44-54.
 \doi{10.2307/280511}.

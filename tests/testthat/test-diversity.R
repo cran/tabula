@@ -1,44 +1,43 @@
 test_that("Heterogeneity", {
-  skip_if_not_installed("folio")
-  data("chevelon", package = "folio")
+  data("cantabria")
 
   method <- c("berger", "brillouin", "mcintosh", "simpson", "shannon")
   for (i in method) {
-    index <- heterogeneity(chevelon, method = i)
-    expect_length(index, nrow(chevelon))
+    index <- heterogeneity(cantabria, method = i)
+    expect_length(index, nrow(cantabria))
     expect_equal(get_method(index), i)
   }
 
   boot <- with_seed(12345, bootstrap(index, n = 30))
   expect_snapshot(boot)
 
+  skip("Remove skip() when arkhe is released")
   jack <- jackknife(index)
   expect_snapshot(jack)
 })
 test_that("Evenness", {
-  skip_if_not_installed("folio")
-  data("chevelon", package = "folio")
+  data("cantabria")
 
   method <- c("brillouin", "mcintosh", "simpson", "shannon")
   for (i in method) {
-    index <- evenness(chevelon, method = i)
-    expect_length(index, nrow(chevelon))
+    index <- evenness(cantabria, method = i)
+    expect_length(index, nrow(cantabria))
     expect_equal(get_method(index), i)
   }
 
   boot <- with_seed(12345, bootstrap(index, n = 30))
   expect_snapshot(boot)
 
+  skip("Remove skip() when arkhe is released")
   jack <- jackknife(index)
   expect_snapshot(jack)
 })
 test_that("Plot", {
-  skip_if_not_installed("folio")
-  data("chevelon", package = "folio")
+  data("cantabria")
 
   skip_if_not_installed("vdiffr")
   idx_heterogeneity <- with_seed(12345, {
-    idx_heterogeneity <- heterogeneity(chevelon, method = "shannon")
+    idx_heterogeneity <- heterogeneity(cantabria, method = "shannon")
     sim_heterogeneity <- simulate(idx_heterogeneity, n = 100)
   })
   gg_heterogeneity <- autoplot(sim_heterogeneity)

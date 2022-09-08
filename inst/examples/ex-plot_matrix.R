@@ -1,13 +1,12 @@
-## Abundance data (data from Desachy 2004)
-data("compiegne", package = "folio")
+data("cantabria")
 
 ## Plot matrix diagram...
-plot_heatmap(compiegne)
-plot_heatmap(compiegne, freq = TRUE)
+plot_heatmap(cantabria)
+plot_heatmap(cantabria, freq = TRUE)
 
 ## Presence/absence data
 inc <- sample(0:1, size = 100, replace = TRUE)
 bin <- matrix(data = as.logical(inc), nrow = 10, ncol = 10)
 
 plot_heatmap(bin) +
-  ggplot2::scale_fill_manual(values = c("TRUE" = "black", "FALSE" = "white"))
+  khroma::scale_fill_logical()

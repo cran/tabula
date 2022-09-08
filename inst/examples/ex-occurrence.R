@@ -1,5 +1,5 @@
-## Plot spot diagram of a co-occurrence matrix
-data("mississippi", package = "folio")
+data("cantabria")
 
-occ <- occurrence(mississippi)
+## Plot spot diagram of a co-occurrence matrix
+occ <- occurrence(cantabria)
 plot_spot(occ)

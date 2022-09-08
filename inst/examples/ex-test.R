@@ -1,3 +1,4 @@
+data("cantabria")
+
 ## Shannon diversity test
-data("merzbach", package = "folio")
-test_diversity(merzbach)
+test_diversity(cantabria)

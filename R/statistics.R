@@ -101,9 +101,6 @@ setMethod(
 #' @details
 #'  Ramanujan approximation is used for \eqn{x!} computation if \eqn{x > 170}.
 #' @return A length-one [`numeric`] vector.
-#' @references
-#'  Ramanujan Aiyangar, S. (1988). *The lost notebook and other unpublished
-#'  papers*. Berlin: Springer-Verlag.
 #' @author N. Frerebeau
 #' @keywords internal
 #' @noRd
@@ -114,13 +111,8 @@ combination <- function(n, k) {
   if (!is.numeric(k))
     stop("`k` must be a numeric vector.")
 
-  # Ramanujan factorial approximation
-  ramanujan <- function(x){
-    x * log(x) - x + log(x * (1 + 4 * x * (1 + 2 * x))) / 6 + log(pi) / 2
-  }
-
   if (n > 170 | k > 170) {
-    if (getOption("verbose")) message("Ramanujan approximation of x!")
+    if (getOption("tabula.verbose")) message("Ramanujan approximation of x!")
     c <- exp(ramanujan(n) - ramanujan(k) - ramanujan(n - k))
   } else {
     c <- factorial(n) / (factorial(k) * factorial(n - k))
@@ -128,37 +120,19 @@ combination <- function(n, k) {
   c
 }
 
-#' Confidence Interval for a Proportion
+#' Ramanujan Factorial Approximation
 #'
-#' Computes the margin of errors of a confidence interval at a desired level of
-#'  significance.
 #' @param x A [`numeric`] vector.
-#' @param alpha A length-one [`numeric`] vector giving the significance
-#'  level to be used.
-#' @param type A [`character`] string giving the type of confidence
-#'  interval to be returned. It must be one "`normal`" (default) or
-#'  "`student`". Any unambiguous substring can be given.
-#' @return A [`numeric`] vector giving the margin of errors.
+#' @return A [`numeric`] vector.
+#' @examples
+#'  factorial(50)
+#'  exp(ramanujan(50))
+#' @references
+#'  Ramanujan Aiyangar, S. (1988). *The lost notebook and other unpublished
+#'  papers*. Berlin: Springer-Verlag.
 #' @author N. Frerebeau
 #' @keywords internal
 #' @noRd
-confidence_proportion <- function(x, alpha = 0.05,
-                                  type = c("normal", "student")) {
-  # Validation
-  if (!is.numeric(x))
-    stop("`x` must be a numeric vector.")
-  type <- match.arg(type, several.ok = FALSE)
-
-  n <- sum(x)
-  p <- x / n
-  z <- switch(
-    type,
-    "normal" = stats::qnorm(1 - alpha / 2),
-    "student" = stats::qt(1 - alpha / 2, n - 1),
-    stop(sprintf("There is no such type: %s", type), call. = FALSE)
-  )
-  stardard_error <- sqrt(p * (1 - p) / n)
-
-  margin <- z * stardard_error
-  margin
+ramanujan <- function(x){
+  x * log(x) - x + log(x * (1 + 4 * x * (1 + 2 * x))) / 6 + log(pi) / 2
 }

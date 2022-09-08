@@ -1,3 +1,14 @@
+# tabula 1.8.0
+**Seriation methods are now reexported from kairos and will be removed in a future release.**
+
+## New classes and methods
+* Add `index_boone()`: Boone heterogeneity index.
+* Add `index_baxter()`: Baxter rarefaction index.
+* Add the `cantabria` dataset.
+
+## Bugfixes & changes
+* Remove all previously deprecated methods.
+
 # tabula 1.7.0
 **Seriation methods are now reexported from kairos and will be removed in a future release.**
 

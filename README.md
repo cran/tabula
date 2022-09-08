@@ -7,6 +7,8 @@
 
 [![R-CMD-check](https://github.com/tesselle/tabula/workflows/R-CMD-check/badge.svg)](https://github.com/tesselle/tabula/actions)
 [![codecov](https://codecov.io/gh/tesselle/tabula/branch/master/graph/badge.svg)](https://app.codecov.io/gh/tesselle/tabula)
+[![CodeFactor](https://www.codefactor.io/repository/github/tesselle/tabula/badge)](https://www.codefactor.io/repository/github/tesselle/tabula)
+[![Dependencies](https://tinyverse.netlify.com/badge/tabula)](https://cran.r-project.org/package=tabula)
 
 <a href="https://tesselle.r-universe.dev" class="pkgdown-devel"><img
 src="https://tesselle.r-universe.dev/badges/tabula"
@@ -90,7 +92,6 @@ remotes::install_github("tesselle/tabula")
 ## Load packages
 library(folio) # Datasets
 library(khroma) # Color scales
-library(magrittr) # Pipes
 library(ggplot2)
 
 library(tabula)
@@ -161,14 +162,14 @@ Measure diversity by comparing to simulated assemblages:
 set.seed(12345)
 
 ## Data from Conkey 1980, Kintigh 1989, p. 28
-chevelon %>%
-  heterogeneity(method = "shannon") %>%
-  simulate() %>%
+chevelon |>
+  heterogeneity(method = "shannon") |>
+  simulate() |>
   plot()
 
-chevelon %>%
-  richness(method = "count") %>%
-  simulate() %>%
+chevelon |>
+  richness(method = "count") |>
+  simulate() |>
   plot()
 ```
 

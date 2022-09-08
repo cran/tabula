@@ -7,7 +7,7 @@ NULL
 setMethod(
   f = "rarefaction",
   signature = signature(object = "matrix"),
-  definition = function(object, sample = NULL, method = c("hurlbert"),
+  definition = function(object, sample = NULL, method = c("hurlbert", "baxter"),
                         step = 1) {
     ## Validation
     method <- match.arg(method, several.ok = FALSE)
@@ -52,7 +52,7 @@ setMethod(
 setMethod(
   f = "rarefaction",
   signature = signature(object = "data.frame"),
-  definition = function(object, sample = NULL, method = c("hurlbert"),
+  definition = function(object, sample = NULL, method = c("hurlbert", "baxter"),
                         step = 1) {
     object <- data.matrix(object)
     methods::callGeneric(object, sample = sample, method = method, step = step)
@@ -60,6 +60,25 @@ setMethod(
 )
 
 # Index ========================================================================
+#' @export
+#' @rdname rarefaction
+#' @aliases index_baxter,numeric-method
+setMethod(
+  f = "index_baxter",
+  signature = signature(x = "numeric"),
+  definition = function(x, sample, ...) {
+    ## Validation
+    arkhe::assert_count(x)
+
+    x <- x[x > 0]
+    N <- sum(x)
+
+    E <- suppressWarnings(exp(ramanujan(N - x) + ramanujan(N - sample) -
+                                ramanujan(N - x - sample) - ramanujan(N)))
+    sum(1 - E, na.rm = FALSE)
+  }
+)
+
 #' @export
 #' @rdname rarefaction
 #' @aliases index_hurlbert,numeric-method
@@ -85,7 +104,7 @@ setMethod(
       FUN.VALUE = double(1),
       N, sample
     )
-    E <- sum(1 - E, na.rm = TRUE)
+    E <- sum(1 - E, na.rm = FALSE)
     return(E)
   }
 )

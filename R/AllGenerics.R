@@ -109,7 +109,9 @@ setGeneric(
 
 #' Independance
 #'
-#' @param object A [CountMatrix-class] object.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
 #' @param ... Currently not used.
 #' @details
 #'  Computes for each cell of a numeric matrix one of the following statistic.
@@ -174,6 +176,9 @@ setGeneric(
 #' @param x A [`numeric`] vector of count data (absolute frequencies).
 #' @param evenness A [`logical`] scalar: should an evenness measure be computed
 #'  instead of an heterogeneity/dominance index?
+#' @param j An [`integer`] giving the index of the reference type/taxa.
+#'  If `NULL` (the default), the most frequent type/taxa in any assemblage will
+#'  be used.
 #' @param base A positive [`numeric`] value specifying the base with respect to
 #'  which logarithms are computed.
 #' @param na.rm A [`numeric`] scalar: should missing values (including `NaN`) be
@@ -203,6 +208,7 @@ setGeneric(
 #'    expresses the proportional importance of the most abundant type. This
 #'    metric is highly biased by sample size and richness, moreover it does not
 #'    make use of all the information available from sample.}
+#'   \item{`boone`}{Boone heterogeneity measure.}
 #'   \item{`brillouin`}{Brillouin diversity index. The Brillouin index describes
 #'    a known collection: it does not assume random sampling in an infinite
 #'    population. Pielou (1975) and Laxton (1978) argues for the use of the
@@ -242,6 +248,9 @@ setGeneric(
 #'  in Deep-Sea Sediments. *Science*, 168(3937), 1345-1347.
 #'  \doi{10.1126/science.168.3937.1345}.
 #'
+#'  Boone, J. L. (1987). Defining and Measuring Midden Catchment. *American
+#'  Antiquity*, 52(2), 336-45. \doi{10.2307/281785}.
+#'
 #'  Brillouin, L. (1956). *Science and information theory*. New York:
 #'  Academic Press.
 #'
@@ -279,11 +288,6 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name heterogeneity
-#' @rdname heterogeneity
-NULL
-
-#' @rdname heterogeneity
 #' @aliases heterogeneity-method
 setGeneric(
   name = "heterogeneity",
@@ -304,6 +308,13 @@ setGeneric(
 setGeneric(
   name = "index_berger",
   def = function(x, ...) standardGeneric("index_berger")
+)
+
+#' @rdname heterogeneity
+#' @aliases index_boone-method
+setGeneric(
+  name = "index_boone",
+  def = function(x, ...) standardGeneric("index_boone")
 )
 
 #' @rdname heterogeneity
@@ -443,11 +454,6 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name richness
-#' @rdname richness
-NULL
-
-#' @rdname richness
 #' @aliases richness-method
 setGeneric(
   name = "richness",
@@ -505,9 +511,9 @@ setGeneric(
   def = function(x, ...) standardGeneric("index_menhinick")
 )
 
+## Rarefaction -----------------------------------------------------------------
 #' Rarefaction
 #'
-#' Computes Hurlbert's unbiased estimate of Sander's rarefaction.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
 #'  [`data.frame`] of count data (absolute frequencies).
 #' @param x A [`numeric`] vector of count data (absolute frequencies).
@@ -518,29 +524,40 @@ setGeneric(
 #' @param step An [`integer`] giving the increment of the sample size.
 #' @param ... Currently not used.
 #' @inheritSection richness Details
+#' @section Rarefaction Measures:
+#'  The following rarefaction measures are available for count data:
+#'  \describe{
+#'   \item{`baxter`}{Baxter's rarefaction.}
+#'   \item{`hurlbert`}{Hurlbert's unbiased estimate of Sander's rarefaction.}
+#'  }
 #' @return
 #'  * `rarefaction()` returns a [RarefactionIndex-class] object.
 #'  * `index_*()` return a [`numeric`] vector.
 #' @references
+#'  Baxter, M. J. (2001). Methodological Issues in the Study of Assemblage
+#'  Diversity. *American Antiquity*, 66(4), 715-725. \doi{10.2307/2694184}.
+#'
 #'  Hurlbert, S. H. (1971). The Nonconcept of Species Diversity: A Critique and
 #'  Alternative Parameters. *Ecology*, 52(4), 577-586.
 #'  \doi{10.2307/1934145}.
 #'
 #'  Sander, H. L. (1968). Marine Benthic Diversity: A Comparative Study.
 #'  *The American Naturalist*, 102(925), 243-282.
-#' @example inst/examples/ex-richness.R
+#' @example inst/examples/ex-rarefaction.R
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name rarefaction
-#' @rdname rarefaction
-NULL
-
-#' @rdname rarefaction
 #' @aliases rarefaction-method
 setGeneric(
   name = "rarefaction",
   def = function(object, ...) standardGeneric("rarefaction")
+)
+
+#' @rdname rarefaction
+#' @aliases index_baxter-method
+setGeneric(
+  name = "index_baxter",
+  def = function(x, ...) standardGeneric("index_baxter")
 )
 
 #' @rdname rarefaction
@@ -608,11 +625,6 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name similarity
-#' @rdname similarity
-NULL
-
-#' @rdname similarity
 #' @aliases similarity-method
 setGeneric(
   name = "similarity",
@@ -676,11 +688,6 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name occurrence
-#' @rdname occurrence
-NULL
-
-#' @rdname occurrence
 #' @aliases occurrence-method
 setGeneric(
   name = "occurrence",
@@ -735,14 +742,10 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name turnover
-#' @rdname turnover
-NULL
-
-#' @rdname turnover
 #' @aliases turnover-method
 setGeneric(
   name = "turnover",
+
   def = function(object, ...) standardGeneric("turnover")
 )
 
@@ -804,6 +807,9 @@ setGeneric(
 #' @return
 #'  Returns a [DiversityIndex-class] object.
 #' @references
+#'  Baxter, M. J. (2001). Methodological Issues in the Study of Assemblage
+#'  Diversity. *American Antiquity*, 66(4), 715-725. \doi{10.2307/2694184}.
+#'
 #'  Kintigh, K. W. (1984). Measuring Archaeological Diversity by Comparison
 #'  with Simulated Assemblages. *American Antiquity*, 49(1), 44-54.
 #'  \doi{10.2307/280511}.
@@ -834,6 +840,32 @@ NULL
 #' @name plot_diversity
 #' @rdname plot_diversity
 NULL
+
+## Diversity Test --------------------------------------------------------------
+#' Diversity Test
+#'
+#' Compares Shannon diversity between samples.
+#' @param object A \eqn{m \times p}{m x p} matrix of count data.
+#' @param adjust A [`character`] string specifying the method for
+#'  adjusting \eqn{p} values (see [stats::p.adjust()]).
+#' @param ... Further arguments to be passed to internal methods.
+#' @details
+#'  This test produces two sided pairwise comparisons: it returns a matrix of
+#'  adjusted \eqn{p} values.
+#' @return
+#'  A [`numeric`] [`matrix`].
+#' @example inst/examples/ex-test.R
+#' @author N. Frerebeau
+#' @references
+#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
+#'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
+#' @family statistics
+#' @docType methods
+#' @aliases test_diversity-method
+setGeneric(
+  name = "test_diversity",
+  def = function(object, ...) standardGeneric("test_diversity")
+)
 
 # Plot =========================================================================
 ## Heatmap ---------------------------------------------------------------------
@@ -1022,58 +1054,9 @@ setGeneric(
   def = function(object, ...) standardGeneric("plot_spot")
 )
 
-# Test =========================================================================
-## Diversity Test --------------------------------------------------------------
-#' Diversity Test
-#'
-#' Compares Shannon diversity between samples.
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
-#' @param adjust A [`character`] string specifying the method for
-#'  adjusting \eqn{p} values (see [stats::p.adjust()]).
-#' @param ... Further arguments to be passed to internal methods.
-#' @details
-#'  This test produces two sided pairwise comparisons: it returns a matrix of
-#'  adjusted \eqn{p} values.
-#' @return
-#'  A [`numeric`] [`matrix`].
-#' @example inst/examples/ex-test.R
-#' @author N. Frerebeau
-#' @references
-#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
-#'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
-#' @family statistics
-#' @docType methods
-#' @rdname test_diversity
-#' @aliases test_diversity-method
-setGeneric(
-  name = "test_diversity",
-  def = function(object, ...) standardGeneric("test_diversity")
-)
-
 # Deprecated ===================================================================
 #' Deprecated Methods
 #'
-#' @param object A \eqn{m \times p}{m x p} matrix of count data (typically
-#'  a [CountMatrix-class] object).
-#' @param diag A [`logical`] scalar indicating whether the diagonal of the
-#'  matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param upper A [`logical`] scalar indicating whether the upper triangle of
-#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param lower A [`logical`] scalar indicating whether the lower triangle of
-#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param method A [`character`] string specifying the index to be computed
-#'  (see details). Any unambiguous substring can be given.
-#' @param quantiles A [`logical`] scalar: should sample quantiles be used as
-#'  confidence interval? If `TRUE` (the default), sample quantiles are used as
-#'  described in Kintigh (1989), else quantiles of the normal distribution are
-#'  used.
-#' @param level A length-one [`numeric`] vector giving the confidence level.
-#' @param step A non-negative [`integer`] giving the increment of the
-#'  sample size. Only used if `simulate` is `TRUE`.
-#' @param progress A [`logical`] scalar: should a progress bar be displayed?
-#' @param ... Further arguments to be passed to internal methods.
-#' @inheritParams stats_bootstrap
-#' @param ... Currently not used.
 #' @author N. Frerebeau
 #' @docType methods
 #' @name deprecate

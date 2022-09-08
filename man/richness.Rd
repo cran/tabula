@@ -159,7 +159,6 @@ The following measures are available for replicated incidence data:
 }
 
 \examples{
-## Richness
 ## Margalef and Menhinick index
 ## Data from Magurran 1988, p. 128-129
 trap <- matrix(data = c(9, 3, 0, 4, 2, 1, 1, 0, 1, 0, 1, 1,
@@ -168,8 +167,7 @@ trap <- matrix(data = c(9, 3, 0, 4, 2, 1, 1, 0, 1, 0, 1, 1,
 richness(trap, method = "margalef") # 2.55 1.88
 richness(trap, method = "menhinick") # 1.95 1.66
 
-## Asymptotic species richness
-## Chao1-type estimators
+## Chao1-type estimators (asymptotic species richness)
 ## Data from Chao & Chiu 2016
 brazil <- matrix(
   data = rep(x = c(1:21, 23, 25, 27, 28, 30, 32, 34:37, 41,
@@ -182,9 +180,6 @@ brazil <- matrix(
 
 composition(brazil, method = c("chao1"), unbiased = FALSE) # 461.625
 composition(brazil, method = c("ace"), k = 10) # 445.822
-
-## Rarefaction
-rarefaction(trap, sample = 13) # 6.56 6.00
 }
 \references{
 Chao, A. (1984). Nonparametric Estimation of the Number of Classes in a

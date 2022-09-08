@@ -4,20 +4,27 @@
 \name{rarefaction}
 \alias{rarefaction}
 \alias{rarefaction-method}
+\alias{index_baxter}
+\alias{index_baxter-method}
 \alias{index_hurlbert}
 \alias{index_hurlbert-method}
 \alias{rarefaction,matrix-method}
 \alias{rarefaction,data.frame-method}
+\alias{index_baxter,numeric-method}
 \alias{index_hurlbert,numeric-method}
 \title{Rarefaction}
 \usage{
 rarefaction(object, ...)
 
+index_baxter(x, ...)
+
 index_hurlbert(x, ...)
 
-\S4method{rarefaction}{matrix}(object, sample = NULL, method = c("hurlbert"), step = 1)
+\S4method{rarefaction}{matrix}(object, sample = NULL, method = c("hurlbert", "baxter"), step = 1)
 
-\S4method{rarefaction}{data.frame}(object, sample = NULL, method = c("hurlbert"), step = 1)
+\S4method{rarefaction}{data.frame}(object, sample = NULL, method = c("hurlbert", "baxter"), step = 1)
+
+\S4method{index_baxter}{numeric}(x, sample, ...)
 
 \S4method{index_hurlbert}{numeric}(x, sample, ...)
 }
@@ -44,8 +51,17 @@ index to be computed (see details). Any unambiguous substring can be given.}
 }
 }
 \description{
-Computes Hurlbert's unbiased estimate of Sander's rarefaction.
+Rarefaction
 }
+\section{Rarefaction Measures}{
+
+The following rarefaction measures are available for count data:
+\describe{
+\item{\code{baxter}}{Baxter's rarefaction.}
+\item{\code{hurlbert}}{Hurlbert's unbiased estimate of Sander's rarefaction.}
+}
+}
+
 \section{Details}{
 
 The number of different taxa, provides an instantly comprehensible
@@ -65,34 +81,16 @@ abundances.
 }
 
 \examples{
-## Richness
-## Margalef and Menhinick index
-## Data from Magurran 1988, p. 128-129
-trap <- matrix(data = c(9, 3, 0, 4, 2, 1, 1, 0, 1, 0, 1, 1,
-                        1, 0, 1, 0, 0, 0, 1, 2, 0, 5, 3, 0),
-               nrow = 2, byrow = TRUE, dimnames = list(c("A", "B"), NULL))
-richness(trap, method = "margalef") # 2.55 1.88
-richness(trap, method = "menhinick") # 1.95 1.66
+data("cantabria")
 
-## Asymptotic species richness
-## Chao1-type estimators
-## Data from Chao & Chiu 2016
-brazil <- matrix(
-  data = rep(x = c(1:21, 23, 25, 27, 28, 30, 32, 34:37, 41,
-                   45, 46, 49, 52, 89, 110, 123, 140),
-             times = c(113, 50, 39, 29, 15, 11, 13, 5, 6, 6, 3, 4,
-                       3, 5, 2, 5, 2, 2, 2, 2, 1, 2, 1, 1, 1, 1, 1,
-                       0, 0, 2, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0)),
-  nrow = 1, byrow = TRUE
-)
-
-composition(brazil, method = c("chao1"), unbiased = FALSE) # 461.625
-composition(brazil, method = c("ace"), k = 10) # 445.822
-
-## Rarefaction
-rarefaction(trap, sample = 13) # 6.56 6.00
+## Replicate fig. 3 from Baxter 2011
+rare <- rarefaction(cantabria, sample = 23, method = "baxter")
+plot(rare)
 }
 \references{
+Baxter, M. J. (2001). Methodological Issues in the Study of Assemblage
+Diversity. \emph{American Antiquity}, 66(4), 715-725. \doi{10.2307/2694184}.
+
 Hurlbert, S. H. (1971). The Nonconcept of Species Diversity: A Critique and
 Alternative Parameters. \emph{Ecology}, 52(4), 577-586.
 \doi{10.2307/1934145}.

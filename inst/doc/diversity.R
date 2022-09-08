@@ -33,8 +33,8 @@ plot_spot(BI) +
   khroma::scale_colour_PRGn()
 
 ## ----rarefaction--------------------------------------------------------------
-RA <- rarefaction(mississippi, sample = 100, method = "hurlbert")
-
+# Baxter rarefaction
+RA <- rarefaction(mississippi, sample = 100, method = "baxter")
 plot(RA)
 
 ## ----sample-size, fig.width=3.5, fig.height=3.5, fig.show='hold'--------------
@@ -43,7 +43,7 @@ HE <- heterogeneity(chevelon, method = "shannon")
 HE_sim <- simulate(HE)
 plot(HE_sim)
 
-RI <- index_richness(chevelon, method = "count")
+RI <- richness(chevelon, method = "count")
 RI_sim <- simulate(RI)
 plot(RI_sim) 
 
