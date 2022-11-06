@@ -3,7 +3,7 @@
 NULL
 
 #' @export
-#' @rdname plot_line
+#' @rdname plot_rank
 #' @aliases plot_rank,matrix-method
 setMethod(
   f = "plot_rank",
@@ -40,7 +40,7 @@ setMethod(
 )
 
 #' @export
-#' @rdname plot_line
+#' @rdname plot_rank
 #' @aliases plot_rank,data.frame-method
 setMethod(
   f = "plot_rank",
@@ -62,7 +62,7 @@ prepare_rank <- function(object) {
   )
 
   ## Build a long table for ggplot2 (preserve original ordering)
-  data <- arkhe::as_long(object, factor = TRUE)
+  data <- arkhe::to_long(object, factor = TRUE)
 
   data$x <- as.vector(t(rk))
   data$y <- data$value

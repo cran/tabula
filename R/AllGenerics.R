@@ -4,6 +4,8 @@ NULL
 
 # S4 dispatch to base S3 generic ===============================================
 setGeneric("autoplot", package = "ggplot2")
+setGeneric("jackknife", package = "arkhe")
+setGeneric("bootstrap", package = "arkhe")
 
 # Extract ======================================================================
 ## Mutators --------------------------------------------------------------------
@@ -17,36 +19,18 @@ setGeneric("autoplot", package = "ggplot2")
 # @example inst/examples/ex-mutator.R
 #' @author N. Frerebeau
 #' @docType methods
-#' @family mutator
-#' @name mutator
-#' @rdname mutator
+#' @family mutators
+#' @name mutators
+#' @rdname mutators
 #' @aliases get set
 NULL
 
-#' @rdname mutator
+#' @rdname mutators
 #' @aliases get_method-method
 setGeneric(
   name = "get_method",
   def = function(x) standardGeneric("get_method")
 )
-
-## Subset ----------------------------------------------------------------------
-#' Extract or Replace Parts of an Object
-#'
-#' Operators acting on objects to extract or replace parts.
-#' @param x An object from which to extract element(s) or in which to replace
-#'  element(s).
-#' @param i A [`character`] string specifying elements to extract.
-#'  Any unambiguous substring can be given (see details).
-#' @return
-#'  A subsetted object.
-# @example inst/examples/ex-mutator.R
-#' @author N. Frerebeau
-#' @docType methods
-#' @family mutator
-#' @name subset
-#' @rdname subset
-NULL
 
 # Statistic ====================================================================
 #' Resampling Methods
@@ -82,83 +66,10 @@ NULL
 #' @author N. Frerebeau
 #' @docType methods
 #' @family resampling methods
-#' @name resample
-#' @rdname resample
-NULL
-
-#' @rdname resample
 #' @aliases resample-method
 setGeneric(
   name = "resample",
   def = function(object, ...) standardGeneric("resample")
-)
-
-#' @rdname resample
-#' @aliases bootstrap-method
-setGeneric(
-  name = "bootstrap",
-  def = function(object, ...) standardGeneric("bootstrap")
-)
-
-#' @rdname resample
-#' @aliases jackknife-method
-setGeneric(
-  name = "jackknife",
-  def = function(object, ...) standardGeneric("jackknife")
-)
-
-#' Independance
-#'
-#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
-#' @param ... Currently not used.
-#' @details
-#'  Computes for each cell of a numeric matrix one of the following statistic.
-#' @section EPPM:
-#'  This positive difference from the column mean percentage (in french "écart
-#'  positif au pourcentage moyen", EPPM) represents a deviation from the
-#'  situation of statistical independence. As independence can be interpreted as
-#'  the absence of relationships between types and the chronological order of
-#'  the assemblages, `EPPM` is a useful tool to explore significance
-#'  of relationship between rows and columns related to seriation (Desachy
-#'  2004).
-#' @section PVI:
-#'  `PVI` is calculated for each cell as the percentage to the column
-#'  theoretical independence value: `PVI` greater than \eqn{1} represent
-#'  positive deviations from the independence, whereas `PVI` smaller than
-#'  \eqn{1} represent negative deviations (Desachy 2004).
-#'
-#'  The `PVI` matrix allows to explore deviations from independence (an
-#'  intuitive approach to \eqn{\chi^2}{Chi-squared}), in such a way that a
-#'  high-contrast matrix has quite significant deviations,
-#'  with a low risk of being due to randomness (Desachy 2004).
-#' @references
-#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
-#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
-#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
-#' @return A [`numeric`] [`matrix`].
-#' @example inst/examples/ex-independance.R
-#' @seealso [plot_ford()], [plot_heatmap()], [seriate_rank()]
-#' @author N. Frerebeau
-#' @docType methods
-#' @family statistics
-#' @name independance
-#' @rdname independance
-NULL
-
-#' @rdname independance
-#' @aliases eppm-method
-setGeneric(
-  name = "eppm",
-  def = function(object, ...) standardGeneric("eppm")
-)
-
-#' @rdname independance
-#' @aliases pvi-method
-setGeneric(
-  name = "pvi",
-  def = function(object, ...) standardGeneric("pvi")
 )
 
 # Diversity ====================================================================
@@ -868,7 +779,8 @@ setGeneric(
 )
 
 # Plot =========================================================================
-## Heatmap ---------------------------------------------------------------------
+## Matrix plot -----------------------------------------------------------------
+### Heatmap --------------------------------------------------------------------
 #' Heatmap
 #'
 #' Plots a heatmap.
@@ -886,31 +798,86 @@ setGeneric(
 #' @param ... Currently not used.
 #' @return
 #'  A [ggplot2::ggplot] object.
-#' @references
-#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
-#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
-#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
 #' @example inst/examples/ex-plot_matrix.R
 #' @author N. Frerebeau
-#' @seealso [pvi()]
 #' @family plot methods
 #' @docType methods
-#' @name plot_heatmap
-#' @rdname plot_heatmap
-#' @aliases matrigraphe
-NULL
-
-#' @rdname plot_heatmap
 #' @aliases plot_heatmap-method
 setGeneric(
   name = "plot_heatmap",
   def = function(object, ...) standardGeneric("plot_heatmap")
 )
 
-## Bar Plot --------------------------------------------------------------------
-#' Bar Plot
+### Matrigraph -----------------------------------------------------------------
+#' Matrigraph
 #'
-#' Plots a Bertin, Ford (battleship curve) or Dice-Leraas diagram.
+#' @description
+#'  * `matrigraph()` produces a heatmap highlighting the deviations from
+#'    independence.
+#'  * `pvi()` computes for each cell of a numeric matrix the percentage to the
+#'    column theoretical independence value.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
+#' @param reverse A [`logical`] scalar: should negative deviations be centered
+#'  (see details)?
+#' @param ... Currently not used.
+#' @details
+#'  PVI (in french "pourcentages de valeur d'indépendance") is calculated for
+#'  each cell as the percentage to the column theoretical independence value:
+#'  PVI greater than \eqn{1} represent positive deviations from the
+#'  independence, whereas PVI smaller than \eqn{1} represent negative
+#'  deviations (Desachy 2004).
+#'
+#'  The PVI matrix allows to explore deviations from independence (an
+#'  intuitive approach to \eqn{\chi^2}{Chi-squared}), in such a way that a
+#'  high-contrast matrix has quite significant deviations,
+#'  with a low risk of being due to randomness (Desachy 2004).
+#'
+#'  `matrigraph()` displays the deviations from independence:
+#'
+#'  * If the PVI is equal to \eqn{1} (statistical independence), the cell of the
+#'    matrix is filled in grey.
+#'  * If the PVI is less than \eqn{1} (negative deviation from independence),
+#'    the size of the grey square is proportional to the PVI (the white margin
+#'    thus represents the fraction of negative deviation).
+#'  * If the PVI is greater than \eqn{1} (positive deviation), a black
+#'    square representing the fraction of positive deviations is
+#'    superimposed. For large positive deviations (PVI greater than \eqn{2}),
+#'    the cell in filled in black.
+#'
+#'  If `reverse` is `TRUE`, the fraction of negative deviations is displayed
+#'  as a white square.
+#' @references
+#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
+#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
+#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
+#' @return
+#'  * `matrigraph()` returns a [ggplot2::ggplot] object.
+#'  * `pvi()` returns a [`numeric`] [`matrix`].
+#' @example inst/examples/ex-matrigraph.R
+#' @author N. Frerebeau
+#' @seealso [plot_heatmap()]
+#' @family plot methods
+#' @docType methods
+#' @aliases matrigraph-method
+setGeneric(
+  name = "matrigraph",
+  def = function(object, ...) standardGeneric("matrigraph")
+)
+
+#' @rdname matrigraph
+#' @aliases pvi-method
+setGeneric(
+  name = "pvi",
+  def = function(object, ...) standardGeneric("pvi")
+)
+
+## Bar Plot --------------------------------------------------------------------
+### Bertin ---------------------------------------------------------------------
+#' Bertin Diagram
+#'
+#' Plots a Bertin diagram.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
 #'  individuals for each class).
@@ -920,11 +887,7 @@ setGeneric(
 #' @param scale A [`function`] used to scale each variable, that takes a numeric
 #'  vector as argument and returns a numeric vector. If `NULL` (the default), no
 #'  scaling is performed.
-#' @param EPPM A [`logical`] scalar: should the EPPM be drawn (see below)?
 #' @param ... Currently not used.
-#' @details
-#'  If `EPPM` is `TRUE` and if a relative abundance is greater than
-#'  the mean percentage of the type, the exceeding part is highlighted.
 #' @section Bertin Matrix:
 #'  As de Falguerolles *et al.* (1997) points out:
 #'  "In abstract terms, a Bertin matrix is a matrix
@@ -932,8 +895,6 @@ setGeneric(
 #'  with real valued variables. For each variable, draw a bar chart of variable
 #'  value by case. High-light all bars representing a value above some sample
 #'  threshold for that variable."
-# @section Ford Diagram:
-#' @inheritSection independance EPPM
 #' @return
 #'  A [ggplot2::ggplot] object.
 #' @references
@@ -944,35 +905,125 @@ setGeneric(
 #'  Bertin's Graphical Data Analysis. In W. Badilla & F. Faulbaum (eds.),
 #'  *SoftStat '97: Advances in Statistical Software 6*. Stuttgart: Lucius
 #'  & Lucius, p. 11-20.
-#'
-#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
-#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
-#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
-#'
-#'  Ford, J. A. (1962). *A quantitative method for deriving cultural
-#'  chronology*. Washington, DC: Pan American Union. Technical manual 1.
-#' @example inst/examples/ex-plot_bar.R
+#' @example inst/examples/ex-plot_bertin.R
 #' @author N. Frerebeau
-#' @seealso [eppm()]
 #' @family plot methods
 #' @docType methods
-#' @name plot_bar
-#' @rdname plot_bar
-#' @aliases seriographe Bertin Ford
-NULL
-
-#' @rdname plot_bar
-#' @aliases plot_bertin-method
+#' @aliases plot_bertin-method Bertin
 setGeneric(
   name = "plot_bertin",
   def = function(object, ...) standardGeneric("plot_bertin")
 )
 
-#' @rdname plot_bar
-#' @aliases plot_ford-method
+### Ford -----------------------------------------------------------------------
+#' Ford Diagram
+#'
+#' Plots a Ford (battleship curve) diagram.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
+#' @param EPPM A [`logical`] scalar: should the EPPM be drawn?
+#'  This argument is defunct: use `seriograph()` instead.
+#' @param ... Currently not used.
+#' @return
+#'  A [ggplot2::ggplot] object.
+#' @references
+#'  Ford, J. A. (1962). *A quantitative method for deriving cultural
+#'  chronology*. Washington, DC: Pan American Union. Technical manual 1.
+#' @example inst/examples/ex-plot_ford.R
+#' @author N. Frerebeau
+#' @family plot methods
+#' @docType methods
+#' @aliases plot_ford-method Ford
 setGeneric(
   name = "plot_ford",
   def = function(object, ...) standardGeneric("plot_ford")
+)
+
+### Seriograph -----------------------------------------------------------------
+#' Seriograph
+#'
+#' @description
+#'  * `seriograph()` produces a Ford diagram highlighting the relationships
+#'    between rows and columns.
+#'  * `eppm()` computes for each cell of a numeric matrix the positive
+#'    difference from the column mean percentage.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
+#' @param weights A [`logical`] scalar: should row weights (i.e. the number of
+#'  observations divided by the total number of observations) be displayed?
+#' @param ... Currently not used.
+#' @details
+#'  The positive difference from the column mean percentage (in french "écart
+#'  positif au pourcentage moyen", EPPM) represents a deviation from the
+#'  situation of statistical independence. As independence can be interpreted as
+#'  the absence of relationships between types and the chronological order of
+#'  the assemblages, EPPM is a useful tool to explore significance
+#'  of relationship between rows and columns related to seriation (Desachy
+#'  2004).
+#'
+#'  `seriograph()` superimposes the frequencies (grey) and EPPM values (black)
+#'  for each row-column pair in a Ford diagram.
+#' @references
+#'  Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
+#'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
+#'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
+#' @return
+#'  * `seriograph()` returns a [ggplot2::ggplot] object.
+#'  * `eppm()` returns a [`numeric`] [`matrix`].
+#' @example inst/examples/ex-seriograph.R
+#' @author N. Frerebeau
+#' @seealso [plot_ford()]
+#' @family plot methods
+#' @docType methods
+#' @aliases seriograph-method
+setGeneric(
+  name = "seriograph",
+  def = function(object, ...) standardGeneric("seriograph")
+)
+
+#' @rdname seriograph
+#' @aliases eppm-method
+setGeneric(
+  name = "eppm",
+  def = function(object, ...) standardGeneric("eppm")
+)
+
+### Dice-Leraas ----------------------------------------------------------------
+#' Dice-Leraas Diagram
+#'
+#' Plots a Dice-Leraas diagram.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each class).
+#' @param ... Currently not used.
+#' @details
+#'  In a Dice-Leraas diagram, the horizontal line represents the range of data
+#'  (min-max) and the small vertical line indicates the mean. The black
+#'  rectangle is twice the standard error on the mean, while the white rectangle
+#'  is one standard deviation on either side of the mean.
+#' @references
+#'  Dice, L. R., & Leraas, H. J. (1936). A Graphic Method for Comparing Several
+#'  Sets of Measurements. *Contributions from the Laboratory of Vertebrate
+#'  Genetics*, 3: 1-3.
+#'
+#'  Hubbs, C. L., & C. Hubbs (1953). An Improved Graphical Analysis and
+#'  Comparison of Series of Samples. *Systematic Biology*, 2(2): 49-56.
+#'  \doi{10.2307/sysbio/2.2.49}.
+#'
+#'  Simpson, G. G., Roe, A., & Lewontin, R. C. *Quantitative Zoology*.
+#'  New York: Harcourt, Brace and Company, 1960.
+#' @return
+#'  A [ggplot2::ggplot] object.
+#' @example inst/examples/ex-diceleraas.R
+#' @author N. Frerebeau
+#' @family plot methods
+#' @docType methods
+#' @aliases plot_diceleraas-method
+setGeneric(
+  name = "plot_diceleraas",
+  def = function(object, ...) standardGeneric("plot_diceleraas")
 )
 
 ## Line Plot -------------------------------------------------------------------
@@ -997,11 +1048,6 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family plot methods
 #' @docType methods
-#' @name plot_line
-#' @rdname plot_line
-NULL
-
-#' @rdname plot_line
 #' @aliases plot_rank-method
 setGeneric(
   name = "plot_rank",
@@ -1043,11 +1089,6 @@ setGeneric(
 #' @author N. Frerebeau
 #' @family plot methods
 #' @docType methods
-#' @name plot_spot
-#' @rdname plot_spot
-NULL
-
-#' @rdname plot_spot
 #' @aliases plot_spot-method
 setGeneric(
   name = "plot_spot",

@@ -19,7 +19,7 @@ src="http://www.r-pkg.org/badges/version/tabula"
 alt="CRAN Version" /></a> <a
 href="https://cran.r-project.org/web/checks/check_results_tabula.html"
 class="pkgdown-release"><img
-src="https://cranchecks.info/badges/worst/tabula"
+src="https://badges.cranchecks.info/worst/tabula.svg"
 alt="CRAN checks" /></a>
 <a href="https://cran.r-project.org/package=tabula"
 class="pkgdown-release"><img
@@ -49,6 +49,11 @@ thresholds: rank vs. abundance plots, heatmaps, Ford (1962) and Bertin
 [**kairos**](https://packages.tesselle.org/kairos/) is a companion
 package to **tabula** that provides functions for chronological modeling
 and dating of archaeological assemblages from count data.
+
+**Prior to version 2.0.0, tabula included various matrix seriation
+methods. These methods have been moved to
+[kairos](https://packages.tesselle.org/kairos/), so that we no longer
+have chronological tools in two separate packages.**
 
 
     To cite tabula in publications use:

@@ -20,10 +20,25 @@ test_that("Ford plot", {
   skip_if_not_installed("vdiffr")
   data("cantabria")
 
+  gg_ford <- plot_ford(cantabria)
+  vdiffr::expect_doppelganger("ford", gg_ford)
+})
+test_that("Seriograph", {
+  skip_if_not_installed("vdiffr")
+  data("cantabria")
+
   for (i in c(TRUE, FALSE)) {
-    gg_ford <- plot_ford(cantabria, EPPM = i)
-    vdiffr::expect_doppelganger(paste0("ford_count_EPPM-", i), gg_ford)
+    gg_seriograph <- seriograph(cantabria, weights = i)
+    vdiffr::expect_doppelganger(paste0("seriograph_weights-", i), gg_seriograph)
   }
+})
+# Dice-Leraas ==================================================================
+test_that("Dice-Leraas plot", {
+  skip_if_not_installed("vdiffr")
+  data("cantabria")
+
+  gg_diceleraas <- plot_diceleraas(cantabria)
+  vdiffr::expect_doppelganger("diceleraas", gg_diceleraas)
 })
 # Heatmap ======================================================================
 test_that("Matrix plot", {
@@ -41,6 +56,15 @@ test_that("Matrix plot", {
   # Incidence data
   gg_mtx_incid <- plot_heatmap(cantabria > 0)
   vdiffr::expect_doppelganger("mtx_incid", gg_mtx_incid)
+})
+test_that("Matrigraph", {
+  skip_if_not_installed("vdiffr")
+  data("cantabria")
+
+  for (i in c(TRUE, FALSE)) {
+    gg_matrigraph <- matrigraph(cantabria, reverse = i)
+    vdiffr::expect_doppelganger(paste0("matrigraph_revese-", i), gg_matrigraph)
+  }
 })
 # Rank =========================================================================
 test_that("Rank plot", {

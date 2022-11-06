@@ -1,3 +1,15 @@
+# tabula 2.0.0
+## New classes and methods
+* Add `plot_diceleraas()` to display a Dice-Lerass diagram.
+* Add `matrigraph()` to display a heatmap highlighting the deviations from independence.
+* Add `seriograph()` to display a Ford diagram highlighting the relationships between rows and columns.
+
+## Bugfixes & changes
+* `EPPM` argument of `plot_ford()` is defunct (use `seriograph()` instead).
+
+## Breaking changes
+* **Seriation methods are no longer reexported from kairos.**
+
 # tabula 1.8.0
 **Seriation methods are now reexported from kairos and will be removed in a future release.**
 

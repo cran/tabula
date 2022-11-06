@@ -3,7 +3,7 @@
 NULL
 
 #' @export
-#' @rdname plot_bar
+#' @rdname plot_bertin
 #' @aliases plot_bertin,matrix-method
 setMethod(
   f = "plot_bertin",
@@ -46,7 +46,7 @@ setMethod(
 )
 
 #' @export
-#' @rdname plot_bar
+#' @rdname plot_bertin
 #' @aliases plot_bertin,data.frame-method
 setMethod(
   f = "plot_bertin",
@@ -68,7 +68,7 @@ prepare_bertin <- function(x, threshold = NULL, scale = NULL) {
   }
 
   ## Build a long table for ggplot2 (preserve original ordering)
-  data <- arkhe::as_long(x, factor = TRUE)
+  data <- arkhe::to_long(x, factor = TRUE)
 
   ## Compute threshold, if any
   if (is.function(threshold)) {

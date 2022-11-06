@@ -5,20 +5,12 @@
 \name{resample}
 \alias{resample}
 \alias{resample-method}
-\alias{bootstrap}
-\alias{bootstrap-method}
-\alias{jackknife}
-\alias{jackknife-method}
 \alias{bootstrap,DiversityIndex-method}
 \alias{jackknife,DiversityIndex-method}
 \alias{resample,numeric-method}
 \title{Resampling Methods}
 \usage{
 resample(object, ...)
-
-bootstrap(object, ...)
-
-jackknife(object, ...)
 
 \S4method{bootstrap}{DiversityIndex}(object, n = 1000, f = NULL)
 
