@@ -8,36 +8,118 @@ NULL
 setMethod(
   f = "plot_ford",
   signature = signature(object = "matrix"),
-  definition = function(object, EPPM = FALSE) {
-    ## /!\ Deprecate EPPM /!\
-    if (EPPM) {
-      warning("Argument 'EEPM' is defunct; please use 'seriograph()' instead.",
-              call. = FALSE)
+  definition = function(object, weights = FALSE, EPPM = FALSE,
+                        fill = "darkgrey", border = NA,
+                        axes = TRUE, ...) {
+    ## Prepare data
+    n <- nrow(object)
+    m <- ncol(object)
+    seq_row <- rev(seq_len(n))
+    seq_col <- seq_len(m)
+    lab_row <- rownames(object) %||% seq_row
+    lab_col <- colnames(object) %||% seq_col
+
+    padding_x <- 0.05
+    padding_y <- 0.5 - 0.01
+    data <- prepare_ford(object, padding = padding_x)
+
+    ## Graphical parameters
+    cex.axis <- graphics::par("cex.axis")
+    col.axis <- graphics::par("col.axis")
+    font.axis <- graphics::par("font.axis")
+
+    ## Save and restore
+    d <- inch2line("M", cex = cex.axis)
+    mfrow <- graphics::par("mfrow")
+    mar <- graphics::par("mar")
+    mar[1] <- 3
+    mar[2] <- inch2line(lab_row, cex = cex.axis)
+    mar[3] <- inch2line(lab_col, cex = cex.axis)
+    mar[4] <- 0
+
+    old_par <- graphics::par(mfrow = mfrow, mar = mar)
+    on.exit(graphics::par(old_par))
+
+    if (weights) {
+      graphics::layout(matrix(c(1, 2), nrow = 1), widths = c(m - 1, 1))
     }
 
-    ## Prepare data
-    object_long <- prepare_ford(object)
-    vertex <- prepare_ford_vertex(object_long)
+    ## Open new window
+    grDevices::dev.hold()
+    on.exit(grDevices::dev.flush(), add = TRUE)
+    graphics::plot.new()
 
-    ggplot2::ggplot() +
-      ggplot2::aes(
-        x = .data$x,
-        y = .data$y,
-        group = .data$group
-      ) +
-      ggplot2::geom_polygon(data = vertex, fill = "darkgrey") +
-      ggplot2::scale_x_continuous(
-        expand = c(0, 0),
-        breaks = unique(object_long$x),
-        labels = colnames(object),
-        position = "top"
-      ) +
-      ggplot2::scale_y_continuous(
-        expand = c(0, 0),
-        breaks = seq_len(nrow(object)),
-        labels = rev(rownames(object))
-      ) +
-      theme_tabula()
+    ## Set plotting coordinates
+    xlim <- range(data$x - data$value, data$x + data$value)
+    ylim <- range(data$y) + c(-1, 1) * padding_y
+    graphics::plot.window(xlim = xlim, ylim = ylim)
+
+    ## Plot
+    graphics::rect(
+      xleft = data$x - data$value,
+      ybottom = data$y - padding_y,
+      xright = data$x + data$value,
+      ytop = data$y + padding_y,
+      col = fill,
+      border = border
+    )
+    if (EPPM) {
+      graphics::rect(
+        xleft = data$x - data$eppm,
+        ybottom = data$y - padding_y,
+        xright = data$x + data$eppm,
+        ytop = data$y + padding_y,
+        col = "black",
+        border = NA
+      )
+    }
+
+    ## Construct axis
+    if (axes) {
+      graphics::mtext(lab_row, side = 2, at = seq_row, las = 2, padj = 0.5,
+                      cex = cex.axis, col.axis = col.axis, font = font.axis)
+      graphics::mtext(lab_col, side = 3, at = unique(data$x), las = 2, padj = 0.5,
+                      cex = cex.axis, col.axis = col.axis, font = font.axis)
+
+      x_axis <- data$x[which.max(data$value)]
+      graphics::axis(side = 1, at = c(x_axis - 0.2, x_axis + 0.2), labels = FALSE)
+      graphics::axis(side = 1, at = x_axis, labels = scale_pc(0.2), tick = FALSE)
+    }
+
+    if (weights) {
+      ## Graphical parameters
+      mar[2] <- 0.1
+      mar[4] <- 0.1
+      graphics::par(mar = mar)
+
+      ## Open new window
+      graphics::plot.new()
+
+      ## Set plotting coordinates
+      total <- rowSums(object)
+      graphics::plot.window(xlim = c(0, max(total) * 1.05), ylim = ylim,
+                            xaxs = "i")
+
+      ## Plot
+      y <- length(total) - seq_along(total) + 1
+      graphics::rect(
+        xleft = 0,
+        ybottom = y - padding_y,
+        xright = total,
+        ytop = y + padding_y,
+        col = fill,
+        border = border
+      )
+
+      ## Construct axis
+      if (axes) {
+        graphics::segments(x0 = 0, y0 = 0, x1 = 0, y = n + 0.5,
+                           col = col.axis, lwd = 1)
+        graphics::axis(side = 1)
+      }
+    }
+
+    invisible(object)
   }
 )
 
@@ -47,9 +129,9 @@ setMethod(
 setMethod(
   f = "plot_ford",
   signature = signature(object = "data.frame"),
-  definition = function(object, EPPM = FALSE) {
+  definition = function(object, weights = FALSE, EPPM = FALSE) {
     object <- data.matrix(object)
-    methods::callGeneric(object, EPPM = EPPM)
+    methods::callGeneric(object, weights = weights, EPPM = EPPM)
   }
 )
 
@@ -57,58 +139,31 @@ setMethod(
 #' @return A data.frame.
 #' @keywords internal
 #' @noRd
-prepare_ford <- function(x, padding = 0.04) {
+prepare_ford <- function(x, padding = 0.05) {
+  ## EPPM
+  EPPM <- eppm(x) / 100
+
   ## Relative frequencies
   freq <- x / rowSums(x)
 
   ## Adaptive spacing between columns
   col_max <- apply(X = freq, MARGIN = 2, FUN = max, na.rm = TRUE)
-  roll_max <- roll_sum(col_max, n = 2) + padding
+  roll_max <- roll_sum(col_max, n = 2) + padding * max(freq)
   cum_max <- c(0, cumsum(roll_max))
 
   ## Build a long table for ggplot2 (preserve original ordering)
-  data <- arkhe::to_long(freq, factor = TRUE)
+  row <- row(x, as.factor = TRUE)
+  col <- col(x, as.factor = TRUE)
+  data <- data.frame(
+    row = as.vector(row),
+    column = as.vector(col),
+    value = as.vector(freq),
+    eppm = as.vector(EPPM)
+  )
 
   m <- nrow(freq)
-  data$x <- rep(cum_max, each = m)
-  data$y <- m + 1 - as.integer(data$row) # Reverse levels order
+  data$x <- rep(cum_max, each = m) + 1
+  data$y <- as.vector(m + 1 - as.numeric(row)) # Reverse levels order
 
   return(data)
-}
-
-prepare_ford_vertex <- function(x, group = "data") {
-  n <- nrow(x)
-  vertex <- vector(mode = "list", length = n)
-
-  ## Compute polygon vertices
-  ## Each row gives one vertex of a polygon
-  for (i in seq_len(n)) {
-    temp <- x[i, ]
-    vertex[[i]] <- data.frame(
-      x = temp$x + temp$value * c(-1, 1, 1, -1),
-      y = temp$y + 0.5 * c(1, 1, -1, -1),
-      group = paste0(group, i),
-      Value = group
-    )
-  }
-
-  vertex <- do.call(rbind, vertex)
-  return(vertex)
-}
-
-ford_scalebar <- function() {
-  list(
-    ggplot2::geom_errorbarh(
-      mapping = ggplot2::aes(xmin = .data$xmin, xmax = .data$xmax, y = .data$y),
-      data = data.frame(
-        xmin = -0.2,
-        xmax = 0.2,
-        y = 0
-      ),
-      height = 0.2,
-      inherit.aes = FALSE
-    )
-    # ggplot2::annotate("text", x = 0, y = -0.3, label = "20%",
-    #                   hjust = 0.5, vjust = 0)
-  )
 }

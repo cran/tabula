@@ -20,23 +20,26 @@ pvi(object, ...)
 
 \S4method{pvi}{data.frame}(object)
 
-\S4method{matrigraph}{matrix}(object, reverse = FALSE)
+\S4method{matrigraph}{matrix}(object, reverse = FALSE, axes = TRUE, ...)
 
-\S4method{matrigraph}{data.frame}(object, reverse = FALSE)
+\S4method{matrigraph}{data.frame}(object, reverse = FALSE, ...)
 }
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
 \code{\link{data.frame}} of count data (absolute frequencies giving the number of
-individuals for each class).}
+individuals for each category, i.e. a contingency table).}
 
 \item{...}{Currently not used.}
 
 \item{reverse}{A \code{\link{logical}} scalar: should negative deviations be centered
 (see details)?}
+
+\item{axes}{A \code{\link{logical}} scalar: should axes be drawn on the plot?}
 }
 \value{
 \itemize{
-\item \code{matrigraph()} returns a \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+\item \code{matrigraph()} is called it for its side-effects: it results in a graphic
+being displayed (invisibly returns \code{object}).
 \item \code{pvi()} returns a \code{\link{numeric}} \code{\link{matrix}}.
 }
 }
@@ -77,16 +80,16 @@ If \code{reverse} is \code{TRUE}, the fraction of negative deviations is display
 as a white square.
 }
 \examples{
+## Data from Desachy 2004
 data("compiegne", package = "folio")
 
 ## Matrigraph
 matrigraph(compiegne)
 matrigraph(compiegne, reverse = TRUE)
 
-## Compute EPPM
+## Compute PVI
 counts_pvi <- pvi(compiegne)
-plot_heatmap(counts_pvi) +
-  khroma::scale_fill_BuRd(name = "PVI", midpoint = 1)
+plot_heatmap(counts_pvi, col = khroma::color("iridescent")(12))
 }
 \references{
 Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
@@ -103,6 +106,7 @@ Other plot methods:
 \code{\link{plot_ford}()},
 \code{\link{plot_heatmap}()},
 \code{\link{plot_rank}()},
+\code{\link{plot_rarefaction}},
 \code{\link{plot_spot}()},
 \code{\link{seriograph}()}
 }

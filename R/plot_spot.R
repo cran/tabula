@@ -8,48 +8,20 @@ NULL
 setMethod(
   f = "plot_spot",
   signature = signature(object = "matrix"),
-  definition = function(object, type = c("ring", "plain"), threshold = NULL,
-                        diag = TRUE, upper = TRUE, lower = TRUE, freq = FALSE,
-                        ...) {
+  definition = function(object, type = c("ring", "plain"),
+                        col = grDevices::hcl.colors(12, "YlOrBr", rev = TRUE),
+                        diag = TRUE, upper = TRUE, lower = TRUE,
+                        freq = FALSE, margin = 1,
+                        axes = TRUE, legend = TRUE, ...) {
     ## Validation
     type <- match.arg(type, several.ok = FALSE)
 
-    ## Prepare data
-    data <- prepare_heatmap(object, diag = diag, upper = upper, lower = lower,
-                            freq = freq, threshold = threshold,
-                            drop_zero = TRUE, ...)
+    plot_matrix(object, panel = panel_spot, col = col,
+                 diag = diag, upper = upper, lower = lower,
+                 freq = freq, margin = margin, drop_zero = TRUE,
+                 axes = axes, legend = legend, type = type)
 
-    ## ggplot
-    gg_ring <- NULL
-    if (type == "ring") {
-      gg_ring <- list(
-        ggplot2::geom_point(
-          mapping = ggplot2::aes(size = .data$max * 1.2),
-          colour = "black",
-          show.legend = FALSE
-        ),
-        ggplot2::geom_point(
-          mapping = ggplot2::aes(size = .data$max),
-          colour = "white",
-          show.legend = FALSE
-        )
-      )
-    }
-
-    aes_point <- ggplot2::aes(size = .data$value, colour = .data$value)
-    if (!is.null(threshold)) {
-      aes_point <- ggplot2::aes(size = .data$value, colour = .data$threshold)
-    }
-
-    ggplot2::ggplot(data = data) +
-      ggplot2::aes(x = .data$x, y = .data$y) +
-      gg_ring +
-      ggplot2::geom_point(mapping = aes_point) +
-      ggplot2::coord_fixed() +
-      ggplot2::scale_size_area(name = "value") +
-      scale_x_matrix(object, name = "Type") +
-      scale_y_matrix(object, name = "Case") +
-      theme_tabula()
+    invisible(object)
   }
 )
 
@@ -59,13 +31,16 @@ setMethod(
 setMethod(
   f = "plot_spot",
   signature = signature(object = "data.frame"),
-  definition = function(object, type = c("ring", "plain"), threshold = NULL,
+  definition = function(object, type = c("ring", "plain"),
+                        col = grDevices::hcl.colors(12, "YlOrBr", rev = TRUE),
                         diag = TRUE, upper = TRUE, lower = TRUE,
-                        freq = FALSE, ...) {
+                        freq = FALSE, margin = 1,
+                        axes = TRUE, legend = TRUE, ...) {
     object <- data.matrix(object)
-    methods::callGeneric(object, type = type, threshold = threshold,
+    methods::callGeneric(object, type = type, col = col,
                          diag = diag, upper = upper, lower = lower,
-                         freq = freq, ...)
+                         freq = freq, margin = margin,
+                         axes = axes, legend = legend, ...)
   }
 )
 
@@ -75,11 +50,14 @@ setMethod(
 setMethod(
   f = "plot_spot",
   signature = signature(object = "dist"),
-  definition = function(object, type = c("ring", "plain"), diag = FALSE,
-                        upper = FALSE, lower = !upper, ...) {
+  definition = function(object, type = c("ring", "plain"),
+                        col = grDevices::hcl.colors(12, "YlOrBr", rev = TRUE),
+                        diag = FALSE, upper = FALSE, lower = !upper,
+                        axes = TRUE, legend = TRUE, ...) {
     # index_name <- attr(object, "method")
     object <- as.matrix(object)
-    methods::callGeneric(object, type = type,
-                         diag = diag, upper = upper, lower = lower)
+    methods::callGeneric(object, type = type, col = col,
+                         diag = diag, upper = upper, lower = lower,
+                         axes = axes, legend = legend)
   }
 )

@@ -2,7 +2,7 @@
 #' \tabular{ll}{
 #'  **Package:** \tab tabula \cr
 #'  **Type:** \tab Package \cr
-#'  **Version:** \tab 2.0.0 \cr
+#'  **Version:** \tab 3.0.0 \cr
 #'  **License:** \tab GPL-3 \cr
 #'  **Zenodo:** \tab \doi{10.5281/zenodo.1489944} \cr
 #'  **JOSS:** \tab \doi{10.21105/joss.01821} \cr
@@ -37,12 +37,7 @@
 "_PACKAGE"
 
 #' @import arkhe
-#' @importFrom ggplot2 ggplot aes coord_fixed element_blank element_rect
-#' element_text facet_wrap geom_line geom_path geom_point geom_polygon geom_tile
-#' labs scale_size_area scale_x_continuous scale_x_discrete scale_x_log10
-#' scale_y_continuous scale_y_discrete scale_y_log10 theme theme_gray waiver
 #' @importFrom methods as callNextMethod new setClass setClassUnion setGeneric
 #' setMethod validObject .valueClassTest
-#' @importFrom rlang .data
 #' @importFrom stats sd
 NULL

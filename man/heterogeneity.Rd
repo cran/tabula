@@ -77,7 +77,8 @@ index_simpson(x, ...)
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
 \code{\link{data.frame}} of count data (absolute frequencies giving the number of
-individuals for each class).}
+individuals for each category, i.e. a contingency table). A \code{\link{data.frame}}
+will be coerced to a \code{numeric} \code{matrix} via \code{\link[=data.matrix]{data.matrix()}}.}
 
 \item{...}{Currently not used.}
 
@@ -173,22 +174,14 @@ the value of the index accompanies a decrease in diversity.
 }
 
 \examples{
+## Data from Conkey 1980, Kintigh 1989
 data("cantabria")
 
 ## Shannon diversity index
 (h <- heterogeneity(cantabria, method = "shannon"))
 (e <- evenness(cantabria, method = "shannon"))
 
-## Bootstrap resampling (summary statistics)
-bootstrap(h, f = NULL)
-
-bootstrap(h, f = summary)
-
-quant <- function(x) quantile(x, probs = c(0.25, 0.50))
-bootstrap(h, f = quant)
-
-## Jackknife resampling
-jackknife(h)
+plot(h)
 }
 \references{
 Berger, W. H. & Parker, F. L. (1970). Diversity of Planktonic Foraminifera
@@ -235,7 +228,6 @@ Simpson, E. H. (1949). Measurement of Diversity. \emph{Nature}, 163(4148),
 \seealso{
 Other diversity measures: 
 \code{\link{occurrence}()},
-\code{\link{plot_diversity}},
 \code{\link{rarefaction}()},
 \code{\link{richness}()},
 \code{\link{similarity}()},

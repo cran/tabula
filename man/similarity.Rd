@@ -72,7 +72,10 @@ index_binomial(x, y, ...)
 \S4method{index_binomial}{numeric,numeric}(x, y)
 }
 \arguments{
-\item{object}{A \eqn{m \times p}{m x p} matrix of count data.}
+\item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
+\code{\link{data.frame}} of count data (absolute frequencies giving the number of
+individuals for each category, i.e. a contingency table). A \code{\link{data.frame}}
+will be coerced to a \code{numeric} \code{matrix} via \code{\link[=data.matrix]{data.matrix()}}.}
 
 \item{...}{Currently not used.}
 
@@ -116,48 +119,27 @@ of the Sorenson index).}
 }
 }
 \examples{
-## Data from Huntley 2008
-ceramics <- matrix(
-  data = c(16, 9, 3, 0, 1,
-           13, 3, 2, 0, 0,
-           9, 5, 2, 5, 0,
-           14, 12, 3, 0, 0,
-           0, 26, 4, 0, 0,
-           1, 26, 4, 0, 0,
-           0, 11, 3, 13, 0,
-           0, 0, 17, 0, 16,
-           0, 0, 18, 0, 14),
-  nrow = 9, byrow = TRUE
-)
-rownames(ceramics) <- c("Atsinna", "Cienega", "Mirabal", "PdMuertos",
-                        "Hesh", "LowPesc", "BoxS", "Ojo Bon", "S170")
-colnames(ceramics) <- c("DLH-1", "DLH-2a", "DLH-2b", "DLH-2c", "DLH-4")
+## Data from Huntley 2004, 2008
+data("pueblo")
 
 ## Brainerd-Robinson measure
-(C <- similarity(ceramics, "brainerd"))
+(C <- similarity(pueblo, "brainerd"))
 plot_spot(C)
 
 ## Data from Magurran 1988, p. 166
-birds <- matrix(
-  data = c(1.4, 4.3, 2.9, 8.6, 4.2, 15.7, 2.0, 50, 1, 11.4, 11.4, 4.3, 13.0,
-           14.3, 8.6, 7.1, 10.0, 1.4, 2.9, 5.7, 1.4, 11.4, 2.9, 4.3, 1.4, 2.9,
-           0, 0, 0, 2.9, 0, 0, 0, 10, 0, 0, 5.7, 2.5, 5.7, 8.6, 5.7, 2.9, 0, 0,
-           2.9, 0, 0, 5.7, 0, 2.9, 0, 2.9),
-  nrow = 2, byrow = TRUE
-)
-rownames(birds) <- c("unmanaged", "managed")
+data("aves")
 
 ## Jaccard measure (presence/absence data)
-similarity(birds, "jaccard") # 0.46
+similarity(aves, "jaccard") # 0.46
 
 ## Sorenson measure (presence/absence data)
-similarity(birds, "sorenson") # 0.63
+similarity(aves, "sorenson") # 0.63
 
 # Jaccard measure (Bray's formula ; count data)
-similarity(birds, "bray") # 0.44
+similarity(aves, "bray") # 0.44
 
 # Morisita-Horn measure (count data)
-similarity(birds, "morisita") # 0.81
+similarity(aves, "morisita") # 0.81
 }
 \references{
 Brainerd, G. W. (1951). The Place of Chronological Ordering in
@@ -183,7 +165,6 @@ Deposits. \emph{American Antiquity}, 16(04), 293-301. \doi{10.2307/276978}.
 Other diversity measures: 
 \code{\link{heterogeneity}()},
 \code{\link{occurrence}()},
-\code{\link{plot_diversity}},
 \code{\link{rarefaction}()},
 \code{\link{richness}()},
 \code{\link{simulate}()},

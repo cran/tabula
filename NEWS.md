@@ -1,3 +1,13 @@
+# tabula 3.0.0
+## Bugfixes & changes
+* Fix handling of missing values in heterogeneity index (#27).
+
+## Breaking changes
+* *Use graphics instead of ggplot2 for plotting.** The internal use of **ggplot2** was badly interoperable or composable. This also reduces hard dependencies.
+
+## Internals
+* Use **tinytest** and **tinysnapshot** instead of **testthat** and **vdiffr**.
+
 # tabula 2.0.0
 ## New classes and methods
 * Add `plot_diceleraas()` to display a Dice-Lerass diagram.

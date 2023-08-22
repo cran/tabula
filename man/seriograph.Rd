@@ -20,23 +20,43 @@ eppm(object, ...)
 
 \S4method{eppm}{data.frame}(object)
 
-\S4method{seriograph}{matrix}(object, weights = FALSE)
+\S4method{seriograph}{matrix}(
+  object,
+  weights = FALSE,
+  fill = "darkgrey",
+  border = NA,
+  axes = TRUE,
+  ...
+)
 
-\S4method{seriograph}{data.frame}(object, weights = FALSE)
+\S4method{seriograph}{data.frame}(
+  object,
+  weights = FALSE,
+  fill = "darkgrey",
+  border = NA,
+  axes = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
 \code{\link{data.frame}} of count data (absolute frequencies giving the number of
-individuals for each class).}
+individuals for each category, i.e. a contingency table).}
 
 \item{...}{Currently not used.}
 
-\item{weights}{A \code{\link{logical}} scalar: should row weights (i.e. the number of
-observations divided by the total number of observations) be displayed?}
+\item{weights}{A \code{\link{logical}} scalar: should the row sums be displayed?}
+
+\item{fill}{The color for filling the bars.}
+
+\item{border}{The color to draw the borders.}
+
+\item{axes}{A \code{\link{logical}} scalar: should axes be drawn on the plot?}
 }
 \value{
 \itemize{
-\item \code{seriograph()} returns a \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+\item \code{seriograph()} is called it for its side-effects: it results in a graphic
+being displayed (invisibly returns \code{object}).
 \item \code{eppm()} returns a \code{\link{numeric}} \code{\link{matrix}}.
 }
 }
@@ -61,15 +81,16 @@ of relationship between rows and columns related to seriation (Desachy
 for each row-column pair in a Ford diagram.
 }
 \examples{
+## Data from Desachy 2004
 data("compiegne", package = "folio")
 
 ## Seriograph
 seriograph(compiegne)
+seriograph(compiegne, weights = TRUE)
 
 ## Compute EPPM
 counts_eppm <- eppm(compiegne)
-plot_heatmap(counts_eppm) +
-  khroma::scale_fill_YlOrBr(name = "EPPM")
+plot_heatmap(counts_eppm, col = khroma::color("YlOrBr")(12))
 }
 \references{
 Desachy, B. (2004). Le sériographe EPPM: un outil informatisé de sériation
@@ -87,6 +108,7 @@ Other plot methods:
 \code{\link{plot_ford}()},
 \code{\link{plot_heatmap}()},
 \code{\link{plot_rank}()},
+\code{\link{plot_rarefaction}},
 \code{\link{plot_spot}()}
 }
 \author{

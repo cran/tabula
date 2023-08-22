@@ -5,15 +5,15 @@ knitr::opts_chunk$set(
 )
 
 ## ----packages-----------------------------------------------------------------
-# Load packages
+## Install extra packages (if needed)
+# install.packages("folio") # Datasets
+
+## Load packages
 library(tabula)
-library(folio) # Datasets
 
-## ----richness-----------------------------------------------------------------
-richness(mississippi, method = "margalef")
-
-## ----asymptotic-richness------------------------------------------------------
-composition(mississippi, method = "chao1")
+## ----data---------------------------------------------------------------------
+## Data from Lipo et al. 2015
+data("mississippi", package = "folio")
 
 ## ----diversity----------------------------------------------------------------
 heterogeneity(mississippi, method = "shannon")
@@ -21,34 +21,23 @@ heterogeneity(mississippi, method = "shannon")
 ## ----evenness-----------------------------------------------------------------
 evenness(mississippi, method = "shannon")
 
-## ----similarity, fig.width=7, fig.height=5, fig.align="center"----------------
-# Brainerd-Robinson (similarity between assemblages)
-BR <- similarity(mississippi, method = "brainerd")
-plot_spot(BR) +
-  khroma::scale_colour_YlOrBr()
+## ----richness-----------------------------------------------------------------
+richness(mississippi, method = "margalef")
 
-# Binomial co-occurrence (similarity between types)
-BI <- similarity(mississippi, method = "binomial")
-plot_spot(BI) +
-  khroma::scale_colour_PRGn()
+## ----asymptotic-richness------------------------------------------------------
+composition(mississippi, method = "chao1")
 
-## ----rarefaction--------------------------------------------------------------
-# Baxter rarefaction
+## ----rarefaction, fig.width=7, fig.height=5, fig.align="center"---------------
+## Baxter rarefaction
 RA <- rarefaction(mississippi, sample = 100, method = "baxter")
 plot(RA)
 
-## ----sample-size, fig.width=3.5, fig.height=3.5, fig.show='hold'--------------
-## Data from Conkey 1980, Kintigh 1989, p. 28
-HE <- heterogeneity(chevelon, method = "shannon")
-HE_sim <- simulate(HE)
-plot(HE_sim)
-
-RI <- richness(chevelon, method = "count")
-RI_sim <- simulate(RI)
-plot(RI_sim) 
-
-## ----plot-rank, fig.width=7, fig.height=5, fig.align="center"-----------------
-plot_rank(mississippi, log = "xy") +
-  ggplot2::theme_bw() +
-  khroma::scale_color_discreterainbow()
+## ----similarity, fig.width=7, fig.height=5, fig.align="center"----------------
+## Brainerd-Robinson (similarity between assemblages)
+BR <- similarity(mississippi, method = "brainerd")
+plot_spot(BR, col = khroma::colour("YlOrBr")(12))
+  
+## Binomial co-occurrence (similarity between types)
+BI <- similarity(mississippi, method = "binomial")
+plot_spot(BI, col = khroma::colour("PRGn")(12))
 

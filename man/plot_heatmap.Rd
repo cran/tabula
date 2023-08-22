@@ -11,18 +11,51 @@
 \usage{
 plot_heatmap(object, ...)
 
-\S4method{plot_heatmap}{matrix}(object, diag = TRUE, upper = TRUE, lower = TRUE, freq = FALSE)
+\S4method{plot_heatmap}{matrix}(
+  object,
+  col = grDevices::hcl.colors(12, "YlOrBr", rev = TRUE),
+  diag = TRUE,
+  upper = TRUE,
+  lower = TRUE,
+  freq = FALSE,
+  margin = 1,
+  axes = TRUE,
+  legend = TRUE,
+  ...
+)
 
-\S4method{plot_heatmap}{data.frame}(object, diag = TRUE, upper = TRUE, lower = TRUE, freq = FALSE)
+\S4method{plot_heatmap}{data.frame}(
+  object,
+  col = grDevices::hcl.colors(12, "YlOrBr", rev = TRUE),
+  diag = TRUE,
+  upper = TRUE,
+  lower = TRUE,
+  freq = FALSE,
+  margin = 1,
+  axes = TRUE,
+  legend = TRUE,
+  ...
+)
 
-\S4method{plot_heatmap}{dist}(object, diag = FALSE, upper = FALSE, lower = !upper)
+\S4method{plot_heatmap}{dist}(
+  object,
+  col = grDevices::hcl.colors(12, "YlOrBr", rev = TRUE),
+  diag = FALSE,
+  upper = FALSE,
+  lower = !upper,
+  axes = TRUE,
+  legend = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
 \code{\link{data.frame}} of count data (absolute frequencies giving the number of
-individuals for each class).}
+individuals for each category, i.e. a contingency table).}
 
 \item{...}{Currently not used.}
+
+\item{col}{A vector of colors.}
 
 \item{diag}{A \code{\link{logical}} scalar indicating whether the diagonal of the
 matrix should be plotted. Only used if \code{object} is a symmetric matrix.}
@@ -33,28 +66,35 @@ the matrix should be plotted. Only used if \code{object} is a symmetric matrix.}
 \item{lower}{A \code{\link{logical}} scalar indicating whether the lower triangle of
 the matrix should be plotted. Only used if \code{object} is a symmetric matrix.}
 
-\item{freq}{A \code{\link{logical}} scalar indicating whether relative frequency
-should be used instead of counts (absolute frequency).}
+\item{freq}{A \code{\link{logical}} scalar indicating whether conditional proportions
+given \code{margins} should be used (i.e. entries of \code{object}, divided by the
+appropriate marginal sums).}
+
+\item{margin}{An \code{\link{integer}} vector giving the margins to split by:
+\code{1} indicates individuals/rows (the default), \code{2} indicates
+variables/columns. Only used if \code{freq} is \code{TRUE}.}
+
+\item{axes}{A \code{\link{logical}} scalar: should axes be drawn on the plot?}
+
+\item{legend}{A \code{\link{logical}} scalar: should a legend be displayed?}
 }
 \value{
-A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+\code{plot_heatmap()} is called it for its side-effects: it results in a graphic
+being displayed (invisibly returns \code{object}).
 }
 \description{
 Plots a heatmap.
 }
 \examples{
+## Data from Conkey 1980, Kintigh 1989
 data("cantabria")
 
-## Plot matrix diagram...
+## Plot raw data
 plot_heatmap(cantabria)
-plot_heatmap(cantabria, freq = TRUE)
 
-## Presence/absence data
-inc <- sample(0:1, size = 100, replace = TRUE)
-bin <- matrix(data = as.logical(inc), nrow = 10, ncol = 10)
-
-plot_heatmap(bin) +
-  khroma::scale_fill_logical()
+## Plot conditional proportions
+plot_heatmap(cantabria, freq = TRUE, margin = 1)
+plot_heatmap(cantabria, freq = TRUE, margin = 2)
 }
 \seealso{
 Other plot methods: 
@@ -64,6 +104,7 @@ Other plot methods:
 \code{\link{plot_diversity}},
 \code{\link{plot_ford}()},
 \code{\link{plot_rank}()},
+\code{\link{plot_rarefaction}},
 \code{\link{plot_spot}()},
 \code{\link{seriograph}()}
 }

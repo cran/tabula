@@ -38,42 +38,44 @@ JOSS](https://joss.theoj.org/papers/10.21105/joss.01821/status.svg)](https://doi
 
 ## Overview
 
-An easy way to examine archaeological count data. **tabula** provides
+An easy way to examine archaeological count data. This package provides
 several tests and measures of diversity: heterogeneity and evenness
 (Brillouin, Shannon, Simpson, etc.), richness and rarefaction (Chao1,
 Chao2, ACE, ICE, etc.), turnover and similarity (Brainerd-Robinson,
-etc.). The package make it easy to visualize count data and statistical
+etc.). It allows to easily visualize count data and statistical
 thresholds: rank vs. abundance plots, heatmaps, Ford (1962) and Bertin
-(1977) diagrams.
+(1977) diagrams, etc. **tabula** provides methods for:
+
+- Diversity measurement: `heterogeneity()`, `evenness()`, `richness()`,
+  `rarefaction()`, `turnover()`
+- Similarity measurement and co-occurrence: `similarity()`,
+  `occurrence()`
+- Assessing sample size and significance: `bootstrap()`, `jackknife()`,
+  `simulate()`
+- Bertin (1977) or Ford (1962) (battleship curve) diagrams:
+  `plot_bertin()`, `plot_ford()`
+- Seriograph (Desachy 2004): `seriograph()`
+- Heatmaps: `plot_heatmap()`, `plot_spot()`
 
 [**kairos**](https://packages.tesselle.org/kairos/) is a companion
 package to **tabula** that provides functions for chronological modeling
 and dating of archaeological assemblages from count data.
 
-**Prior to version 2.0.0, tabula included various matrix seriation
-methods. These methods have been moved to
-[kairos](https://packages.tesselle.org/kairos/), so that we no longer
-have chronological tools in two separate packages.**
-
-
     To cite tabula in publications use:
 
-      Frerebeau, Nicolas (2019). tabula: An R Package for Analysis,
-      Seriation, and Visualization of Archaeological Count Data. Journal of
-      Open Source Software, 4(44), 1821. DOI 10.21105/joss.01821.
+      Frerebeau N (2019). "tabula: An R Package for Analysis, Seriation,
+      and Visualization of Archaeological Count Data." _Journal of Open
+      Source Software_, *4*(44). doi:10.21105/joss.01821
+      <https://doi.org/10.21105/joss.01821>.
 
-    Une entrée BibTeX pour les utilisateurs LaTeX est
+      Frerebeau N (2023). _tabula: Analysis and Visualization of
+      Archaeological Count Data_. Université Bordeaux Montaigne, Pessac,
+      France. doi:10.5281/zenodo.1489944
+      <https://doi.org/10.5281/zenodo.1489944>, R package version 3.0.0,
+      <https://packages.tesselle.org/tabula/>.
 
-      @Article{,
-        title = {{tabula}: An R Package for Analysis, Seriation, and Visualization of Archaeological Count Data},
-        author = {Nicolas Frerebeau},
-        year = {2019},
-        journal = {Journal of Open Source Software},
-        volume = {4},
-        number = {44},
-        page = {1821},
-        doi = {10.21105/joss.01821},
-      }
+    This package is a part of the tesselle project
+    <https://www.tesselle.org>.
 
 ## Installation
 
@@ -94,11 +96,10 @@ remotes::install_github("tesselle/tabula")
 ## Usage
 
 ``` r
-## Load packages
-library(folio) # Datasets
-library(khroma) # Color scales
-library(ggplot2)
+## Install extra packages (if needed)
+# install.packages("folio")
 
+## Load packages
 library(tabula)
 ```
 
@@ -106,67 +107,32 @@ library(tabula)
 must be saved in its own column and each observation (sample/case) must
 be saved in its own row.
 
-### Visualization
-
-Several types of graphs are available in **tabula** which uses
-[**ggplot2**](https://ggplot2.tidyverse.org) for plotting informations.
-This makes it easy to customize diagrams (e.g. using themes and scales).
-
-Bertin or Ford (battleship curve) diagrams can be plotted, with
-statistic threshold (including B. Desachy’s
-[sériographe](https://doi.org/10.3406/pica.2004.2396)).
-
 ``` r
-## Bertin matrix with variables scaled to 0-1 and the variable mean as threshold
-scale_01 <- function(x) (x - min(x)) / (max(x) - min(x))
+## Data from Lipo et al. 2015
+data("mississippi", package = "folio")
 
-plot_bertin(mississippi, threshold = mean, scale = scale_01) +
-  khroma::scale_fill_vibrant(name = "Mean")
-```
-
-<img src="man/figures/README-bertin-1.png" style="display: block; margin: auto;" />
-
-``` r
 ## Ford diagram
 plot_ford(mississippi)
 ```
 
-<img src="man/figures/README-ford-1.png" style="display: block; margin: auto;" />
-
-Spot matrix[^1] allows direct examination of data:
+<img src="man/figures/README-ford-1.png" width="100%" style="display: block; margin: auto;" />
 
 ``` r
-## Plot co-occurrence of types
-## (i.e. how many times (percent) each pairs of taxa occur together 
-## in at least one sample.)
-plot_spot(mississippi, freq = TRUE) +
-  ggplot2::labs(size = "Co-occurrence", colour = "Co-occurrence") +
-  khroma::scale_colour_YlOrBr()
+## Co-occurrence of ceramic types
+mississippi |> 
+  occurrence() |> 
+  plot_spot()
 ```
 
-<img src="man/figures/README-plot-occ-1.png" style="display: block; margin: auto;" />
-
-### Diversity
-
-*Diversity* can be measured according to several indices (referred to as
-indices of *heterogeneity* – see `vignette("diversity")`). Corresponding
-*evenness* (i.e. a measure of how evenly individuals are distributed
-across the sample) can also be computed, as well as *richness* and
-*rarefaction*.
+<img src="man/figures/README-occurrence-1.png" style="display: block; margin: auto;" />
 
 ``` r
-heterogeneity(mississippi, method = "shannon")
-#>  [1] 1.2027955 0.7646565 0.9293974 0.8228576 0.7901428 0.9998430 1.2051989
-#>  [8] 1.1776226 1.1533432 1.2884172 1.1725355 1.5296294 1.7952443 1.1627477
-#> [15] 1.0718463 0.9205717 1.1751002 0.7307620 1.1270126 1.0270291
-```
+## Data from Conkey 1980, Kintigh 1989, p. 28
+data("chevelon", package = "folio")
 
-Measure diversity by comparing to simulated assemblages:
-
-``` r
+## Measure diversity by comparing to simulated assemblages
 set.seed(12345)
 
-## Data from Conkey 1980, Kintigh 1989, p. 28
 chevelon |>
   heterogeneity(method = "shannon") |>
   simulate() |>
@@ -178,26 +144,7 @@ chevelon |>
   plot()
 ```
 
-![](man/figures/README-sample-size-1.png)![](man/figures/README-sample-size-2.png)
-
-Several methods can be used to ascertain the degree of *turnover* in
-taxa composition along a gradient on qualitative (presence/absence)
-data. It assumes that the order of the matrix rows (from *1* to *n*)
-follows the progression along the gradient/transect.
-
-Diversity can also be measured by addressing *similarity* between pairs
-of sites:
-
-``` r
-## Calculate the Brainerd-Robinson index
-## Plot the similarity matrix
-s <- similarity(mississippi, method = "brainerd")
-
-plot_spot(s) +
-  khroma::scale_colour_iridescent(name = "brainerd")
-```
-
-<img src="man/figures/README-similarity-brainerd-1.png" style="display: block; margin: auto;" />
+<img src="man/figures/README-sample-size-1.png" width="50%" /><img src="man/figures/README-sample-size-2.png" width="50%" />
 
 ## Contributing
 
@@ -216,6 +163,14 @@ l’information*. Nouvelle bibliothèque scientifique. Paris: Flammarion.
 
 </div>
 
+<div id="ref-desachy2004" class="csl-entry">
+
+Desachy, Bruno. 2004. “Le sériographe EPPM: un outil informatisé de
+sériation graphique pour tableaux de comptages.” *Revue archéologique de
+Picardie* 3 (1): 39–56. <https://doi.org/10.3406/pica.2004.2396>.
+
+</div>
+
 <div id="ref-ford1962" class="csl-entry">
 
 Ford, J. A. 1962. *A Quantitative Method for Deriving Cultural
@@ -224,6 +179,3 @@ Chronology*. Technical Manual 1. Washington, DC: Pan American Union.
 </div>
 
 </div>
-
-[^1]: Adapted from Dan Gopstein’s original
-    [idea](https://dgopstein.github.io/articles/spot-matrix/).

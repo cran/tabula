@@ -2,20 +2,19 @@
 #' @include AllClasses.R
 NULL
 
-# S4 dispatch to base S3 generic ===============================================
-setGeneric("autoplot", package = "ggplot2")
-setGeneric("jackknife", package = "arkhe")
 setGeneric("bootstrap", package = "arkhe")
+setGeneric("jackknife", package = "arkhe")
 
 # Extract ======================================================================
 ## Mutators --------------------------------------------------------------------
 #' Get or Set Parts of an Object
 #'
 #' Getters and setters to extract or replace parts of an object.
-#' @param x An object from which to get or set element(s).
+#' @param object,x An \R object from which to get or set element(s).
 # @param value A possible value for the element(s) of `object` (see below).
 #' @return
-#'  An object of the same sort as `object` with the new values assigned.
+#'  * `labels()` returns a suitable set of labels from an object for use in
+#'    printing or plotting.
 # @example inst/examples/ex-mutator.R
 #' @author N. Frerebeau
 #' @docType methods
@@ -33,12 +32,62 @@ setGeneric(
 )
 
 # Statistic ====================================================================
-#' Resampling Methods
+#' Bootstrap Estimation
 #'
-#' @description
-#'  * `resample()` simulate observations from a multinomial distribution.
-#'  * `bootstrap()` generate bootstrap estimations of a statistic.
-#'  * `jackknife()` generate jackknife estimations of a statistic.
+#' Samples randomly from the elements of `object` with replacement.
+#' @param object An \R object (typically a [DiversityIndex-class] object).
+#' @param n A non-negative [`integer`] giving the number of bootstrap
+#'  replications.
+#' @param f A [`function`] that takes a single numeric vector (the result of
+#'  `do`) as argument.
+#' @return
+#'  If `f` is `NULL` (the default), `bootstrap()` returns a named `numeric`
+#'  vector with the following elements:
+#'  \describe{
+#'   \item{`original`}{The observed value of `do` applied to `object`.}
+#'   \item{`mean`}{The bootstrap estimate of mean of `do`.}
+#'   \item{`bias`}{The bootstrap estimate of bias of `do`.}
+#'   \item{`error`}{he bootstrap estimate of standard error of `do`.}
+#'  }
+#'
+#'  If `f` is a `function`, `bootstrap()` returns the result of `f` applied to
+#'  the `n` values of `do`.
+#' @example inst/examples/ex-bootstrap.R
+#' @author N. Frerebeau
+#' @docType methods
+#' @family resampling methods
+#' @rdname bootstrap
+#' @name bootstrap_diversity
+NULL
+
+#' Jackknife Estimation
+#'
+#' @param object An \R object (typically a [DiversityIndex-class] object).
+#' @param f A [`function`] that takes a single numeric vector (the leave-one-out
+#'  values of `do`) as argument.
+#' @return
+#'  If `f` is `NULL` (the default), `jackknife()` returns a named `numeric`
+#'  vector with the following elements:
+#'  \describe{
+#'   \item{`original`}{The observed value of `do` applied to `object`.}
+#'   \item{`mean`}{The jackknife estimate of mean of `do`.}
+#'   \item{`bias`}{The jackknife estimate of bias of `do`.}
+#'   \item{`error`}{he jackknife estimate of standard error of `do`.}
+#'  }
+#'
+#'  If `f` is a `function`, `jackknife()` returns the result of `f` applied to
+#'  the leave-one-out values of `do`.
+#' @example inst/examples/ex-bootstrap.R
+#' @author N. Frerebeau
+#' @docType methods
+#' @family resampling methods
+#' @rdname jackknife
+#' @name jackknife_diversity
+NULL
+
+#' Resample
+#'
+#' Simulates observations from a multinomial distribution.
 #' @param object A [`numeric`] vector of count data (absolute frequencies).
 #' @param do A [`function`] that takes `object` as an argument
 #'  and returns a single numeric value.
@@ -51,16 +100,6 @@ setGeneric(
 #' @return
 #'  If `f` is `NULL`, `resample()` returns the `n` values of `do`. Else,
 #'  returns the result of `f` applied to the `n` values of `do`.
-#'
-#'  If `f` is `NULL`, `bootstrap()` and `jackknife()` return a [`data.frame`]
-#'  with the following elements (else, returns the result of `f` applied to the
-#'  `n` values of `do`) :
-#'  \describe{
-#'   \item{original}{The observed value of `do` applied to `object`.}
-#'   \item{mean}{The bootstrap/jackknife estimate of mean of `do`.}
-#'   \item{bias}{The bootstrap/jackknife estimate of bias of `do`.}
-#'   \item{error}{The boostrap/jackknife estimate of standard error of `do`.}
-#'  }
 #' @seealso [stats::rmultinom()]
 #' @example inst/examples/ex-resample.R
 #' @author N. Frerebeau
@@ -81,7 +120,8 @@ setGeneric(
 #'  * `evenness()` returns an evenness measure.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param method A [`character`] string specifying the index to be computed
 #'  (see details). Any unambiguous substring can be given.
 #' @param x A [`numeric`] vector of count data (absolute frequencies).
@@ -263,7 +303,9 @@ setGeneric(
 #'  * `richness()` returns sample richness.
 #'  * `composition()` returns asymptotic species richness.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies).
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param method A [`character`] string or vector of strings specifying the
 #' index to be computed (see details). Any unambiguous substring can be given.
 #' @param x A [`numeric`] vector or matrix of count data (absolute frequencies).
@@ -287,11 +329,12 @@ setGeneric(
 #'
 #'  It is not always possible to ensure that all sample sizes are equal
 #'  and the number of different taxa increases with sample size and
-#'  sampling effort (Magurran 1988). Then, *rarefaction* (\eqn{E(S)}) is
-#'  the number of taxa expected if all samples were of a standard size (i.e.
-#'  taxa per fixed number of individuals). Rarefaction assumes that imbalances
-#'  between taxa are due to sampling and not to differences in actual
-#'  abundances.
+#'  sampling effort (Magurran 1988). Then, *[rarefaction][rarefaction()]*
+#'  (\eqn{E(S)}) is the number of taxa expected if all samples were of a
+#'  standard size (i.e. taxa per fixed number of individuals).
+#'  Rarefaction assumes that imbalances between taxa are due to sampling and
+#'  not to differences in actual abundances.
+#'
 #' @section Richness Measures:
 #'  The following richness measures are available for count data:
 #'  \describe{
@@ -360,7 +403,7 @@ setGeneric(
 #'  McIntosh, R. P. (1967). An Index of Diversity and the Relation of Certain
 #'  Concepts to Diversity. *Ecology*, 48(3), 392-404.
 #'  \doi{10.2307/1932674}.
-#' @seealso [plot_diversity()]
+#' @seealso [`plot()`][plot_diversity]
 #' @example inst/examples/ex-richness.R
 #' @author N. Frerebeau
 #' @family diversity measures
@@ -426,7 +469,9 @@ setGeneric(
 #' Rarefaction
 #'
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies).
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param x A [`numeric`] vector of count data (absolute frequencies).
 #' @param sample A length-one [`numeric`] vector giving the sub-sample size.
 #'  The size of sample should be smaller than total community size.
@@ -455,6 +500,7 @@ setGeneric(
 #'  Sander, H. L. (1968). Marine Benthic Diversity: A Comparative Study.
 #'  *The American Naturalist*, 102(925), 243-282.
 #' @example inst/examples/ex-rarefaction.R
+#' @seealso [`plot()`][plot_rarefaction]
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
@@ -481,7 +527,10 @@ setGeneric(
 ## Similarity ------------------------------------------------------------------
 #' Similarity
 #'
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param x,y A length-\eqn{p} [`numeric`] vector of count data.
 #' @param method A [`character`] string specifying the method to be
 #'  used (see details). Any unambiguous substring can be given.
@@ -587,7 +636,10 @@ setGeneric(
 ## Co-Occurrence ---------------------------------------------------------------
 #' Co-Occurrence
 #'
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param ... Currently not used.
 #' @details
 #'  A co-occurrence matrix is a symmetric matrix with zeros on its main
@@ -610,8 +662,9 @@ setGeneric(
 #'
 #' Returns the degree of turnover in taxa composition along a gradient or
 #' transect.
-#' @param object,x A \eqn{m \times p}{m x p} matrix of count data or incidence
-#'  data.
+#' @param object,x A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data or incidence data. A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param method A [`character`] string specifying the method to be
 #'  used (see details). Any unambiguous substring can be given.
 #' @param ... Further arguments to be passed to internal methods.
@@ -656,7 +709,6 @@ setGeneric(
 #' @aliases turnover-method
 setGeneric(
   name = "turnover",
-
   def = function(object, ...) standardGeneric("turnover")
 )
 
@@ -724,7 +776,7 @@ setGeneric(
 #'  Kintigh, K. W. (1984). Measuring Archaeological Diversity by Comparison
 #'  with Simulated Assemblages. *American Antiquity*, 49(1), 44-54.
 #'  \doi{10.2307/280511}.
-#' @seealso [plot_diversity()], [resample()]
+#' @seealso [`plot()`][plot_diversity], [resample()]
 #' @example inst/examples/ex-plot_diversity.R
 #' @author N. Frerebeau
 #' @family diversity measures
@@ -733,30 +785,14 @@ setGeneric(
 #' @rdname simulate
 NULL
 
-## Plot ------------------------------------------------------------------------
-#' Diversity Plot
-#'
-#' @param object,x A [DiversityIndex-class] object to be plotted.
-#' @param y Currently not used.
-#' @param ... Currently not used.
-#' @return
-#'  * `autoplot()` returns a [`ggplot`][ggplot2::ggplot] object.
-#'  * `plot()` is called it for its side-effects: it results in a graphic being
-#'    displayed (invisibly returns `x`).
-#' @example inst/examples/ex-plot_diversity.R
-#' @author N. Frerebeau
-#' @family diversity measures
-#' @family plot methods
-#' @docType methods
-#' @name plot_diversity
-#' @rdname plot_diversity
-NULL
-
 ## Diversity Test --------------------------------------------------------------
 #' Diversity Test
 #'
 #' Compares Shannon diversity between samples.
-#' @param object A \eqn{m \times p}{m x p} matrix of count data.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param adjust A [`character`] string specifying the method for
 #'  adjusting \eqn{p} values (see [stats::p.adjust()]).
 #' @param ... Further arguments to be passed to internal methods.
@@ -779,26 +815,114 @@ setGeneric(
 )
 
 # Plot =========================================================================
+## Diversity -------------------------------------------------------------------
+#' Diversity Plot
+#'
+#' @param x A [DiversityIndex-class] object to be plotted.
+#' @param log A [`character`] string indicating which axes should be in log
+#'  scale. Defaults to `x`.
+#' @param col.mean,col.interval A [`character`] string specifying the
+#'  color of the lines.
+#' @param lty.mean,lty.interval A [`character`] string or [`numeric`]
+#'  value specifying the line types.
+#' @param lwd.mean,lwd.interval A non-negative [`numeric`] value specifying
+#'  the line widths.
+#' @param main A [`character`] string giving a main title for the plot.
+#' @param sub A [`character`] string giving a subtitle for the plot.
+#' @param ann A [`logical`] scalar: should the default annotation (title and x,
+#'  y and z axis labels) appear on the plot?
+#' @param axes A [`logical`] scalar: should axes be drawn on the plot?
+#' @param frame.plot A [`logical`] scalar: should a box be drawn around the
+#'  plot?
+#' @param panel.first An an `expression` to be evaluated after the plot axes are
+#'  set up but before any plotting takes place. This can be useful for drawing
+#'  background grids.
+#' @param panel.last An `expression` to be evaluated after plotting has taken
+#'  place but before the axes, title and box are added.
+#' @param ... Further [graphical parameters][graphics::par] to be passed to
+#'  [graphics::points()], particularly, `cex`, `col` and `pch`.
+#' @return
+#'  `plot()` is called it for its side-effects: it results in a graphic being
+#'  displayed (invisibly returns `x`).
+#' @example inst/examples/ex-plot_diversity.R
+#' @author N. Frerebeau
+#' @family plot methods
+#' @docType methods
+#' @name plot_diversity
+#' @rdname plot_diversity
+NULL
+
+#' Rarefaction Plot
+#'
+#' @param x A [RarefactionIndex-class] object to be plotted.
+#' @param main A [`character`] string giving a main title for the plot.
+#' @param sub A [`character`] string giving a subtitle for the plot.
+#' @param ann A [`logical`] scalar: should the default annotation (title and x,
+#'  y and z axis labels) appear on the plot?
+#' @param axes A [`logical`] scalar: should axes be drawn on the plot?
+#' @param frame.plot A [`logical`] scalar: should a box be drawn around the
+#'  plot?
+#' @param panel.first An an `expression` to be evaluated after the plot axes are
+#'  set up but before any plotting takes place. This can be useful for drawing
+#'  background grids.
+#' @param panel.last An `expression` to be evaluated after plotting has taken
+#'  place but before the axes, title and box are added.
+#' @param legend A [`list`] of additional arguments to be passed to
+#'  [graphics::legend()]; names of the list are used as argument names.
+#'  If `NULL`, no legend is displayed.
+#' @param ... Further [graphical parameters][graphics::par] to be passed to
+#'  [graphics::lines()].
+#' @return
+#'  `plot()` is called it for its side-effects: it results in a graphic being
+#'  displayed (invisibly returns `x`).
+#' @example inst/examples/ex-rarefaction.R
+#' @author N. Frerebeau
+#' @family plot methods
+#' @docType methods
+#' @name plot_rarefaction
+#' @rdname plot_rarefaction
+NULL
+
 ## Matrix plot -----------------------------------------------------------------
+### Spot Plot ------------------------------------------------------------------
+#' Spot Plot
+#'
+#' Plots a spot matrix.
+#' @inheritParams plot_matrix
+#' @param type A [`character`] string specifying the graph to be plotted.
+#'  It must be one of "`ring`" (the default) or "`plain`". Any unambiguous
+#'  substring can be given.
+#' @param ... Currently not used.
+#' @details
+#'  The spot matrix can be considered as a variant of the
+#'  [Bertin diagram][plot_bertin()] where the data are first transformed to
+#'  relative frequencies.
+#' @return
+#'  `plot_spot()` is called it for its side-effects: it results in a graphic
+#'  being displayed (invisibly returns `object`).
+#' @note
+#'  Adapted from Dan Gopstein's original
+#'  [idea](https://dgopstein.github.io/articles/spot-matrix/).
+#' @example inst/examples/ex-plot_spot.R
+#' @author N. Frerebeau
+#' @family plot methods
+#' @docType methods
+#' @aliases plot_spot-method
+setGeneric(
+  name = "plot_spot",
+  def = function(object, ...) standardGeneric("plot_spot")
+)
+
 ### Heatmap --------------------------------------------------------------------
 #' Heatmap
 #'
 #' Plots a heatmap.
-#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
-#' @param diag A [`logical`] scalar indicating whether the diagonal of the
-#'  matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param upper A [`logical`] scalar indicating whether the upper triangle of
-#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param lower A [`logical`] scalar indicating whether the lower triangle of
-#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param freq A [`logical`] scalar indicating whether relative frequency
-#'  should be used instead of counts (absolute frequency).
+#' @inheritParams plot_matrix
 #' @param ... Currently not used.
 #' @return
-#'  A [ggplot2::ggplot] object.
-#' @example inst/examples/ex-plot_matrix.R
+#'  `plot_heatmap()` is called it for its side-effects: it results in a graphic
+#'  being displayed (invisibly returns `object`).
+#' @example inst/examples/ex-plot_heatmap.R
 #' @author N. Frerebeau
 #' @family plot methods
 #' @docType methods
@@ -816,9 +940,7 @@ setGeneric(
 #'    independence.
 #'  * `pvi()` computes for each cell of a numeric matrix the percentage to the
 #'    column theoretical independence value.
-#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
+#' @inheritParams plot_matrix
 #' @param reverse A [`logical`] scalar: should negative deviations be centered
 #'  (see details)?
 #' @param ... Currently not used.
@@ -853,7 +975,8 @@ setGeneric(
 #'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
 #'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
 #' @return
-#'  * `matrigraph()` returns a [ggplot2::ggplot] object.
+#'  * `matrigraph()` is called it for its side-effects: it results in a graphic
+#'    being displayed (invisibly returns `object`).
 #'  * `pvi()` returns a [`numeric`] [`matrix`].
 #' @example inst/examples/ex-matrigraph.R
 #' @author N. Frerebeau
@@ -878,25 +1001,23 @@ setGeneric(
 #' Bertin Diagram
 #'
 #' Plots a Bertin diagram.
-#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
+#' @inheritParams plot_matrix
 #' @param threshold A [`function`] that takes a numeric vector as argument and
 #'  returns a numeric threshold value (see below). If `NULL` (the default), no
-#'  threshold is computed.
-#' @param scale A [`function`] used to scale each variable, that takes a numeric
-#'  vector as argument and returns a numeric vector. If `NULL` (the default), no
-#'  scaling is performed.
+#'  threshold is computed. Only used if `freq` is `FALSE`.
+#' @param flip A [`logical`] scalar: should `x` and `y` axis be flipped?
+#'  Defaults to `TRUE`.
 #' @param ... Currently not used.
 #' @section Bertin Matrix:
 #'  As de Falguerolles *et al.* (1997) points out:
-#'  "In abstract terms, a Bertin matrix is a matrix
-#'  of  displays. [...] To fix ideas, think of a data matrix, variable by case,
-#'  with real valued variables. For each variable, draw a bar chart of variable
-#'  value by case. High-light all bars representing a value above some sample
-#'  threshold for that variable."
+#'  "In abstract terms, a Bertin matrix is a matrix of  displays. [...] To fix
+#'  ideas, think of a data matrix, variable by case, with real valued variables.
+#'  For each variable, draw a bar chart of variable value by case. High-light
+#'  all bars representing a value above some sample threshold for that
+#'  variable."
 #' @return
-#'  A [ggplot2::ggplot] object.
+#'  `plot_bertin()` is called it for its side-effects: it results in a graphic
+#'  being displayed (invisibly returns `object`).
 #' @references
 #'  Bertin, J. (1977). *La graphique et le traitement graphique de
 #'  l'information*. Paris: Flammarion. Nouvelle Bibliothèque Scientifique.
@@ -921,12 +1042,17 @@ setGeneric(
 #' Plots a Ford (battleship curve) diagram.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
+#'  individuals for each category, i.e. a contingency table).
+#' @param weights A [`logical`] scalar: should the row sums be displayed?
 #' @param EPPM A [`logical`] scalar: should the EPPM be drawn?
-#'  This argument is defunct: use `seriograph()` instead.
+#'  See `seriograph()`.
+#' @param fill The color for filling the bars.
+#' @param border The color to draw the borders.
+#' @param axes A [`logical`] scalar: should axes be drawn on the plot?
 #' @param ... Currently not used.
 #' @return
-#'  A [ggplot2::ggplot] object.
+#'  `plot_ford()` is called it for its side-effects: it results in a graphic
+#'  being displayed (invisibly returns `object`).
 #' @references
 #'  Ford, J. A. (1962). *A quantitative method for deriving cultural
 #'  chronology*. Washington, DC: Pan American Union. Technical manual 1.
@@ -948,12 +1074,7 @@ setGeneric(
 #'    between rows and columns.
 #'  * `eppm()` computes for each cell of a numeric matrix the positive
 #'    difference from the column mean percentage.
-#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
-#' @param weights A [`logical`] scalar: should row weights (i.e. the number of
-#'  observations divided by the total number of observations) be displayed?
-#' @param ... Currently not used.
+#' @inheritParams plot_ford
 #' @details
 #'  The positive difference from the column mean percentage (in french "écart
 #'  positif au pourcentage moyen", EPPM) represents a deviation from the
@@ -970,7 +1091,8 @@ setGeneric(
 #'  graphique pour tableaux de comptages. *Revue archéologique de Picardie*,
 #'  3(1), 39-56. \doi{10.3406/pica.2004.2396}.
 #' @return
-#'  * `seriograph()` returns a [ggplot2::ggplot] object.
+#'  * `seriograph()` is called it for its side-effects: it results in a graphic
+#'    being displayed (invisibly returns `object`).
 #'  * `eppm()` returns a [`numeric`] [`matrix`].
 #' @example inst/examples/ex-seriograph.R
 #' @author N. Frerebeau
@@ -996,8 +1118,21 @@ setGeneric(
 #' Plots a Dice-Leraas diagram.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
-#' @param ... Currently not used.
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
+#' @param main A [`character`] string giving a main title for the plot.
+#' @param sub A [`character`] string giving a subtitle for the plot.
+#' @param ann A [`logical`] scalar: should the default annotation (title and x,
+#'  y and z axis labels) appear on the plot?
+#' @param axes A [`logical`] scalar: should axes be drawn on the plot?
+#' @param frame.plot A [`logical`] scalar: should a box be drawn around the
+#'  plot?
+#' @param panel.first An an `expression` to be evaluated after the plot axes are
+#'  set up but before any plotting takes place. This can be useful for drawing
+#'  background grids.
+#' @param panel.last An `expression` to be evaluated after plotting has taken
+#'  place but before the axes, title and box are added.
+#' @param ... Further [graphical parameters][graphics::par].
 #' @details
 #'  In a Dice-Leraas diagram, the horizontal line represents the range of data
 #'  (min-max) and the small vertical line indicates the mean. The black
@@ -1015,7 +1150,8 @@ setGeneric(
 #'  Simpson, G. G., Roe, A., & Lewontin, R. C. *Quantitative Zoology*.
 #'  New York: Harcourt, Brace and Company, 1960.
 #' @return
-#'  A [ggplot2::ggplot] object.
+#'  `plot_diceleraas()` is called it for its side-effects: it results in a
+#'  graphic being displayed (invisibly returns `object`).
 #' @example inst/examples/ex-diceleraas.R
 #' @author N. Frerebeau
 #' @family plot methods
@@ -1027,20 +1163,37 @@ setGeneric(
 )
 
 ## Line Plot -------------------------------------------------------------------
-#' Line Plot
+#' Rank Plot
 #'
 #' Plots a rank *vs* relative abundance diagram.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param log A [`character`] string which contains "`x`" if the x axis is to be
 #'  logarithmic, "`y`" if the y axis is to be logarithmic and "`xy`" or "`yx`"
 #'  if both axes are to be logarithmic (base 10).
-#' @param facet A [`logical`] scalar: should a matrix of panels defined by
-#'  case/sample be drawn?
-#' @param ... Further arguments to be passed to internal methods.
+# @param facet A [`logical`] scalar: should a matrix of panels defined by
+#  case/sample be drawn?
+#' @param main A [`character`] string giving a main title for the plot.
+#' @param sub A [`character`] string giving a subtitle for the plot.
+#' @param ann A [`logical`] scalar: should the default annotation (title and x,
+#'  y and z axis labels) appear on the plot?
+#' @param axes A [`logical`] scalar: should axes be drawn on the plot?
+#' @param frame.plot A [`logical`] scalar: should a box be drawn around the
+#'  plot?
+#' @param panel.first An an `expression` to be evaluated after the plot axes are
+#'  set up but before any plotting takes place. This can be useful for drawing
+#'  background grids.
+#' @param panel.last An `expression` to be evaluated after plotting has taken
+#'  place but before the axes, title and box are added.
+#' @param legend A [`list`] of additional arguments to be passed to
+#'  [graphics::legend()]; names of the list are used as argument names.
+#'  If `NULL`, no legend is displayed.
+#' @param ... Further [graphical parameters][graphics::par].
 #' @return
-#'  A [ggplot2::ggplot] object.
+#'  `plot_rank()` is called it for its side-effects: it results in a graphic
+#'  being displayed (invisibly returns `object`).
 #' @references
 #'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
 #'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
@@ -1053,54 +1206,3 @@ setGeneric(
   name = "plot_rank",
   def = function(object, ...) standardGeneric("plot_rank")
 )
-
-## Spot Plot -------------------------------------------------------------------
-#' Spot Plot
-#'
-#' Plots a spot matrix.
-#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
-#'  [`data.frame`] of count data (absolute frequencies giving the number of
-#'  individuals for each class).
-#' @param type A [`character`] string specifying the graph to be plotted.
-#'  It must be one of "`ring`" (the default) or "`plain`". Any unambiguous
-#'  substring can be given.
-#' @param threshold A [`function`] that takes a numeric vector as argument and
-#'  returns a numeric threshold value. If `NULL` (the default), no threshold is
-#'  computed.
-#' @param diag A [`logical`] scalar indicating whether the diagonal of the
-#'  matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param upper A [`logical`] scalar indicating whether the upper triangle of
-#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param lower A [`logical`] scalar indicating whether the lower triangle of
-#'  the matrix should be plotted. Only used if `object` is a symmetric matrix.
-#' @param freq A [`logical`] scalar indicating whether relative frequency
-#'  should be used instead of counts (absolute frequency).
-#' @param ... Extra parameters to be passed to `threshold`.
-#' @details
-#'  The spot matrix can be considered as a variant of the
-#'  [Bertin diagram][plot_bertin()] where the data are first transformed to
-#'  relative frequencies.
-#' @return
-#'  A [ggplot2::ggplot] object.
-#' @note
-#'  Adapted from Dan Gopstein's original
-#'  [idea](https://dgopstein.github.io/articles/spot-matrix/).
-#' @example inst/examples/ex-plot_spot.R
-#' @author N. Frerebeau
-#' @family plot methods
-#' @docType methods
-#' @aliases plot_spot-method
-setGeneric(
-  name = "plot_spot",
-  def = function(object, ...) standardGeneric("plot_spot")
-)
-
-# Deprecated ===================================================================
-#' Deprecated Methods
-#'
-#' @author N. Frerebeau
-#' @docType methods
-#' @name deprecate
-#' @rdname deprecate
-#' @keywords internal
-NULL

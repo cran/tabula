@@ -15,7 +15,10 @@ test_diversity(object, ...)
 \S4method{test_diversity}{data.frame}(object, adjust = "holm", ...)
 }
 \arguments{
-\item{object}{A \eqn{m \times p}{m x p} matrix of count data.}
+\item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
+\code{\link{data.frame}} of count data (absolute frequencies giving the number of
+individuals for each category, i.e. a contingency table). A \code{\link{data.frame}}
+will be coerced to a \code{numeric} \code{matrix} via \code{\link[=data.matrix]{data.matrix()}}.}
 
 \item{...}{Further arguments to be passed to internal methods.}
 
@@ -33,6 +36,7 @@ This test produces two sided pairwise comparisons: it returns a matrix of
 adjusted \eqn{p} values.
 }
 \examples{
+## Data from Conkey 1980, Kintigh 1989
 data("cantabria")
 
 ## Shannon diversity test

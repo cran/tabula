@@ -11,33 +11,51 @@
 \usage{
 plot_ford(object, ...)
 
-\S4method{plot_ford}{matrix}(object, EPPM = FALSE)
+\S4method{plot_ford}{matrix}(
+  object,
+  weights = FALSE,
+  EPPM = FALSE,
+  fill = "darkgrey",
+  border = NA,
+  axes = TRUE,
+  ...
+)
 
-\S4method{plot_ford}{data.frame}(object, EPPM = FALSE)
+\S4method{plot_ford}{data.frame}(object, weights = FALSE, EPPM = FALSE)
 }
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
 \code{\link{data.frame}} of count data (absolute frequencies giving the number of
-individuals for each class).}
+individuals for each category, i.e. a contingency table).}
 
 \item{...}{Currently not used.}
 
+\item{weights}{A \code{\link{logical}} scalar: should the row sums be displayed?}
+
 \item{EPPM}{A \code{\link{logical}} scalar: should the EPPM be drawn?
-This argument is defunct: use \code{seriograph()} instead.}
+See \code{seriograph()}.}
+
+\item{fill}{The color for filling the bars.}
+
+\item{border}{The color to draw the borders.}
+
+\item{axes}{A \code{\link{logical}} scalar: should axes be drawn on the plot?}
 }
 \value{
-A \link[ggplot2:ggplot]{ggplot2::ggplot} object.
+\code{plot_ford()} is called it for its side-effects: it results in a graphic
+being displayed (invisibly returns \code{object}).
 }
 \description{
 Plots a Ford (battleship curve) diagram.
 }
 \examples{
-## Ceramic data
-## (data from Desachy 2004)
-data("compiegne", package = "folio")
+## Data from Lipo et al. 2015
+data("mississippi", package = "folio")
 
 ## Plot a Ford diagram
-plot_ford(compiegne)
+plot_ford(mississippi)
+
+plot_ford(mississippi, weights = TRUE)
 }
 \references{
 Ford, J. A. (1962). \emph{A quantitative method for deriving cultural
@@ -51,6 +69,7 @@ Other plot methods:
 \code{\link{plot_diversity}},
 \code{\link{plot_heatmap}()},
 \code{\link{plot_rank}()},
+\code{\link{plot_rarefaction}},
 \code{\link{plot_spot}()},
 \code{\link{seriograph}()}
 }
