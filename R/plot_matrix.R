@@ -25,7 +25,8 @@
 #' @param drop_zero A [`logical`] scalar: should zeros be discarded?
 #' @param col A vector of colors.
 #' @param midpoint A [`numeric`] value specifying the data midpoint.
-#' @param axes A [`logical`] scalar: should axes be drawn on the plot?
+#' @param axes A [`logical`] scalar: should axes be drawn on the plot? It will
+#'  omit labels where they would abut or overlap previously drawn labels.
 #' @param legend A [`logical`] scalar: should a legend be displayed?
 #' @param asp A length-one [`numeric`] vector, giving the aspect ratio
 #'  \eqn{y/x}.
@@ -57,13 +58,13 @@ plot_matrix <- function(object, panel, diag = TRUE, upper = TRUE, lower = TRUE,
   font.axis <- graphics::par("font.axis")
 
   ## Save and restore
-  d <- inch2line("M", cex = cex.axis)
+  d <- arkhe::inch2line("M", cex = cex.axis)
   old_par <- graphics::par("mar", "plt")
   on.exit(graphics::par(old_par))
 
-  mar_left <- inch2line(lab_row, cex = cex.axis)
-  mar_top <- inch2line(lab_col, cex = cex.axis)
-  mar_right <- if (legend) inch2line("999%", cex = cex.axis) else d
+  mar_left <- arkhe::inch2line(lab_row, cex = cex.axis)
+  mar_top <- arkhe::inch2line(lab_col, cex = cex.axis)
+  mar_right <- if (legend) arkhe::inch2line("999%", cex = cex.axis) else d
   graphics::par(mar = c(d, mar_left, mar_top, mar_right))
 
   ## Open new window
@@ -101,17 +102,19 @@ plot_matrix <- function(object, panel, diag = TRUE, upper = TRUE, lower = TRUE,
 
   ## Construct axis
   if (axes) {
-    graphics::mtext(lab_row, side = 2, at = seq_row, las = 2, padj = 0.5,
-                    cex = cex.axis, col.axis = col.axis, font = font.axis)
-    graphics::mtext(lab_col, side = 3, at = seq_col, las = 2, padj = 0.5,
-                    cex = cex.axis, col.axis = col.axis, font = font.axis)
+    graphics::axis(side = 2, at = seq_row, labels = lab_row, las = 2,
+                   lty = 0, cex.axis = cex.axis, col.axis = col.axis,
+                   font.axis = font.axis)
+    graphics::axis(side = 3, at = seq_col, labels = lab_col, las = 2,
+                   lty = 0, cex.axis = cex.axis, col.axis = col.axis,
+                   font.axis = font.axis)
   }
 
   ## Legend
   if (legend) {
     legend <- attr(data, "legend")
     legend_image <- grDevices::as.raster(legend$colors)
-    legend_y <- scale_range(legend$at) * n + 0.5
+    legend_y <- arkhe::scale_range(legend$at) * n + 0.5
 
     graphics::rasterImage(legend_image, xleft = m + 1, ybottom = max(legend_y),
                           xright = m + 1.5, ytop = min(legend_y))
@@ -187,10 +190,11 @@ panel_tiles <- function(x, y, color, ...) {
 panel_spot <- function(x, y, z, color, type, ...) {
   radius <- abs(z * 0.45)
   for (i in seq_along(x)) {
-    plot_circle(x = x[i], y = y[i], radius = radius[i], col = color[i],
-                border = color[i])
+    arkhe::circle(x = x[i], y = y[i], radius = radius[i],
+                  col = color[i], border = color[i])
     if (type == "ring") {
-      plot_circle(x = x[i], y = y[i], radius = 0.45, col = NA, border = "black")
+      arkhe::circle(x = x[i], y = y[i], radius = 0.45,
+                    col = NA, border = "black")
     }
   }
 }
@@ -303,7 +307,7 @@ prepare <- function(object, diag = TRUE, upper = TRUE, lower = TRUE,
 
   legend_lab[!is.element(legend_lab, legend_brk)] <- NA
   attr(data, "legend") <- list(
-    labels = if (freq) scale_pc(legend_lab) else legend_lab,
+    labels = if (freq) arkhe::label_percent(legend_lab) else legend_lab,
     at = legend_pos,
     colors = legend_col
   )

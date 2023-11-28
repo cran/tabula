@@ -1,3 +1,7 @@
+# tabula 3.0.1
+## Enhancements
+* Omit axes labels where they would abut or overlap previously drawn labels.
+
 # tabula 3.0.0
 ## Bugfixes & changes
 * Fix handling of missing values in heterogeneity index (#27).
