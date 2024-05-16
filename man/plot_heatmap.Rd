@@ -19,6 +19,7 @@ plot_heatmap(object, ...)
   lower = TRUE,
   freq = FALSE,
   margin = 1,
+  fixed_ratio = TRUE,
   axes = TRUE,
   legend = TRUE,
   ...
@@ -32,6 +33,7 @@ plot_heatmap(object, ...)
   lower = TRUE,
   freq = FALSE,
   margin = 1,
+  fixed_ratio = TRUE,
   axes = TRUE,
   legend = TRUE,
   ...
@@ -74,13 +76,16 @@ appropriate marginal sums).}
 \code{1} indicates individuals/rows (the default), \code{2} indicates
 variables/columns. Only used if \code{freq} is \code{TRUE}.}
 
+\item{fixed_ratio}{A \code{\link{logical}} scalar: should a fixed aspect ratio (1) be
+used?}
+
 \item{axes}{A \code{\link{logical}} scalar: should axes be drawn on the plot? It will
 omit labels where they would abut or overlap previously drawn labels.}
 
 \item{legend}{A \code{\link{logical}} scalar: should a legend be displayed?}
 }
 \value{
-\code{plot_heatmap()} is called it for its side-effects: it results in a graphic
+\code{plot_heatmap()} is called for its side-effects: it results in a graphic
 being displayed (invisibly returns \code{object}).
 }
 \description{

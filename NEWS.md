@@ -1,3 +1,18 @@
+# tabula 3.1.0
+## New classes and methods
+* Add `she()` to plot SHE analysis.
+* Add `profiles()` to plot diversity profiles.
+* Add `test_shannon()` and `test_simpson()` to compare the Shannon and Simpson diversities in two samples.
+* Add `index_squares()` to compute Alroy (2018) richness estimator.
+
+## Enhancements
+* `plot_heatmap()` gained a new argument to use a fixed aspect ratio.
+* Improve color gradient in plot legends.
+
+## Bugfixes & changes
+* Fix ACE species richness estimator.
+* Deprecate `test_diversity()`.
+
 # tabula 3.0.1
 ## Enhancements
 * Omit axes labels where they would abut or overlap previously drawn labels.

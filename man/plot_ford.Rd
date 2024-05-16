@@ -21,7 +21,15 @@ plot_ford(object, ...)
   ...
 )
 
-\S4method{plot_ford}{data.frame}(object, weights = FALSE, EPPM = FALSE)
+\S4method{plot_ford}{data.frame}(
+  object,
+  weights = FALSE,
+  EPPM = FALSE,
+  fill = "darkgrey",
+  border = NA,
+  axes = TRUE,
+  ...
+)
 }
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
@@ -43,7 +51,7 @@ See \code{seriograph()}.}
 omit labels where they would abut or overlap previously drawn labels.}
 }
 \value{
-\code{plot_ford()} is called it for its side-effects: it results in a graphic
+\code{plot_ford()} is called for its side-effects: it results in a graphic
 being displayed (invisibly returns \code{object}).
 }
 \description{
