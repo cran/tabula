@@ -49,7 +49,7 @@ h <- heterogeneity(cantabria, method = "shannon")
 h_sim <- simulate(h)
 plot(h_sim)
 
-r <- richness(cantabria, method = "count")
+r <- richness(cantabria, method = "observed")
 r_sim <- simulate(r)
 plot(r_sim)
 }
@@ -68,6 +68,8 @@ with Simulated Assemblages. \emph{American Antiquity}, 49(1), 44-54.
 Other diversity measures: 
 \code{\link{heterogeneity}()},
 \code{\link{occurrence}()},
+\code{\link{plot_diversity}},
+\code{\link{plot_rarefaction}},
 \code{\link{profiles}()},
 \code{\link{rarefaction}()},
 \code{\link{richness}()},

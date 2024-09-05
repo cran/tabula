@@ -1,3 +1,7 @@
+# tabula 3.1.1
+## Internals
+* Use palette functions from **khroma**.
+
 # tabula 3.1.0
 ## New classes and methods
 * Add `she()` to plot SHE analysis.

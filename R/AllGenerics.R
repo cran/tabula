@@ -34,6 +34,21 @@ setGeneric(
   def = function(x) standardGeneric("get_method")
 )
 
+## Coerce ----------------------------------------------------------------------
+#' Coerce to a Data Frame
+#'
+#' @param x An object.
+#' @param row.names,optional Currently not used.
+#' @param ... Currently not used.
+#' @return
+#'  A [`data.frame`].
+#' @author N. Frerebeau
+#' @docType methods
+#' @family mutators
+#' @name data.frame
+#' @rdname data.frame
+NULL
+
 # Statistic ====================================================================
 #' Bootstrap Estimation
 #'
@@ -404,7 +419,7 @@ setGeneric(
 #' index to be computed (see details). Any unambiguous substring can be given.
 #' @param ... Further arguments to be passed to internal methods (see below).
 #' @section Details:
-#'  The number of different taxa, provides an instantly comprehensible
+#'  The number of observed taxa, provides an instantly comprehensible
 #'  expression of diversity. While the number of taxa within a sample
 #'  is easy to ascertain, as a term, it makes little sense: some taxa
 #'  may not have been seen, or there may not be a fixed number of taxa
@@ -421,7 +436,7 @@ setGeneric(
 #' @section Richness Measures:
 #'  The following richness measures are available for count data:
 #'  \describe{
-#'   \item{`count`}{Number of observed taxa/types.}
+#'   \item{`observed`}{Number of observed taxa/types.}
 #'   \item{`margalef`}{[Margalef richness index][index_margalef()].}
 #'   \item{`menhinick`}{[Menhinick richness index][index_menhinick()].}
 #'  }
@@ -480,6 +495,36 @@ setGeneric(
   name = "composition",
   def = function(object, ...) standardGeneric("composition"),
   valueClass = "CompositionIndex"
+)
+
+#' Number of Observed Species
+#'
+#' @param x A [`numeric`] vector of count data (absolute frequencies).
+#' @param na.rm A [`numeric`] scalar: should missing values (including `NaN`) be
+#'  removed?
+#' @param ... Currently not used.
+#' @return
+#'  A [`numeric`] vector.
+#' @family alpha diversity measures
+#' @docType methods
+#' @aliases observed-method
+setGeneric(
+  name = "observed",
+  def = function(x, ...) standardGeneric("observed")
+)
+
+#' @rdname observed
+#' @aliases singleton-method
+setGeneric(
+  name = "singleton",
+  def = function(x, ...) standardGeneric("singleton")
+)
+
+#' @rdname observed
+#' @aliases doubleton-method
+setGeneric(
+  name = "doubleton",
+  def = function(x, ...) standardGeneric("doubleton")
 )
 
 #' Abundance-based Coverage Estimator
@@ -1179,7 +1224,7 @@ setGeneric(
 #'  displayed (invisibly returns `x`).
 #' @example inst/examples/ex-plot_diversity.R
 #' @author N. Frerebeau
-#' @family plot methods
+#' @family diversity measures
 #' @docType methods
 #' @name plot_diversity
 #' @rdname plot_diversity
@@ -1188,6 +1233,13 @@ NULL
 #' Rarefaction Plot
 #'
 #' @param x A [RarefactionIndex-class] object to be plotted.
+#' @param color A vector of colors (will be mapped to the rownames of `object`).
+#'  If `color` is a named a named vector, then the colors will be associated
+#'  with the rownames of `object`. Ignored if set to `FALSE`.
+#' @param symbol A specification for the line type (will be mapped to
+#'  the names of `x`). If `symbol` is a named a named vector, then the
+#'  line types will be associated with the names of `x`.
+#'  Ignored if set to `FALSE`.
 #' @param main A [`character`] string giving a main title for the plot.
 #' @param sub A [`character`] string giving a subtitle for the plot.
 #' @param ann A [`logical`] scalar: should the default annotation (title and x,
@@ -1210,7 +1262,7 @@ NULL
 #'  displayed (invisibly returns `x`).
 #' @example inst/examples/ex-rarefaction.R
 #' @author N. Frerebeau
-#' @family plot methods
+#' @family diversity measures
 #' @docType methods
 #' @name plot_rarefaction
 #' @rdname plot_rarefaction
@@ -1274,6 +1326,13 @@ setGeneric(
 #'  individuals for each category, i.e. a contingency table). A [`data.frame`]
 #'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param alpha A [`numeric`] vector giving the values of the alpha parameter.
+#' @param color A vector of colors (will be mapped to the rownames of `object`).
+#'  If `color` is a named a named vector, then the colors will be associated
+#'  with the rownames of `object`. Ignored if set to `FALSE`.
+#' @param symbol A specification for the line type (will be mapped to
+#'  the rownames of `object`). If `symbol` is a named a named vector, then the
+#'  line types will be associated with the rownames of `object`.
+#'  Ignored if set to `FALSE`.
 #' @param main A [`character`] string giving a main title for the plot.
 #' @param sub A [`character`] string giving a subtitle for the plot.
 #' @param ann A [`logical`] scalar: should the default annotation (title and x,
@@ -1600,6 +1659,13 @@ setGeneric(
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
 #'  individuals for each category, i.e. a contingency table). A [`data.frame`]
 #'  will be coerced to a `numeric` `matrix` via [data.matrix()].
+#' @param color A vector of colors (will be mapped to the rownames of `object`).
+#'  If `color` is a named a named vector, then the colors will be associated
+#'  with the rownames of `object`. Ignored if set to `FALSE`.
+#' @param symbol A specification for the line type (will be mapped to
+#'  the rownames of `object`). If `symbol` is a named a named vector, then the
+#'  line types will be associated with the rownames of `object`.
+#'  Ignored if set to `FALSE`.
 #' @param log A [`character`] string which contains "`x`" if the x axis is to be
 #'  logarithmic, "`y`" if the y axis is to be logarithmic and "`xy`" or "`yx`"
 #'  if both axes are to be logarithmic (base 10).
