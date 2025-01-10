@@ -73,7 +73,7 @@ index_chao1(woodland)
 index_chao1(woodland, unbiased = TRUE)
 
 ## ----chao1-improved, eval=FALSE-----------------------------------------------
-#  index_chao1(woodland, improved = TRUE)
+# index_chao1(woodland, improved = TRUE)
 
 ## ----ace-index----------------------------------------------------------------
 index_ace(woodland)

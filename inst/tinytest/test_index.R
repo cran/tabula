@@ -7,7 +7,7 @@ expect_equal(round(index_menhinick(n), 3), 1.534) # 1.534
 expect_equal(round(index_margalef(n), 3), 3.7) # 3.7
 expect_equal(round(index_berger(n), 3), 0.206) # 0.2059
 expect_equal(round(index_chao1(n, unbiased = TRUE), 3), 21.491) # 21.49
-expect_error(index_chao1(n, unbiased = TRUE, improved = TRUE)) # 22.65 (?)
+expect_equal(index_chao1(n, unbiased = TRUE, improved = TRUE), NA_real_) # 22.65 (?)
 expect_equal(round(index_ace(n), 3), 22.087) # 22.09
 expect_equal(round(index_squares(n), 3), 21.924) # 21.92
 
@@ -109,11 +109,6 @@ expect_equal(
 x <- c(16, 9, 3, 0, 1)
 y <- c(13, 3, 2, 0, 0)
 expect_equal(round(index_brainerd(x, y)), 164) # 164
-
-## Binomial co-occurrence
-x <- c(16, 9, 3, 0, 1)
-y <- c(13, 3, 2, 0, 0)
-expect_equal(round(index_binomial(x, y), 3), 0.537) # 0.54
 
 # Turnover =====================================================================
 data("woodland")

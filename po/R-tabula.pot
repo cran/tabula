@@ -1,0 +1,73 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: tabula 3.1.1.9000\n"
+"POT-Creation-Date: 2025-01-02 18:37+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: diversity_alpha.R:64
+msgid "ACE is undefined when all rare species are singletons."
+msgstr ""
+
+#: diversity_alpha.R:65
+msgid "Consider using the bias-corrected Chao1 estimator instead."
+msgstr ""
+
+#: diversity_alpha.R:199
+msgid ""
+"Improved Chao1 estimator is undefined when there is no quadruple species."
+msgstr ""
+
+#: diversity_alpha.R:245
+msgid ""
+"Improved Chao2 estimator is undefined when there is no quadruple species."
+msgstr ""
+
+#: diversity_alpha.R:282
+msgid "ICE is undefined when all rare species are singletons."
+msgstr ""
+
+#: diversity_alpha.R:283
+msgid "Consider using the bias-corrected Chao2 estimator instead."
+msgstr ""
+
+#: plot_diceleraas.R:114
+msgid "Absolute frequency"
+msgstr ""
+
+#: plot_diversity.R:69
+msgid "Heterogeneity"
+msgstr ""
+
+#: plot_diversity.R:70
+msgid "Evenness"
+msgstr ""
+
+#: plot_diversity.R:71
+msgid "Richness"
+msgstr ""
+
+#: plot_diversity.R:72 plot_diversity.R:141 plot_diversity.R:280
+msgid "Diversity"
+msgstr ""
+
+#: plot_diversity.R:74 plot_diversity.R:140 rarefaction.R:125
+msgid "Sample size"
+msgstr ""
+
+#: plot_rank.R:80
+msgid "Rank"
+msgstr ""
+
+#: plot_rank.R:81
+msgid "Frequency"
+msgstr ""
+
+#: rarefaction.R:126
+msgid "Expected species index"
+msgstr ""

@@ -8,7 +8,7 @@ NULL
 #' @aliases observed,numeric-method
 setMethod(
   f = "observed",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, na.rm = FALSE, ...) {
     sum(x > 0, na.rm = na.rm)
   }
@@ -23,7 +23,7 @@ nobserved <- function(x, n, na.rm = FALSE) {
 #' @aliases singleton,numeric-method
 setMethod(
   f = "singleton",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, na.rm = FALSE, ...) {
     nobserved(x, n = 1, na.rm = na.rm)
   }
@@ -34,7 +34,7 @@ setMethod(
 #' @aliases doubleton,numeric-method
 setMethod(
   f = "doubleton",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, na.rm = FALSE, ...) {
     nobserved(x, n = 2, na.rm = na.rm)
   }
@@ -46,7 +46,7 @@ setMethod(
 #' @aliases index_ace,numeric-method
 setMethod(
   f = "index_ace",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, k = 10, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -58,10 +58,15 @@ setMethod(
     N_rare <- sum(x[x <= k]) # Number of individuals in the rare species
 
     F1 <- sum(x == 1) # Number of singleton species
-    if (F1 == N_rare)
-      stop("ACE is undefined when all rare species are singletons, ",
-           "consider using the bias-corrected Chao1 index instead.",
-           call. = FALSE)
+    if (F1 == N_rare) {
+      if (getOption("tabula.verbose")) {
+        message(
+          tr_("ACE is undefined when all rare species are singletons."), "\n",
+          tr_("Consider using the bias-corrected Chao1 estimator instead.")
+        )
+      }
+      return(NA_real_)
+    }
 
     ## Sample coverage estimate for rare species
     ## ie. proportion of all individuals in rare species that are not singletons
@@ -86,7 +91,7 @@ setMethod(
 #' @aliases index_berger,numeric-method
 setMethod(
   f = "index_berger",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -106,7 +111,7 @@ setMethod(
 #' @aliases index_boone,matrix-method
 setMethod(
   f = "index_boone",
-  signature = signature(x = "matrix"),
+  signature = c(x = "matrix"),
   definition = function(x, j = NULL, na.rm = FALSE, ...) {
     ## Validation
     if (na.rm) x <- stats::na.omit(x) # Remove NAs
@@ -134,7 +139,7 @@ setMethod(
 #' @aliases index_brillouin,numeric-method
 setMethod(
   f = "index_brillouin",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, evenness = FALSE, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -164,7 +169,7 @@ setMethod(
 #' @aliases index_chao1,numeric-method
 setMethod(
   f = "index_chao1",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, unbiased = FALSE, improved = FALSE, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -186,11 +191,16 @@ setMethod(
       }
     }
     if (improved) {
-      f3 <- sum(x == 3) # Number of tripleton species
-      f4 <- sum(x == 4) # Number of quadrupleton species
-      if (f4 == 0)
-        stop("Improved Chao1 estimator is undefined ",
-             "when there is no quadrupleton species.", call. = FALSE)
+      f3 <- sum(x == 3) # Number of triple species
+      f4 <- sum(x == 4) # Number of quadruple species
+      if (f4 == 0) {
+        if (getOption("tabula.verbose")) {
+          message(
+            tr_("Improved Chao1 estimator is undefined when there is no quadruple species.")
+          )
+        }
+        return(NA_real_)
+      }
 
       k <- f1 - ((N - 3) / (N - 1)) * ((f2 * f3) / (2 * f4))
       D <- D + ((N - 3) / N) * (f3 / (4 * f4)) * max(k, 0)
@@ -206,7 +216,7 @@ setMethod(
 #' @aliases index_chao2,matrix-method
 setMethod(
   f = "index_chao2",
-  signature = signature(x = "matrix"),
+  signature = c(x = "matrix"),
   definition = function(x, unbiased = FALSE, improved = FALSE, ...) {
     x <- x > 0 # Convert to incidence
 
@@ -229,9 +239,14 @@ setMethod(
     if (improved) {
       q3 <- sum(q == 3) # Number of triple species
       q4 <- sum(q == 4) # Number of quadruple species
-      if (q4 == 0)
-        stop("Improved Chao2 estimator is undefined ",
-             "when there is no quadruple species.", call. = FALSE)
+      if (q4 == 0) {
+        if (getOption("tabula.verbose")) {
+          message(
+            tr_("Improved Chao2 estimator is undefined when there is no quadruple species.")
+          )
+        }
+        return(NA_real_)
+      }
 
       k <- q1 - ((t - 3) / (t - 1)) * ((q2 * q3) / (2 * q4))
       D <- D + ((t - 3) / (4 * t)) * (q3 / q4) * max(k, 0)
@@ -247,7 +262,7 @@ setMethod(
 #' @aliases index_ice,matrix-method
 setMethod(
   f = "index_ice",
-  signature = signature(x = "matrix"),
+  signature = c(x = "matrix"),
   definition = function(x, k = 10, ...) {
     x <- x > 0 # Convert to incidence
 
@@ -261,10 +276,15 @@ setMethod(
     t <- sum(rowSums(x[, q <= k]) != 0)
 
     q1 <- sum(q == 1) # Number of unique species in the assemblage
-    if (q1 == N_infr)
-      stop("ICE is undefined when all infrequent species are unique, ",
-           "consider using the bias-corrected Chao2 estimator instead.",
-           call. = FALSE)
+    if (q1 == N_infr) {
+      if (getOption("tabula.verbose")) {
+        message(
+          tr_("ICE is undefined when all rare species are singletons."), "\n",
+          tr_("Consider using the bias-corrected Chao2 estimator instead.")
+        )
+      }
+      return(NA_real_)
+    }
 
     ## Sample coverage estimate
     ## ie. proportion of all incidences of infrequent species that are not uniques
@@ -299,7 +319,7 @@ setMethod(
 #' @aliases index_margalef,numeric-method
 setMethod(
   f = "index_margalef",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -319,7 +339,7 @@ setMethod(
 #' @aliases index_mcintosh,numeric-method
 setMethod(
   f = "index_mcintosh",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, evenness = FALSE, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -345,7 +365,7 @@ setMethod(
 #' @aliases index_menhinick,numeric-method
 setMethod(
   f = "index_menhinick",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -365,7 +385,7 @@ setMethod(
 #' @aliases index_shannon,numeric-method
 setMethod(
   f = "index_shannon",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, evenness = FALSE, unbiased = FALSE, ACE = FALSE,
                         base = exp(1), na.rm = FALSE, ...) {
     ## Validation
@@ -395,7 +415,7 @@ setMethod(
 #' @aliases index_simpson,numeric-method
 setMethod(
   f = "index_simpson",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, evenness = FALSE, unbiased = FALSE, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species
@@ -421,7 +441,7 @@ setMethod(
 #' @aliases index_squares,numeric-method
 setMethod(
   f = "index_squares",
-  signature = signature(x = "numeric"),
+  signature = c(x = "numeric"),
   definition = function(x, na.rm = FALSE, ...) {
     ## Validation
     x <- x[x > 0] # Remove unobserved species

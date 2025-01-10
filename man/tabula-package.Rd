@@ -14,12 +14,23 @@ An easy way to examine archaeological count data. This package provides several 
 \tabular{ll}{
 \strong{Package:} \tab tabula \cr
 \strong{Type:} \tab Package \cr
-\strong{Version:} \tab 3.1.1 \cr
+\strong{Version:} \tab 3.2.0 \cr
 \strong{License:} \tab GPL-3 \cr
 \strong{Zenodo:} \tab \doi{10.5281/zenodo.1489944} \cr
 \strong{JOSS:} \tab \doi{10.21105/joss.01821} \cr
 }
 }
+\section{Package options}{
+
+\pkg{tabula} uses the following \code{\link[=options]{options()}} to configure behavior:
+\itemize{
+\item \code{tabula.progress}: a \code{\link{logical}} scalar. Should progress bars be
+displayed? Defaults to \code{\link[=interactive]{interactive()}}.
+\item \code{tabula.verbose}: a \code{\link{logical}} scalar. Should \R report extra information
+on progress? Defaults to \code{\link[=interactive]{interactive()}}.
+}
+}
+
 \seealso{
 Useful links:
 \itemize{

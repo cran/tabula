@@ -782,16 +782,14 @@ setGeneric(
 #' @details
 #'  \eqn{\beta}-diversity can be measured by addressing *similarity*
 #'  between pairs of samples/cases (Brainerd-Robinson, Jaccard, Morisita-Horn
-#'  and Sorenson indices). Similarity between pairs of taxa/types can be
-#'  measured by assessing the degree of co-occurrence (binomial co-occurrence).
+#'  and Sorenson indices).
 #'
 #'  Jaccard, Morisita-Horn and Sorenson indices provide a scale of similarity
 #'  from \eqn{0}-\eqn{1} where \eqn{1} is perfect similarity and \eqn{0} is
 #'  no similarity. The Brainerd-Robinson index is scaled between \eqn{0} and
-#'  \eqn{200}. The Binomial co-occurrence assessment approximates a Z-score.
+#'  \eqn{200}.
 #'
 #'  \describe{
-#'   \item{`binomial`}{[Binomial co-occurrence assessment][index_binomial()].}
 #'   \item{`brainerd`}{[Brainerd-Robinson quantitative index][index_brainerd()].}
 #'   \item{`bray`}{[Sorenson quantitative index][index_bray()].}
 #'   \item{`jaccard`}{[Jaccard qualitative index][index_jaccard()].}
@@ -911,30 +909,6 @@ setGeneric(
 setGeneric(
   name = "index_brainerd",
   def = function(x, y, ...) standardGeneric("index_brainerd")
-)
-
-#' Binomial Co-Occurrence Assessment
-#'
-#' @param x,y A [`numeric`] vector.
-#' @param ... Currently not used.
-#' @details
-#'  This assesses the degree of co-occurrence between taxa/types within a
-#'  dataset. The strongest associations are shown by large positive numbers,
-#'  the strongest segregations by large negative numbers.
-#' @return
-#'  A [`numeric`] vector.
-#' @references
-#'  Kintigh, K. (2006). Ceramic Dating and Type Associations. In J. Hantman and
-#'  R. Most (eds.), *Managing Archaeological Data: Essays in Honor of
-#'  Sylvia W. Gaines*. Anthropological Research Paper, 57. Tempe, AZ: Arizona
-#'  State University, p. 17-26.
-#' @author N. Frerebeau
-#' @family beta diversity measures
-#' @docType methods
-#' @aliases index_binomial-method
-setGeneric(
-  name = "index_binomial",
-  def = function(x, y, ...) standardGeneric("index_binomial")
 )
 
 ## Turnover --------------------------------------------------------------------
@@ -1097,11 +1071,18 @@ setGeneric(
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
 #'  individuals for each category, i.e. a contingency table). A [`data.frame`]
 #'  will be coerced to a `numeric` `matrix` via [data.matrix()].
+#' @param method A [`character`] string specifying the method to be
+#'  used. It must be one of "`absolute`", "`relative`" or "`binomial`"
+#'  (see details). Any unambiguous substring can be given.
 #' @param ... Currently not used.
 #' @details
-#'  A co-occurrence matrix is a symmetric matrix with zeros on its main
-#'  diagonal, which works out how many times each pairs of taxa/types occur
-#'  together in at least one sample.
+#'  \describe{
+#'   \item{`absolute`}{Count how many times each pairs of types occur together
+#'   in at least one sample (absolute frequencies).}
+#'   \item{`relative`}{Count how many times each pairs of types occur together
+#'   in at least one sample (relative frequencies).}
+#'   \item{`binomial`}{[Binomial co-occurrence assessment][index_binomial()].}
+#'  }
 #' @return
 #'  A [stats::dist] object.
 #' @example inst/examples/ex-occurrence.R
@@ -1112,6 +1093,32 @@ setGeneric(
 setGeneric(
   name = "occurrence",
   def = function(object, ...) standardGeneric("occurrence")
+)
+
+#' Binomial Co-Occurrence Assessment
+#'
+#' @param x,y A [`numeric`] vector.
+#' @param ... Currently not used.
+#' @details
+#'  This assesses the degree of co-occurrence between taxa/types within a
+#'  dataset. The strongest associations are shown by large positive numbers,
+#'  the strongest segregations by large negative numbers.
+#'
+#'  The Binomial co-occurrence assessment approximates a Z-score.
+#' @return
+#'  A [`numeric`] vector.
+#' @references
+#'  Kintigh, K. (2006). Ceramic Dating and Type Associations. In J. Hantman and
+#'  R. Most (eds.), *Managing Archaeological Data: Essays in Honor of
+#'  Sylvia W. Gaines*. Anthropological Research Paper, 57. Tempe, AZ: Arizona
+#'  State University, p. 17-26.
+#' @author N. Frerebeau
+#' @family beta diversity measures
+#' @docType methods
+#' @aliases index_binomial-method
+setGeneric(
+  name = "index_binomial",
+  def = function(x, y, ...) standardGeneric("index_binomial")
 )
 
 ## Simulate --------------------------------------------------------------------
@@ -1205,6 +1212,7 @@ setGeneric(
 #'  value specifying the line types.
 #' @param lwd.mean,lwd.interval A non-negative [`numeric`] value specifying
 #'  the line widths.
+#' @param xlab,ylab A [`character`] vector giving the x and y axis labels.
 #' @param main A [`character`] string giving a main title for the plot.
 #' @param sub A [`character`] string giving a subtitle for the plot.
 #' @param ann A [`logical`] scalar: should the default annotation (title and x,
@@ -1240,6 +1248,7 @@ NULL
 #'  the names of `x`). If `symbol` is a named a named vector, then the
 #'  line types will be associated with the names of `x`.
 #'  Ignored if set to `FALSE`.
+#' @param xlab,ylab A [`character`] vector giving the x and y axis labels.
 #' @param main A [`character`] string giving a main title for the plot.
 #' @param sub A [`character`] string giving a subtitle for the plot.
 #' @param ann A [`logical`] scalar: should the default annotation (title and x,
@@ -1276,6 +1285,7 @@ NULL
 #'  will be coerced to a `numeric` `matrix` via [data.matrix()].
 #' @param unbiased A [`logical`] scalar: should the bias-corrected estimator be
 #'  used (see [index_shannon()])?
+#' @param xlab,ylab A [`character`] vector giving the x and y axis labels.
 #' @param main A [`character`] string giving a main title for the plot.
 #' @param sub A [`character`] string giving a subtitle for the plot.
 #' @param ann A [`logical`] scalar: should the default annotation (title and x,
@@ -1333,6 +1343,7 @@ setGeneric(
 #'  the rownames of `object`). If `symbol` is a named a named vector, then the
 #'  line types will be associated with the rownames of `object`.
 #'  Ignored if set to `FALSE`.
+#' @param xlab,ylab A [`character`] vector giving the x and y axis labels.
 #' @param main A [`character`] string giving a main title for the plot.
 #' @param sub A [`character`] string giving a subtitle for the plot.
 #' @param ann A [`logical`] scalar: should the default annotation (title and x,
@@ -1388,7 +1399,7 @@ setGeneric(
 #'  being displayed (invisibly returns `object`).
 #' @note
 #'  Adapted from Dan Gopstein's original
-#'  [idea](https://dgopstein.github.io/articles/spot-matrix/).
+#'  [idea](https://dan.gop/articles/spot-matrix/).
 #' @example inst/examples/ex-plot_spot.R
 #' @author N. Frerebeau
 #' @family plot methods
@@ -1671,6 +1682,7 @@ setGeneric(
 #'  if both axes are to be logarithmic (base 10).
 # @param facet A [`logical`] scalar: should a matrix of panels defined by
 #  case/sample be drawn?
+#' @param xlab,ylab A [`character`] vector giving the x and y axis labels.
 #' @param main A [`character`] string giving a main title for the plot.
 #' @param sub A [`character`] string giving a subtitle for the plot.
 #' @param ann A [`logical`] scalar: should the default annotation (title and x,

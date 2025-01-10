@@ -10,9 +10,9 @@
 \usage{
 occurrence(object, ...)
 
-\S4method{occurrence}{matrix}(object)
+\S4method{occurrence}{matrix}(object, method = c("absolute", "relative", "binomial"))
 
-\S4method{occurrence}{data.frame}(object)
+\S4method{occurrence}{data.frame}(object, method = c("absolute", "relative", "binomial"))
 }
 \arguments{
 \item{object}{A \eqn{m \times p}{m x p} \code{numeric} \code{\link{matrix}} or
@@ -21,6 +21,10 @@ individuals for each category, i.e. a contingency table). A \code{\link{data.fra
 will be coerced to a \code{numeric} \code{matrix} via \code{\link[=data.matrix]{data.matrix()}}.}
 
 \item{...}{Currently not used.}
+
+\item{method}{A \code{\link{character}} string specifying the method to be
+used. It must be one of "\code{absolute}", "\code{relative}" or "\code{binomial}"
+(see details). Any unambiguous substring can be given.}
 }
 \value{
 A \link[stats:dist]{stats::dist} object.
@@ -29,17 +33,28 @@ A \link[stats:dist]{stats::dist} object.
 Co-Occurrence
 }
 \details{
-A co-occurrence matrix is a symmetric matrix with zeros on its main
-diagonal, which works out how many times each pairs of taxa/types occur
-together in at least one sample.
+\describe{
+\item{\code{absolute}}{Count how many times each pairs of types occur together
+in at least one sample (absolute frequencies).}
+\item{\code{relative}}{Count how many times each pairs of types occur together
+in at least one sample (relative frequencies).}
+\item{\code{binomial}}{\link[=index_binomial]{Binomial co-occurrence assessment}.}
+}
 }
 \examples{
 ## Data from Conkey 1980, Kintigh 1989
 data("cantabria")
 
 ## Plot spot diagram of a co-occurrence matrix
-occ <- occurrence(cantabria)
-plot_spot(occ)
+occ_abs <- occurrence(cantabria, method = "absolute") # Absolute frequencies
+plot_spot(occ_abs)
+
+occ_rel <- occurrence(cantabria, method = "relative") # Relative frequencies
+plot_spot(occ_rel)
+
+## Binomial co-occurrence (similarity between types)
+occ_bin <- occurrence(cantabria, method = "binomial")
+plot_spot(occ_bin)
 }
 \seealso{
 Other diversity measures: 

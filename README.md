@@ -6,7 +6,7 @@
 <!-- badges: start -->
 
 [![R-CMD-check](https://github.com/tesselle/tabula/workflows/R-CMD-check/badge.svg)](https://github.com/tesselle/tabula/actions)
-[![codecov](https://codecov.io/gh/tesselle/tabula/branch/master/graph/badge.svg)](https://app.codecov.io/gh/tesselle/tabula)
+[![codecov](https://codecov.io/gh/tesselle/tabula/graph/badge.svg?token=mTkmZJdm6h)](https://app.codecov.io/gh/tesselle/tabula)
 [![CodeFactor](https://www.codefactor.io/repository/github/tesselle/tabula/badge)](https://www.codefactor.io/repository/github/tesselle/tabula)
 [![Dependencies](https://tinyverse.netlify.app/badge/tabula)](https://cran.r-project.org/package=tabula)
 
@@ -71,10 +71,10 @@ Visualization of Archaeological Count Data.” *Journal of Open Source
 Software*, *4*(44). <doi:10.21105/joss.01821>
 <https://doi.org/10.21105/joss.01821>.
 
-Frerebeau N (2024). *tabula: Analysis and Visualization of
+Frerebeau N (2025). *tabula: Analysis and Visualization of
 Archaeological Count Data*. Université Bordeaux Montaigne, Pessac,
 France. <doi:10.5281/zenodo.1489944>
-<https://doi.org/10.5281/zenodo.1489944>, R package version 3.1.0,
+<https://doi.org/10.5281/zenodo.1489944>, R package version 3.2.0,
 <https://packages.tesselle.org/tabula/>.
 
 This package is a part of the tesselle project
@@ -102,7 +102,7 @@ remotes::install_github("tesselle/tabula")
 ## Install extra packages (if needed)
 # install.packages("folio")
 
-## Load packages
+## Load the package
 library(tabula)
 ```
 
@@ -148,6 +148,20 @@ chevelon |>
 ```
 
 <img src="man/figures/README-sample-size-1.png" width="50%" /><img src="man/figures/README-sample-size-2.png" width="50%" />
+
+## Translation
+
+This package provides translations of user-facing communications, like
+messages, warnings and errors, and graphical elements (axis labels). The
+preferred language is by default taken from the locale. This can be
+overridden by setting of the environment variable `LANGUAGE` (you only
+need to do this once per session):
+
+``` r
+Sys.setenv(LANGUAGE = "<language code>")
+```
+
+Languages currently available are English (`en`) and French (`fr`).
 
 ## Contributing
 

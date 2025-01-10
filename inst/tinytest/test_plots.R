@@ -1,4 +1,6 @@
 if (at_home()) {
+  Sys.setenv(LANGUAGE = "en") # Force locale
+
   source("helpers.R")
   using("tinysnapshot")
   options(tinysnapshot_device = "svglite")

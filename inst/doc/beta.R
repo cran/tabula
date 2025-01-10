@@ -19,7 +19,3 @@ data("mississippi", package = "folio")
 BR <- similarity(mississippi, method = "brainerd")
 plot_spot(BR, col = khroma::colour("YlOrBr")(12))
 
-## Binomial co-occurrence (similarity between types)
-BI <- similarity(mississippi, method = "binomial")
-plot_spot(BI, col = khroma::colour("PRGn")(12))
-
