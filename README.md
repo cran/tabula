@@ -5,9 +5,8 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/tesselle/tabula/workflows/R-CMD-check/badge.svg)](https://github.com/tesselle/tabula/actions)
-[![codecov](https://codecov.io/gh/tesselle/tabula/graph/badge.svg?token=mTkmZJdm6h)](https://app.codecov.io/gh/tesselle/tabula)
-[![CodeFactor](https://www.codefactor.io/repository/github/tesselle/tabula/badge)](https://www.codefactor.io/repository/github/tesselle/tabula)
+[![Code
+coverage](https://packages.tesselle.org/tabula/coverage/badge.svg)](https://packages.tesselle.org/tabula/coverage/)
 [![Dependencies](https://tinyverse.netlify.app/badge/tabula)](https://cran.r-project.org/package=tabula)
 
 <a href="https://tesselle.r-universe.dev/tabula"
@@ -68,13 +67,13 @@ To cite tabula in publications use:
 
 Frerebeau N (2019). “tabula: An R Package for Analysis, Seriation, and
 Visualization of Archaeological Count Data.” *Journal of Open Source
-Software*, *4*(44). <doi:10.21105/joss.01821>
+Software*, *4*(44), 1821. <doi:10.21105/joss.01821>
 <https://doi.org/10.21105/joss.01821>.
 
 Frerebeau N (2025). *tabula: Analysis and Visualization of
 Archaeological Count Data*. Université Bordeaux Montaigne, Pessac,
 France. <doi:10.5281/zenodo.1489944>
-<https://doi.org/10.5281/zenodo.1489944>, R package version 3.2.0,
+<https://doi.org/10.5281/zenodo.1489944>, R package version 3.2.1,
 <https://packages.tesselle.org/tabula/>.
 
 This package is a part of the tesselle project
@@ -89,11 +88,11 @@ You can install the released version of **tabula** from
 install.packages("tabula")
 ```
 
-And the development version from [GitHub](https://github.com/) with:
+And the development version from [Codeberg](https://codeberg.org/) with:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("tesselle/tabula")
+remotes::install_git("https://codeberg.org/tesselle/tabula")
 ```
 
 ## Usage

@@ -3,72 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="generator" content="litedown 0.6">
 <title>alpha Diversity</title>
-<style type="text/css">
-/**
- * Prism.s theme ported from highlight.js's xcode style
- */
-pre code {
-  padding: 1em;
-}
-.token.comment {
-  color: #007400;
-}
-.token.punctuation {
-  color: #999;
-}
-.token.tag,
-.token.selector {
-  color: #aa0d91;
-}
-.token.boolean,
-.token.number,
-.token.constant,
-.token.symbol {
-  color: #1c00cf;
-}
-.token.property,
-.token.attr-name,
-.token.string,
-.token.char,
-.token.builtin {
-  color: #c41a16;
-}
-.token.inserted {
-  background-color: #ccffd8;
-}
-.token.deleted {
-  background-color: #ffebe9;
-}
-.token.operator,
-.token.entity,
-.token.url,
-.language-css .token.string,
-.style .token.string {
-  color: #9a6e3a;
-}
-.token.atrule,
-.token.attr-value,
-.token.keyword {
-  color: #836c28;
-}
-.token.function,
-.token.class-name {
-  color: #DD4A68;
-}
-.token.regex,
-.token.important,
-.token.variable {
-  color: #5c2699;
-}
-.token.important,
-.token.bold {
-  font-weight: bold;
-}
-.token.italic {
-  font-style: italic;
-}
-</style>
 <style type="text/css">
 body {
   font-family: sans-serif;
@@ -76,119 +12,156 @@ body {
   margin: auto;
   padding: 1em;
   line-height: 1.5;
-  box-sizing: border-box;
 }
-body, .footnotes, code { font-size: .9em; }
+body, .abstract, code, .footnotes, footer, #refs, .caption { font-size: .9em; }
 li li { font-size: .95em; }
-*, *:before, *:after {
-  box-sizing: inherit;
-}
+ul:has(li > input[type="checkbox"]) { list-style: none; padding-left: 1em; }
+*, :before, :after { box-sizing: border-box; }
+a { color: steelblue; }
 pre, img { max-width: 100%; }
-pre, pre:hover {
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-pre code {
-  display: block;
-  overflow-x: auto;
-}
+pre { white-space: pre-wrap; word-break: break-word; }
+pre code { display: block; padding: 1em; overflow-x: auto; }
 code { font-family: 'DejaVu Sans Mono', 'Droid Sans Mono', 'Lucida Console', Consolas, Monaco, monospace; }
-:not(pre) > code, code[class] { background-color: #F8F8F8; }
-code.language-undefined, pre > code:not([class]) {
-  background-color: inherit;
-  border: 1px solid #eee;
+:not(pre, th) > code, code[class], div > .caption { background: #f8f8f8; }
+pre > code:is(:not([class]), .language-plain, .language-none, .plain), .box, .figure, .table { background: inherit; border: 1px solid #eee; }
+pre > code {
+  &.message { border-color: #9eeaf9; }
+  &.warning { background: #fff3cd; border-color: #fff3cd; }
+  &.error { background: #f8d7da; border-color: #f8d7da; }
 }
+.fenced-chunk { border-left: 1px solid #666; }
+.code-fence {
+  opacity: .4;
+  border: 1px dashed #666;
+  border-left: 2px solid;
+  &:hover { opacity: inherit; }
+}
+.box, .figure, .table, table { margin: 1em auto; }
+div > .caption { padding: 1px 1em; }
+.figure { p:has(img, svg), pre:has(svg) { text-align: center; } }
+.flex-col { display: flex; justify-content: space-between; }
 table {
-  margin: auto;
-  border-top: 1px solid #666;
+  &:only-child:not(.table > *) { margin: auto; }
+  th, td { padding: 5px; font-variant-numeric: tabular-nums; }
+  thead, tfoot, tr:nth-child(even) { background: whitesmoke; }
+  thead th { border-bottom: 1px solid #ddd; }
+  &:not(.datatable-table) {
+    border-top: 1px solid #666;
+    border-bottom: 1px solid #666;
+  }
 }
-table thead th { border-bottom: 1px solid #ddd; }
-th, td { padding: 5px; }
-thead, tfoot, tr:nth-child(even) { background: #eee; }
 blockquote {
   color: #666;
   margin: 0;
-  padding-left: 1em;
-  border-left: 0.5em solid #eee;
+  padding: 1px 1em;
+  border-left: .5em solid #eee;
 }
 hr, .footnotes::before { border: 1px dashed #ddd; }
 .frontmatter { text-align: center; }
-#TOC .numbered li { list-style: none; }
-#TOC .numbered { padding-left: 0; }
-#TOC .numbered ul { padding-left: 1em; }
-table, .body h2 { border-bottom: 1px solid #666; }
+#TOC {
+  a { text-decoration: none; }
+  ul { list-style: none; padding-left: 1em; }
+  & > ul { padding: 0; }
+  ul ul { border-left: 1px solid lightsteelblue; }
+}
+.body h2 { border-bottom: 1px solid #666; }
 .body .appendix, .appendix ~ h2 { border-bottom-style: dashed; }
-.footnote-ref a::before { content: "["; }
-.footnote-ref a::after { content: "]"; }
-section.footnotes::before {
-  content: "";
-  display: block;
-  max-width: 20em;
+.main-number::after { content: "."; }
+span[class^="ref-number-"] { font-weight: bold; }
+.ref-number-fig::after, .ref-number-tab::after { content: ":"; }
+.cross-ref-chp::before { content: "Chapter "; }
+.cross-ref-sec::before { content: "Section "; }
+.cross-ref-fig::before, .ref-number-fig::before { content: "Figure "; }
+.cross-ref-tab::before, .ref-number-tab::before { content: "Table "; }
+.cross-ref-eqn::before, .MathJax_ref:has(mjx-mtext > mjx-c + mjx-c)::before { content: "Equation "; }
+.abstract, #refs {
+  &::before { display: block; margin: 1em auto; font-weight: bold; }
+}
+.abstract::before { content: "Abstract"; text-align: center; }
+#refs::before { content: "Bibliography"; font-size: 1.5em; }
+.ref-paren-open::before { content: "("; }
+.ref-paren-close::after { content: ")"; }
+.ref-semicolon::after { content: "; "; }
+.ref-and::after { content: " and "; }
+.ref-et-al::after { content: " et al."; font-style: italic; }
+.footnote-ref a {
+  &::before { content: "["; }
+  &::after { content: "]"; }
+}
+section.footnotes {
+  margin-top: 2em;
+  &::before { content: ""; display: block; max-width: 20em; }
+}
+.fade {
+  background: repeating-linear-gradient(135deg, white, white 30px, #ddd 32px, #ddd 32px);
+  opacity: 0.6;
 }
 
 @media print {
-  body {
-    font-size: 12pt;
-    max-width: 100%;
-  }
-  tr, img { page-break-inside: avoid; }
+  body { max-width: 100%; }
+  tr, img { break-inside: avoid; }
 }
 @media only screen and (min-width: 992px) {
-  pre { white-space: pre; }
+  body:not(.pagesjs) pre:has(.line-numbers):not(:hover) { white-space: pre; }
 }
 </style>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.21/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.11/css/prism-xcode.min.css">
+<script src="https://cdn.jsdelivr.net/combine/npm/katex@0.16.21/dist/katex.min.js,npm/katex@0.16.21/dist/contrib/auto-render.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@xiee/utils@1.14.11/js/render-katex.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
 </head>
 <body>
 <div class="frontmatter">
 <div class="title"><h1>alpha Diversity</h1></div>
 <div class="author"><h2>N. Frerebeau</h2></div>
-<div class="date"><h3>2025-01-10</h3></div>
+<div class="date"><h3>2025-04-02</h3></div>
 </div>
 <div class="body">
 <div id="TOC">
 <ul class="numbered">
-<li><a href="#heterogeneity-and-evenness"><span class="section-number">1.</span> Heterogeneity and Evenness</a>
+<li><a href="#chp:heterogeneity-and-evenness"><span class="section-number main-number">1</span> Heterogeneity and Evenness</a>
 <ul>
-<li><a href="#information-theory-index"><span class="section-number">1.1</span> Information theory index</a>
+<li><a href="#sec:information-theory-index"><span class="section-number">1.1</span> Information theory index</a>
 <ul>
-<li><a href="#shannon-wiener-diversity-index"><span class="section-number">1.1.1</span> Shannon-Wiener diversity index</a></li>
-<li><a href="#brillouin-diversity-index"><span class="section-number">1.1.2</span> Brillouin diversity index</a></li>
+<li><a href="#sec:shannon-wiener-diversity-index"><span class="section-number">1.1.1</span> Shannon-Wiener diversity index</a></li>
+<li><a href="#sec:brillouin-diversity-index"><span class="section-number">1.1.2</span> Brillouin diversity index</a></li>
 </ul>
 </li>
-<li><a href="#dominance-index"><span class="section-number">1.2</span> Dominance index</a>
+<li><a href="#sec:dominance-index"><span class="section-number">1.2</span> Dominance index</a>
 <ul>
-<li><a href="#simpson-index"><span class="section-number">1.2.1</span> Simpson index</a></li>
-<li><a href="#mcintosh-index"><span class="section-number">1.2.2</span> McIntosh index</a></li>
-<li><a href="#berger-parker-index"><span class="section-number">1.2.3</span> Berger-Parker index</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#richness"><span class="section-number">2.</span> Richness</a>
-<ul>
-<li><a href="#asymptotic-species-richness"><span class="section-number">2.1</span> Asymptotic Species Richness</a>
-<ul>
-<li><a href="#chao1-estimator-chao-1984"><span class="section-number">2.1.1</span> Chao1 estimator (Chao 1984)</a></li>
-<li><a href="#abundance-based-coverage-estimator-chao-amp-lee-1992"><span class="section-number">2.1.2</span> Abundance-based Coverage Estimator (Chao &amp; Lee 1992)</a></li>
-<li><a href="#squares-estimator-alroy-2018"><span class="section-number">2.1.3</span> Squares estimator (Alroy 2018)</a></li>
-</ul>
-</li>
-<li><a href="#quadrat-richness"><span class="section-number">2.2</span> Quadrat richness</a>
-<ul>
-<li><a href="#chao2-estimator-chao-1987"><span class="section-number">2.2.1</span> Chao2 estimator (Chao 1987)</a></li>
-<li><a href="#incidence-based-coverage-estimator-chao-amp-chiu-2016"><span class="section-number">2.2.2</span> Incidence-based Coverage Estimator (Chao &amp; Chiu 2016)</a></li>
+<li><a href="#sec:simpson-index"><span class="section-number">1.2.1</span> Simpson index</a></li>
+<li><a href="#sec:mcintosh-index"><span class="section-number">1.2.2</span> McIntosh index</a></li>
+<li><a href="#sec:berger-parker-index"><span class="section-number">1.2.3</span> Berger-Parker index</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#rarefaction"><span class="section-number">3.</span> Rarefaction</a>
+<li><a href="#chp:richness"><span class="section-number main-number">2</span> Richness</a>
 <ul>
-<li><a href="#hurlbert-1971-unbiased-estimate-of-sander-1968-rarefaction"><span class="section-number">3.1</span> Hurlbert (1971) unbiased estimate of Sander (1968) rarefaction</a></li>
-<li><a href="#baxter-2001-rarefaction"><span class="section-number">3.2</span> Baxter (2001) rarefaction</a></li>
+<li><a href="#sec:asymptotic-species-richness"><span class="section-number">2.1</span> Asymptotic Species Richness</a>
+<ul>
+<li><a href="#sec:chao1-estimator-chao-1984"><span class="section-number">2.1.1</span> Chao1 estimator (Chao 1984)</a></li>
+<li><a href="#sec:abundance-based-coverage-estimator-chao-amp-lee-1992"><span class="section-number">2.1.2</span> Abundance-based Coverage Estimator (Chao &amp; Lee 1992)</a></li>
+<li><a href="#sec:squares-estimator-alroy-2018"><span class="section-number">2.1.3</span> Squares estimator (Alroy 2018)</a></li>
 </ul>
 </li>
-<li><a href="#references"><span class="section-number">4.</span> References</a></li>
+<li><a href="#sec:quadrat-richness"><span class="section-number">2.2</span> Quadrat richness</a>
+<ul>
+<li><a href="#sec:chao2-estimator-chao-1987"><span class="section-number">2.2.1</span> Chao2 estimator (Chao 1987)</a></li>
+<li><a href="#sec:incidence-based-coverage-estimator-chao-amp-chiu-2016"><span class="section-number">2.2.2</span> Incidence-based Coverage Estimator (Chao &amp; Chiu 2016)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#chp:rarefaction"><span class="section-number main-number">3</span> Rarefaction</a>
+<ul>
+<li><a href="#sec:hurlbert-1971-unbiased-estimate-of-sander-1968-rarefaction"><span class="section-number">3.1</span> Hurlbert (1971) unbiased estimate of Sander (1968) rarefaction</a></li>
+<li><a href="#sec:baxter-2001-rarefaction"><span class="section-number">3.2</span> Baxter (2001) rarefaction</a></li>
+</ul>
+</li>
+<li><a href="#chp:references"><span class="section-number main-number">4</span> References</a></li>
 </ul>
 </div>
 <p>Diversity in ecology describes complex interspecific interactions between and within communities under a variety of environmental conditions (Bobrowsky &amp; Ball 1989). This concept covers different components, allowing different aspects of interspecific interactions to be measured.</p>
@@ -242,9 +215,9 @@ composition(mississippi, method = &quot;chao1&quot;)
 <pre><code class="language-r">## Abundance data from Magurran (1988), p. 145
 woodland &lt;- c(35, 26, 25, 21, 16, 11, 6, 5, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 1)
 </code></pre>
-<h1 id="heterogeneity-and-evenness"><span class="section-number">1.</span> Heterogeneity and Evenness</h1>
-<h2 id="information-theory-index"><span class="section-number">1.1</span> Information theory index</h2>
-<h3 id="shannon-wiener-diversity-index"><span class="section-number">1.1.1</span> Shannon-Wiener diversity index</h3>
+<h1 id="chp:heterogeneity-and-evenness"><span class="section-number main-number">1</span> Heterogeneity and Evenness</h1>
+<h2 id="sec:information-theory-index"><span class="section-number">1.1</span> Information theory index</h2>
+<h3 id="sec:shannon-wiener-diversity-index"><span class="section-number">1.1.1</span> Shannon-Wiener diversity index</h3>
 <p>The Shannon-Wiener index (Shannon 1948) assumes that individuals are randomly sampled from an infinite population and that all taxa are represented in the sample (it does not reflect the sample size). The main source of error arises from the failure to include all taxa in the sample: this error increases as the proportion of species discovered in the sample declines (Peet 1974; Magurran 1988).</p>
 <p>Heterogeneity for a finite sample:</p>
 <p>$$ H = - \sum_{i = 1}^{S} \hat{p}_i \ln \hat{p}_i $$</p>
@@ -262,7 +235,7 @@ woodland &lt;- c(35, 26, 25, 21, 16, 11, 6, 5, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 
 <pre><code class="language-r">index_shannon(woodland, evenness = TRUE)
 #&gt; [1] 0.8038044
 </code></pre>
-<h3 id="brillouin-diversity-index"><span class="section-number">1.1.2</span> Brillouin diversity index</h3>
+<h3 id="sec:brillouin-diversity-index"><span class="section-number">1.1.2</span> Brillouin diversity index</h3>
 <p>The Brillouin index (Brillouin 1956) describes a known collection: it does not assume random sampling in an infinite population. Pielou (1975) and Laxton (1978) argue for the use of the Brillouin index in all circumstances, especially in preference to the Shannon index.</p>
 <p>Heterogeneity:</p>
 <p>$$ H = \frac{\ln (n!) - \sum_{i = 1}^{S} \ln (n_i!)}{n} $$</p>
@@ -277,9 +250,9 @@ woodland &lt;- c(35, 26, 25, 21, 16, 11, 6, 5, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 
 <pre><code class="language-r">index_brillouin(woodland, evenness = TRUE)
 #&gt; [1] 0.8025508
 </code></pre>
-<h2 id="dominance-index"><span class="section-number">1.2</span> Dominance index</h2>
+<h2 id="sec:dominance-index"><span class="section-number">1.2</span> Dominance index</h2>
 <p>The following methods return a <em>dominance</em> index, not the reciprocal or inverse form usually adopted, so that an increase in the value of the index accompanies a decrease in diversity.</p>
-<h3 id="simpson-index"><span class="section-number">1.2.1</span> Simpson index</h3>
+<h3 id="sec:simpson-index"><span class="section-number">1.2.1</span> Simpson index</h3>
 <p>The Simpson index (Simpson 1949) expresses the probability that two individuals randomly picked from a finite sample belong to two different types. It can be interpreted as the weighted mean of the proportional abundances. This metric is a true probability value, it ranges from \(0\) (all taxa are equally present) to \(1\) (one taxon dominates the community completely).</p>
 <p>Dominance for an infinite sample:</p>
 <p>$$ D = \sum_{i = 1}^{S} p_i^2 $$</p>
@@ -291,7 +264,7 @@ woodland &lt;- c(35, 26, 25, 21, 16, 11, 6, 5, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 
 <pre><code class="language-r">index_simpson(woodland, evenness = TRUE)
 #&gt; [1] 0.4169071
 </code></pre>
-<h3 id="mcintosh-index"><span class="section-number">1.2.2</span> McIntosh index</h3>
+<h3 id="sec:mcintosh-index"><span class="section-number">1.2.2</span> McIntosh index</h3>
 <p>The McIntosh index (McIntosh 1967) expresses the heterogeneity of a sample in geometric terms. It describes the sample as a point of a \(S\)-dimensional hypervolume and uses the Euclidean distance of this point from the origin.</p>
 <p>Dominance:</p>
 <p>$$ D = \frac{n - U}{n - \sqrt{n}} $$</p>
@@ -305,14 +278,14 @@ woodland &lt;- c(35, 26, 25, 21, 16, 11, 6, 5, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 
 <pre><code class="language-r">index_mcintosh(woodland, evenness = TRUE)
 #&gt; [1] 0.8419571
 </code></pre>
-<h3 id="berger-parker-index"><span class="section-number">1.2.3</span> Berger-Parker index</h3>
+<h3 id="sec:berger-parker-index"><span class="section-number">1.2.3</span> Berger-Parker index</h3>
 <p>The Berger-Parker index (Berger &amp; Parker 1970) expresses the proportional importance of the most abundant type. This metric is highly biased by sample size and richness, moreover it does not make use of all the information available from sample.</p>
 <p>Dominance:</p>
 <p>$$ D = \frac{n_{max}}{N} $$</p>
 <pre><code class="language-r">index_berger(woodland)
 #&gt; [1] 0.2058824
 </code></pre>
-<h1 id="richness"><span class="section-number">2.</span> Richness</h1>
+<h1 id="chp:richness"><span class="section-number main-number">2</span> Richness</h1>
 <p>The number of different taxa, provides an instantly comprehensible expression of diversity. While the number of taxa within a sample is easy to ascertain, as a term, it makes little sense: some taxa may not have been seen, or there may not be a fixed number of taxa (e.g. in an open system; Peet 1974). As an alternative, <em>richness</em> (\(R\)) can be used for the concept of taxa number (McIntosh 1967). Richness refers to the variety of taxa/species/types present in an assemblage or community (Bobrowsky &amp; Ball 1989) as “the number of species present in a collection containing a specified number of individuals” (Hurlbert 1971).</p>
 <table>
 <thead>
@@ -342,11 +315,14 @@ woodland &lt;- c(35, 26, 25, 21, 16, 11, 6, 5, 3, 3, 3, 3, 3, 2, 2, 2, 1, 1, 1, 
 <pre><code class="language-r">index_menhinick(woodland)
 #&gt; [1] 1.53393
 </code></pre>
-<h2 id="asymptotic-species-richness"><span class="section-number">2.1</span> Asymptotic Species Richness</h2>
+<h2 id="sec:asymptotic-species-richness"><span class="section-number">2.1</span> Asymptotic Species Richness</h2>
 <p>Estimators of asymptotic richness are based on the frequencies of rare species in the original sampling data.</p>
-<h3 id="chao1-estimator-chao-1984"><span class="section-number">2.1.1</span> Chao1 estimator (Chao 1984)</h3>
+<h3 id="sec:chao1-estimator-chao-1984"><span class="section-number">2.1.1</span> Chao1 estimator (Chao 1984)</h3>
 <p>$$ \hat{S}_{Chao1} =
-\begin{cases} S + \frac{n - 1}{n} \frac{F_1^2}{2 F_2} &amp; F_2 &gt; 0 \\ S + \frac{n - 1}{n} \frac{F_1 (F_1 - 1)}{2} &amp; F_2 = 0 \end{cases}
+\begin{cases}
+  S + \frac{n - 1}{n} \frac{F_1^2}{2 F_2} &amp; F_2 &gt; 0 \\
+  S + \frac{n - 1}{n} \frac{F_1 (F_1 - 1)}{2} &amp; F_2 = 0
+\end{cases}
 $$</p>
 <p>Where \(F_1\) is the number of singleton species and \(F_2\) the number of doubleton species.</p>
 <pre><code class="language-r">index_chao1(woodland)
@@ -361,33 +337,36 @@ $$</p>
 <p>$$ \hat{S}<em>{iChao1} = \hat{S}</em>{Chao1} + \frac{n - 3}{4 n} \frac{F_3}{F_4} \times \max\left(F_1 - \frac{n - 3}{n - 1} \frac{F_2 F_3}{2 F_4} , 0\right)$$</p>
 <pre><code class="language-r">index_chao1(woodland, improved = TRUE)
 </code></pre>
-<h3 id="abundance-based-coverage-estimator-chao-amp-lee-1992"><span class="section-number">2.1.2</span> Abundance-based Coverage Estimator (Chao &amp; Lee 1992)</h3>
+<h3 id="sec:abundance-based-coverage-estimator-chao-amp-lee-1992"><span class="section-number">2.1.2</span> Abundance-based Coverage Estimator (Chao &amp; Lee 1992)</h3>
 <p>$$ \hat{S}<em>{ACE} = \hat{S}</em>{abun} + \frac{\hat{S}<em>{rare}}{\hat{C}</em>{ACE}} + \frac{F_1}{\hat{C}<em>{ACE}} \times \hat{\gamma}^2</em>{ACE} $$</p>
 <p>Where \(\hat{S}_{rare} = \sum_{i = 1}^{k} F_i\) is the number of rare taxa, \(\hat{S}_{abun} = \sum_{i &gt; k}^{N} F_i\) is the number of abundant taxa (for a given cut-off value \(k\)), \(\hat{C}_{ACE} = 1 - \frac{F_1}{n_{rare}}\) is the Turing’s coverage estimate and:</p>
 <p>$$ \hat{\gamma}^2_{ACE} = \max\left[\frac{\hat{S}<em>{rare}}{\hat{C}</em>{ACE}} \frac{\sum_{i = 1}^{k} i(i - 1)F_i}{n_{rare}\left(n_{rare} - 1\right)} - 1, 0\right]  $$</p>
 <pre><code class="language-r">index_ace(woodland)
 #&gt; [1] 22.0875
 </code></pre>
-<h3 id="squares-estimator-alroy-2018"><span class="section-number">2.1.3</span> Squares estimator (Alroy 2018)</h3>
+<h3 id="sec:squares-estimator-alroy-2018"><span class="section-number">2.1.3</span> Squares estimator (Alroy 2018)</h3>
 <p>The squares richness estimator is designed to be more accurate than Chao1 when abundance distributions are even:</p>
 <p>$$ \hat{S} = S + \frac{F_1^2}{n^2 - F_1 \times S} \sum_{i = 1}^{S} n_i^2 $$</p>
 <pre><code class="language-r">index_squares(woodland)
 #&gt; [1] 21.92422
 </code></pre>
-<h2 id="quadrat-richness"><span class="section-number">2.2</span> Quadrat richness</h2>
+<h2 id="sec:quadrat-richness"><span class="section-number">2.2</span> Quadrat richness</h2>
 <p>For replicated incidence data (i.e. presence/absence data in two or more sampled quadrats of equal size; a \(m \times p\) incidence matrix), the Chao2 estimator is:</p>
-<h3 id="chao2-estimator-chao-1987"><span class="section-number">2.2.1</span> Chao2 estimator (Chao 1987)</h3>
+<h3 id="sec:chao2-estimator-chao-1987"><span class="section-number">2.2.1</span> Chao2 estimator (Chao 1987)</h3>
 <p>$$ \hat{S}_{Chao2} =
-\begin{cases} S + \frac{m - 1}{m} \frac{q_1^2}{2 q_2} &amp; q_2 &gt; 0 \\ S + \frac{m - 1}{m} \frac{q_1 (q_1 - 1)}{2} &amp; q_2 = 0 \end{cases}
+\begin{cases}
+  S + \frac{m - 1}{m} \frac{q_1^2}{2 q_2} &amp; q_2 &gt; 0 \\
+  S + \frac{m - 1}{m} \frac{q_1 (q_1 - 1)}{2} &amp; q_2 = 0
+\end{cases}
 $$</p>
 <p>Improved Chao2 estimator (Chiu <em>et al.</em> 2014):</p>
 <p>$$ \hat{S}<em>{iChao2} = \hat{S}</em>{Chao2} + \frac{m - 3}{4 m} \frac{q_3}{q_4} \times \max\left(q_1 - \frac{m - 3}{m - 1} \frac{q_2 q_3}{2 q_4} , 0\right)$$</p>
-<h3 id="incidence-based-coverage-estimator-chao-amp-chiu-2016"><span class="section-number">2.2.2</span> Incidence-based Coverage Estimator (Chao &amp; Chiu 2016)</h3>
+<h3 id="sec:incidence-based-coverage-estimator-chao-amp-chiu-2016"><span class="section-number">2.2.2</span> Incidence-based Coverage Estimator (Chao &amp; Chiu 2016)</h3>
 <p>$$ \hat{S}<em>{ICE} = \hat{S}</em>{freq} + \frac{\hat{S}<em>{infreq}}{\hat{C}</em>{infreq}} + \frac{q_1}{\hat{C}<em>{infreq}} \times \hat{\gamma}^2</em>{infreq} $$</p>
 <p>Where \(\hat{S}_{infreq} = \sum_{i = 1}^{k} q_i\) is the number of infrequent taxa, \(\hat{S}_{freq} = \sum_{i &gt; k}^{N} q_i\) is the number of frequent taxa (for a given cut-off value \(k\)), \(\hat{C}_{infreq} = 1 - \frac{Q_1}{\sum_{i = 1}^{k} iq_i}\) is the Turing’s coverage estimate and:</p>
 <p>$$ \hat{\gamma}^2_{infreq} = \max\left[\frac{\hat{S}<em>{infreq}}{\hat{C}</em>{infreq}} \frac{m_{infreq}}{m_{infreq} - 1} \frac{\sum_{i = 1}^{k} i(i - 1)q_i}{\left(\sum_{i = 1}^{k} iq_i\right)\left(\sum_{i = 1}^{k} iq_i - 1\right)} - 1, 0\right]  $$</p>
 <p>Where \(m_{infreq}\) is the number of sampling units that include at least one infrequent species.</p>
-<h1 id="rarefaction"><span class="section-number">3.</span> Rarefaction</h1>
+<h1 id="chp:rarefaction"><span class="section-number main-number">3</span> Rarefaction</h1>
 <p>It is not always possible to ensure that all sample sizes are equal and the number of different taxa increases with sample size and sampling effort (Magurran 1988). Then, <em>rarefaction</em> (\(\hat{S}\)) is the number of taxa expected if all samples were of a standard size \(n\) (i.e. taxa per fixed number of individuals). Rarefaction assumes that imbalances between taxa are due to sampling and not to differences in actual abundances.</p>
 <pre><code class="language-r">## Baxter rarefaction
 RA &lt;- rarefaction(mississippi, sample = 100, method = &quot;baxter&quot;)
@@ -397,9 +376,9 @@ plot(RA)
 <img src="data:image/png;base64,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" alt="plot of chunk rarefaction"  />
 <p class="caption">plot of chunk rarefaction</p>
 </div>
-<h2 id="hurlbert-1971-unbiased-estimate-of-sander-1968-rarefaction"><span class="section-number">3.1</span> Hurlbert (1971) unbiased estimate of Sander (1968) rarefaction</h2>
+<h2 id="sec:hurlbert-1971-unbiased-estimate-of-sander-1968-rarefaction"><span class="section-number">3.1</span> Hurlbert (1971) unbiased estimate of Sander (1968) rarefaction</h2>
 <p>$$ E(S) = \sum_{i = 1}^{S} \left[ 1 - \frac{{n - n_i} \choose m}{n \choose m} \right] $$</p>
-<h2 id="baxter-2001-rarefaction"><span class="section-number">3.2</span> Baxter (2001) rarefaction</h2>
+<h2 id="sec:baxter-2001-rarefaction"><span class="section-number">3.2</span> Baxter (2001) rarefaction</h2>
 <p>$$ E(S) = \sum_{i = 1}^{S} \left[ 1 - \frac{(n - n_i)!(n - m)!}{(n - n_i - m)!n!} \right] $$</p>
 <p>Where:</p>
 <ul>
@@ -408,7 +387,7 @@ plot(RA)
 <li>\(n = \sum_{i = 1}^{S} n_i\) is the total number of individuals,</li>
 <li>\(m\) is the sub-sample size.</li>
 </ul>
-<h1 id="references"><span class="section-number">4.</span> References</h1>
+<h1 id="chp:references"><span class="section-number main-number">4</span> References</h1>
 <p>Alroy, J. (2018). Limits to Species Richness in Terrestrial Communities. <em>Ecology Letters</em>, 21(12): 1781-1789. <a href="https://doi.org/10.1111/ele.13152">10.1111/ele.13152</a>.</p>
 <p>Baxter, M. J. (2001). Methodological Issues in the Study of Assemblage Diversity. <em>American Antiquity</em>, 66(4): 715-725. DOI: <a href="https://doi.org/10.2307/2694184">10.2307/2694184</a>.</p>
 <p>Berger, W. H. &amp; Parker, F. L. (1970). Diversity of Planktonic Foraminifera in Deep Sea Sediments. <em>Science</em>, 168(3937): 1345-1347. DOI: <a href="https://doi.org/10.1126/science.168.3937.1345">10.1126/science.168.3937.1345</a>.</p>
@@ -442,8 +421,5 @@ plot(RA)
 <p>Shannon, C. E. (1948). A Mathematical Theory of Communication. <em>The Bell System Technical Journal</em>, 27, 379-423. DOI: <a href="https://doi.org/10.1002/j.1538-7305.1948.tb01338.x">10.1002/j.1538-7305.1948.tb01338.x</a>.</p>
 <p>Simpson, E. H. (1949). Measurement of Diversity. <em>Nature</em>, 163(4148): 688-688. DOI: <a href="https://doi.org/10.1038/163688a0">10.1038/163688a0</a>.</p>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-core.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
 </body>
 </html>

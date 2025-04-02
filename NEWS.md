@@ -1,3 +1,7 @@
+# tabula 3.2.1
+## Internals
+* Update package metadata.
+
 # tabula 3.2.0
 ## Enhancements
 * Translate into French.
