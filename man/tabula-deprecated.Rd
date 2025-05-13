@@ -2,7 +2,23 @@
 % Please edit documentation in R/tabula-deprecated.R
 \name{tabula-deprecated}
 \alias{tabula-deprecated}
+\alias{index_sorenson}
+\alias{index_sorenson,logical,logical-method}
+\alias{index_sorenson,numeric,numeric-method}
+\alias{resample}
+\alias{resample,numeric-method}
 \title{Deprecated Functions in tabula}
+\usage{
+index_sorenson(x, y, ...)
+
+\S4method{index_sorenson}{logical,logical}(x, y)
+
+\S4method{index_sorenson}{numeric,numeric}(x, y)
+
+resample(object, ...)
+
+\S4method{resample}{numeric}(object, do, n, size = sum(object), ..., f = NULL)
+}
 \description{
 These functions still work but will be removed (defunct) in the next version.
 }

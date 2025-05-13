@@ -5,11 +5,18 @@ knitr::opts_chunk$set(
 )
 
 ## ----intro--------------------------------------------------------------------
-## Install extra packages (if needed)
-# install.packages("folio") # Datasets
-
 ## Load package
 library(tabula)
+
+## Data from Conkey 1980, Kintigh 1989
+data("cantabria")
+
+## Compute alpha diversity indices
+diversity(cantabria)
+
+## ----indices------------------------------------------------------------------
+## Install extra packages (if needed)
+# install.packages("folio") # Datasets
 
 ## Ceramic data from Lipo et al. 2015
 data("mississippi", package = "folio")

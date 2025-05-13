@@ -49,27 +49,47 @@ setGeneric(
 #' @rdname data.frame
 NULL
 
-# Statistic ====================================================================
+# Resample =====================================================================
 #' Bootstrap Estimation
 #'
-#' Samples randomly from the elements of `object` with replacement.
 #' @param object An \R object (typically a [DiversityIndex-class] object).
 #' @param n A non-negative [`integer`] giving the number of bootstrap
 #'  replications.
-#' @param f A [`function`] that takes a single numeric vector (the result of
-#'  `do`) as argument.
+#' @param f A [`function`] that takes a single numeric vector (the bootstrap
+#'  estimates) as argument.
+#' @param level A length-one [`numeric`] vector giving the confidence level.
+#'  Must be a single number between \eqn{0} and \eqn{1}. Only used if `f` is
+#'  `NULL`.
+#' @param interval A [`character`] string giving the type of confidence
+#'  interval to be returned. It must be one "`basic`" (the default), "`normal`"
+#'  or "`percentiles`" (see [arkhe::confidence_bootstrap()]). Any unambiguous
+#'  substring can be given. Only used if `f` is `NULL`.
+#' @param seed An object specifying if and how the random number generator
+#'  should be initialized (see [stats::simulate()]).
+#' @param rare A [`logical`] scalar: should the sample be drawn from an
+#'  uniform distribution with replacement instead of a multinomial distribution?
+#' @details
+#'  `n` random samples are drawn, each with the same sample size as in the
+#'  original sample and with class probabilities proportional to the original
+#'  abundances.
+#'
+#'  Note that the mean of the bootstrapped samples will often be much lower than
+#'  the observed value. Bootstrapping results must be interpreted with great
+#'  care.
 #' @return
-#'  If `f` is `NULL` (the default), `bootstrap()` returns a named `numeric`
-#'  vector with the following elements:
+#'  If `f` is `NULL` (the default), `bootstrap()` returns a `numeric` `matrix`
+#'  with the following columns:
 #'  \describe{
-#'   \item{`original`}{The observed value of `do` applied to `object`.}
-#'   \item{`mean`}{The bootstrap estimate of mean of `do`.}
-#'   \item{`bias`}{The bootstrap estimate of bias of `do`.}
-#'   \item{`error`}{he bootstrap estimate of standard error of `do`.}
+#'   \item{`original`}{The observed value.}
+#'   \item{`mean`}{The bootstrap estimate of mean.}
+#'   \item{`bias`}{The bootstrap estimate of bias.}
+#'   \item{`error`}{The bootstrap estimate of standard error.}
+#'   \item{`lower`}{The lower limit of the bootstrap confidence interval at `level`.}
+#'   \item{`upper`}{The upper limit of the bootstrap confidence interval at `level`.}
 #'  }
 #'
 #'  If `f` is a `function`, `bootstrap()` returns the result of `f` applied to
-#'  the `n` values of `do`.
+#'  the values computed from the `n` replications.
 #' @example inst/examples/ex-bootstrap.R
 #' @author N. Frerebeau
 #' @docType methods
@@ -82,19 +102,19 @@ NULL
 #'
 #' @param object An \R object (typically a [DiversityIndex-class] object).
 #' @param f A [`function`] that takes a single numeric vector (the leave-one-out
-#'  values of `do`) as argument.
+#'  values) as argument.
 #' @return
-#'  If `f` is `NULL` (the default), `jackknife()` returns a named `numeric`
-#'  vector with the following elements:
+#'  If `f` is `NULL` (the default), `jackknife()` returns a `numeric` `matrix`
+#'  with the following columns:
 #'  \describe{
-#'   \item{`original`}{The observed value of `do` applied to `object`.}
-#'   \item{`mean`}{The jackknife estimate of mean of `do`.}
-#'   \item{`bias`}{The jackknife estimate of bias of `do`.}
-#'   \item{`error`}{he jackknife estimate of standard error of `do`.}
+#'   \item{`original`}{The observed value.}
+#'   \item{`mean`}{The jackknife estimate of mean.}
+#'   \item{`bias`}{The jackknife estimate of bias.}
+#'   \item{`error`}{The jackknife estimate of standard error.}
 #'  }
 #'
 #'  If `f` is a `function`, `jackknife()` returns the result of `f` applied to
-#'  the leave-one-out values of `do`.
+#'  the leave-one-out values.
 #' @example inst/examples/ex-jackknife.R
 #' @author N. Frerebeau
 #' @docType methods
@@ -103,49 +123,24 @@ NULL
 #' @rdname jackknife
 NULL
 
-#' Resample
-#'
-#' Simulates observations from a multinomial distribution.
-#' @param object A [`numeric`] vector of count data (absolute frequencies).
-#' @param do A [`function`] that takes `object` as an argument
-#'  and returns a single numeric value.
-#' @param n A non-negative [`integer`] specifying the number of bootstrap
-#'  replications.
-#' @param size A non-negative [`integer`] specifying the sample size.
-#' @param f A [`function`] that takes a single numeric vector (the result of
-#'  `do`) as argument.
-#' @param ... Extra arguments passed to `do`.
-#' @return
-#'  If `f` is `NULL`, `resample()` returns the `n` values of `do`. Else,
-#'  returns the result of `f` applied to the `n` values of `do`.
-#' @seealso [stats::rmultinom()]
-#' @example inst/examples/ex-resample.R
-#' @author N. Frerebeau
-#' @docType methods
-#' @family resampling methods
-#' @aliases resample-method
-setGeneric(
-  name = "resample",
-  def = function(object, ...) standardGeneric("resample")
-)
-
 # Diversity ====================================================================
-## Heterogeneity ---------------------------------------------------------------
-#' Heterogeneity and Evenness
+#' Alpha Diversity
 #'
-#' @description
-#'  * `heterogeneity()` computes an heterogeneity or dominance index.
-#'  * `evenness()` computes an evenness measure.
+#' Computes multiple alpha diversity indices.
 #' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
 #'  [`data.frame`] of count data (absolute frequencies giving the number of
 #'  individuals for each category, i.e. a contingency table). A [`data.frame`]
 #'  will be coerced to a `numeric` `matrix` via [data.matrix()].
-#' @param method A [`character`] string specifying the index to be computed
-#'  (see details). Any unambiguous substring can be given.
 #' @param evenness A [`logical`] scalar: should an evenness measure be computed
-#'  instead of an heterogeneity/dominance index?
-#' @param ... Further arguments to be passed to internal methods (see below).
+#'  instead of an heterogeneity/dominance index? Only available for `shannon`,
+#'  `simpson` and `brillouin` indices.
+#' @param unbiased A [`logical`] scalar: should the bias-corrected estimator be
+#'  used? Only available for `shannon`, `simpson` and `chao1` indices.
+#' @param ... Currently not used.
 #' @details
+#'  Alpha diversity refers to diversity at the local level, assessed within a
+#'  delimited system. It is the diversity within a uniform habitat of fixed size.
+#'
 #'  *Diversity* measurement assumes that all individuals in a specific
 #'  taxa are equivalent and that all types are equally different from each
 #'  other (Peet 1974). A measure of diversity can be achieved by using indices
@@ -153,17 +148,67 @@ setGeneric(
 #'  to as non-parametric indices) benefit from not making assumptions about the
 #'  underlying distribution of taxa abundance: they only take relative
 #'  abundances of the species that are present and species richness into
-#'  account. Peet (1974) refers to them as indices of *heterogeneity*.
+#'  account. Peet (1974) refers to them as indices of
+#'  *[heterogeneity][heterogeneity()]*.
 #'
 #'  Diversity indices focus on one aspect of the taxa abundance and emphasize
 #'  either *[richness][richness()]* (weighting towards uncommon taxa) or
 #'  *dominance* (weighting towards abundant taxa; Magurran 1988).
 #'
-#'  *Evenness* is a measure of how evenly individuals are distributed across the
-#'  sample.
-#' @section Heterogeneity and Evenness Measures:
-#'  The following heterogeneity index and corresponding evenness measures
-#'  are available (see Magurran 1988 for details):
+#'  *[Evenness][evenness()]* is a measure of how evenly individuals are
+#'  distributed across the sample.
+#' @return
+#'  A [`data.frame`] with the following columns:
+#'  \describe{
+#'   \item{`size`}{Sample size.}
+#'   \item{`observed`}{Number of observed taxa/types.}
+#'   \item{`shannon`}{[Shannon-Wiener diversity index][index_shannon()].}
+#'   \item{`brillouin`}{[Brillouin diversity index][index_brillouin()].}
+#'   \item{`simpson`}{[Simpson dominance index][index_simpson()].}
+#'   \item{`berger`}{[Berger-Parker dominance index][index_berger()].}
+#'   \item{`menhinick`}{[Menhinick richness index][index_menhinick()].}
+#'   \item{`margalef`}{[Margalef richness index][index_margalef()].}
+#'   \item{`chao1`}{[Chao1 estimator][index_chao1()].}
+#'   \item{`ace`}{[Abundance-based Coverage Estimator][index_ace()].}
+#'   \item{`squares`}{[Squares estimator][index_squares()].}
+#'  }
+#' @note
+#'  The `berger` and `simpson` methods return a *dominance* index, not the
+#'  reciprocal or inverse form usually adopted, so that an increase in the value
+#'  of the index accompanies a decrease in diversity.
+#' @references
+#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
+#'  Princeton, NJ: Princeton University Press.
+#'  \doi{10.1007/978-94-015-7358-0}.
+#'
+#'  Peet, R. K. (1974). The Measurement of Species Diversity. *Annual Review of
+#'  Ecology and Systematics*, 5(1), 285-307.
+#'  \doi{10.1146/annurev.es.05.110174.001441}.
+#' @example inst/examples/ex-diversity.R
+#' @author N. Frerebeau
+#' @family diversity measures
+#' @docType methods
+#' @aliases diversity-method
+setGeneric(
+  name = "diversity",
+  def = function(object, ...) standardGeneric("diversity"),
+  valueClass = "data.frame"
+)
+
+## Heterogeneity ---------------------------------------------------------------
+#' Heterogeneity
+#'
+#' Computes an heterogeneity or a dominance index.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
+#' @param method A [`character`] string specifying the index to be computed
+#'  (see details). Any unambiguous substring can be given.
+#' @param ... Further arguments to be passed to internal methods (see below).
+#' @details
+#'  The following heterogeneity index are available (see Magurran 1988 for
+#'  details):
 #'  \describe{
 #'   \item{`berger`}{[Berger-Parker dominance index][index_berger()].}
 #'   \item{`boone`}{[Boone heterogeneity measure][index_boone()].}
@@ -177,18 +222,13 @@ setGeneric(
 #'  not the reciprocal or inverse form usually adopted, so that an increase in
 #'  the value of the index accompanies a decrease in diversity.
 #' @return
-#'  * `heterogeneity()` returns an [HeterogeneityIndex-class] object.
-#'  * `evenness()` returns an [EvennessIndex-class] object.
+#'  An [HeterogeneityIndex-class] object.
 #' @seealso [index_berger()], [index_boone()], [index_brillouin()],
 #'  [index_mcintosh()], [index_shannon()], [index_simpson()]
 #' @references
 #'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
 #'  Princeton, NJ: Princeton University Press.
 #'  \doi{10.1007/978-94-015-7358-0}.
-#'
-#'  Peet, R. K. (1974). The Measurement of Species Diversity. *Annual Review of
-#'  Ecology and Systematics*, 5(1), 285-307.
-#'  \doi{10.1146/annurev.es.05.110174.001441}.
 #' @example inst/examples/ex-diversity.R
 #' @author N. Frerebeau
 #' @family diversity measures
@@ -200,7 +240,40 @@ setGeneric(
   valueClass = "HeterogeneityIndex"
 )
 
-#' @rdname heterogeneity
+#' Evenness
+#'
+#' Computes an evenness measure.
+#' @param object A \eqn{m \times p}{m x p} `numeric` [`matrix`] or
+#'  [`data.frame`] of count data (absolute frequencies giving the number of
+#'  individuals for each category, i.e. a contingency table). A [`data.frame`]
+#'  will be coerced to a `numeric` `matrix` via [data.matrix()].
+#' @param method A [`character`] string specifying the index to be computed
+#'  (see details). Any unambiguous substring can be given.
+#' @param ... Further arguments to be passed to internal methods (see below).
+#' @details
+#'  *Evenness* is a measure of how evenly individuals are distributed across the
+#'  sample.
+#'
+#'  The following evenness measures are available (see Magurran 1988 for
+#'  details):
+#'  \describe{
+#'   \item{`brillouin`}{[Brillouin diversity index][index_brillouin()].}
+#'   \item{`mcintosh`}{[McIntosh dominance index][index_mcintosh()].}
+#'   \item{`shannon`}{[Shannon-Wiener diversity index][index_shannon()].}
+#'   \item{`simpson`}{[Simpson dominance index][index_simpson()].}
+#'  }
+#' @return
+#'  An [EvennessIndex-class] object.
+#' @seealso [index_brillouin()], [index_mcintosh()], [index_shannon()],
+#'  [index_simpson()]
+#' @references
+#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
+#'  Princeton, NJ: Princeton University Press.
+#'  \doi{10.1007/978-94-015-7358-0}.
+#' @example inst/examples/ex-diversity.R
+#' @author N. Frerebeau
+#' @family diversity measures
+#' @docType methods
 #' @aliases evenness-method
 setGeneric(
   name = "evenness",
@@ -477,7 +550,7 @@ setGeneric(
 #'  Peet, R. K. (1974). The Measurement of Species Diversity. *Annual Review of
 #'  Ecology and Systematics*, 5(1), 285-307.
 #'  \doi{10.1146/annurev.es.05.110174.001441}.
-#' @seealso [`plot()`][plot_diversity]
+#' @seealso [`plot()`][plot.DiversityIndex]
 #' @example inst/examples/ex-richness.R
 #' @author N. Frerebeau
 #' @family diversity measures
@@ -714,7 +787,7 @@ setGeneric(
 #' @return
 #'  A [RarefactionIndex-class] object.
 #' @example inst/examples/ex-rarefaction.R
-#' @seealso [index_baxter()], [index_hurlbert()], [`plot()`][plot_rarefaction]
+#' @seealso [index_baxter()], [index_hurlbert()], [`plot()`][plot.RarefactionIndex]
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
@@ -783,25 +856,25 @@ setGeneric(
 #'  \eqn{\beta}-diversity can be measured by addressing *similarity*
 #'  between pairs of samples/cases.
 #'
-#'  `bray`, `jaccard`, `morisita` and `sorenson` indices provide a scale of
+#'  `bray`, `jaccard`, `morisita` and `sorensen` indices provide a scale of
 #'  similarity from \eqn{0}-\eqn{1} where \eqn{1} is perfect similarity and
 #'  \eqn{0} is no similarity.
 #'  `brainerd` is scaled between \eqn{0} and \eqn{200}.
 #'
 #'  \describe{
 #'   \item{`brainerd`}{[Brainerd-Robinson quantitative index][index_brainerd()].}
-#'   \item{`bray`}{[Bray-Curtis similarity (Sorenson quantitative index)][index_bray()].}
+#'   \item{`bray`}{[Bray-Curtis similarity (a.k.a. Dice-Sorensen quantitative index)][index_bray()].}
 #'   \item{`jaccard`}{[Jaccard qualitative index][index_jaccard()].}
 #'   \item{`morisita`}{[Morisita-Horn quantitative index][index_morisita()].}
-#'   \item{`sorenson`}{[Dice-Sorenson index (Sorenson qualitative index)][index_sorenson()].}
+#'   \item{`sorensen`}{[Dice-Sorensen qualitative index][index_sorensen()].}
 #'  }
 #'
-#'  For `jaccard` and `sorenson`, data are standardized on a presence/absence
+#'  For `jaccard` and `sorensen`, data are standardized on a presence/absence
 #'  scale (\eqn{0}/\eqn{1}) beforehand.
 #' @return
 #'  A [stats::dist] object.
 #' @seealso [index_binomial()], [index_brainerd()], [index_bray()],
-#'  [index_jaccard()], [index_morisita()], [index_sorenson()]
+#'  [index_jaccard()], [index_morisita()], [index_sorensen()]
 #' @references
 #'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
 #'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
@@ -836,7 +909,7 @@ setGeneric(
   def = function(x, y, ...) standardGeneric("index_jaccard")
 )
 
-#' Dice-Sorenson Index
+#' Dice-Sorensen Qualitative Index
 #'
 #' @param x,y A [`numeric`] vector.
 #' @param ... Currently not used.
@@ -846,20 +919,25 @@ setGeneric(
 #' @return
 #'  A [`numeric`] vector.
 #' @references
-#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
-#'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
+#'  Dice, L. R. (1945). Measures of the Amount of Ecologic Association Between
+#'  Species. *Ecology*, 26(3): 297-302. \doi{10.2307/1932409}
+#'
+#'  Sorensen, T. (1948). A Method of Establishing Groups of Equal Amplitude in
+#'  Plant Sociology Based on Similarity of Species Content and Its Application
+#'  to Analyses of the Vegetation on Danish Commons. *Kongelige Danske
+#'  Videnskabernes Selskab*, 5(4): 1-34.
 #' @author N. Frerebeau
 #' @family beta diversity measures
 #' @docType methods
-#' @aliases index_sorenson-method
+#' @aliases index_sorensen-method
 setGeneric(
-  name = "index_sorenson",
-  def = function(x, y, ...) standardGeneric("index_sorenson")
+  name = "index_sorensen",
+  def = function(x, y, ...) standardGeneric("index_sorensen")
 )
 
 #' Bray-Curtis Similarity
 #'
-#' Bray and Curtis modified version of the Sorenson index.
+#' Bray and Curtis modified version of the Dice-Sorensen index.
 #' @param x,y A [`numeric`] vector.
 #' @param ... Currently not used.
 #' @return
@@ -879,13 +957,18 @@ setGeneric(
 
 #' Morisita-Horn Quantitative Index
 #'
+#' Horn modified version of the Morisita overlap index.
 #' @param x,y A [`numeric`] vector.
 #' @param ... Currently not used.
 #' @return
 #'  A [`numeric`] vector.
 #' @references
-#'  Magurran, A. E. (1988). *Ecological Diversity and its Measurement*.
-#'  Princeton, NJ: Princeton University Press. \doi{10.1007/978-94-015-7358-0}.
+#'  Horn, H. S. (1966). Measurement of "Overlap" in Comparative Ecological
+#'  Studies. *The American Naturalist*, 100(914): 419-424. \doi{10.1086/282436}.
+#'
+#'  Mosrisita, M. (1959). Measuring of interspecific association and similarity
+#'  between communities. *Memoirs of the Faculty of Science, Kyushu University*,
+#'  Series E, 3:65-80.
 #' @author N. Frerebeau
 #' @family beta diversity measures
 #' @docType methods
@@ -947,6 +1030,9 @@ setGeneric(
 #'
 #'  This assumes that the order of the matrix rows (from \eqn{1} to \eqn{n})
 #'  follows the progression along the gradient/transect.
+#'
+#'  Data are standardized on a presence/absence scale (\eqn{0}/\eqn{1})
+#'  beforehand.
 #' @return
 #'  A [`numeric`] vector.
 #' @seealso [index_cody()], [index_routledge1()], [index_routledge2()],
@@ -969,6 +1055,9 @@ setGeneric(
 #' @details
 #'  This assumes that the order of the matrix rows (from \eqn{1} to \eqn{n})
 #'  follows the progression along the gradient/transect.
+#'
+#'  Data are standardized on a presence/absence scale (\eqn{0}/\eqn{1})
+#'  beforehand.
 #' @return
 #'  A [`numeric`] vector.
 #' @references
@@ -993,6 +1082,9 @@ setGeneric(
 #' @details
 #'  This assumes that the order of the matrix rows (from \eqn{1} to \eqn{n})
 #'  follows the progression along the gradient/transect.
+#'
+#'  Data are standardized on a presence/absence scale (\eqn{0}/\eqn{1})
+#'  beforehand.
 #' @return
 #'  A [`numeric`] vector.
 #' @references
@@ -1034,6 +1126,9 @@ setGeneric(
 #' @details
 #'  This assumes that the order of the matrix rows (from \eqn{1} to \eqn{n})
 #'  follows the progression along the gradient/transect.
+#'
+#'  Data are standardized on a presence/absence scale (\eqn{0}/\eqn{1})
+#'  beforehand.
 #' @return
 #'  A [`numeric`] vector.
 #' @references
@@ -1057,6 +1152,9 @@ setGeneric(
 #' @details
 #'  This assumes that the order of the matrix rows (from \eqn{1} to \eqn{n})
 #'  follows the progression along the gradient/transect.
+#'
+#'  Data are standardized on a presence/absence scale (\eqn{0}/\eqn{1})
+#'  beforehand.
 #' @return
 #'  A [`numeric`] vector.
 #' @references
@@ -1133,15 +1231,16 @@ setGeneric(
 #' Measure Diversity by Comparing to Simulated Assemblages
 #'
 #' @param object A [DiversityIndex-class] object.
+#' @param nsim A non-negative [`integer`] specifying the number of simulations.
+#' @param seed An object specifying if and how the random number generator
+#'  should be initialized (see [stats::simulate()]).
 #' @param interval A [`character`] string giving the type of confidence
-#'  interval to be returned. It must be one "`percentiles`" (sample quantiles,
-#'  as described in Kintigh 1984; the default), "`student`" or "`normal`".
-#'  Any unambiguous substring can be given.
+#'  interval to be returned. Currently, only "`percentiles`" is supported
+#'  (sample quantiles, as described in Kintigh 1984)..
 #' @param level A length-one [`numeric`] vector giving the confidence level.
 #' @param step An [`integer`] giving the increment of the sample size.
-#' @param n A non-negative [`integer`] giving the number of bootstrap
-#'  replications.
 #' @param progress A [`logical`] scalar: should a progress bar be displayed?
+#' @param ... Currently not used.
 #' @return
 #'  Returns a [DiversityIndex-class] object.
 #' @references
@@ -1151,8 +1250,8 @@ setGeneric(
 #'  Kintigh, K. W. (1984). Measuring Archaeological Diversity by Comparison
 #'  with Simulated Assemblages. *American Antiquity*, 49(1), 44-54.
 #'  \doi{10.2307/280511}.
-#' @seealso [`plot()`][plot_diversity], [resample()]
-#' @example inst/examples/ex-plot_diversity.R
+#' @seealso [bootstrap()], [jackknife()]
+#' @example inst/examples/ex-simulate.R
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
@@ -1238,12 +1337,12 @@ setGeneric(
 #' @return
 #'  `plot()` is called for its side-effects: it results in a graphic being
 #'  displayed (invisibly returns `x`).
-#' @example inst/examples/ex-plot_diversity.R
+#' @example inst/examples/ex-simulate.R
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name plot_diversity
-#' @rdname plot_diversity
+#' @name plot.DiversityIndex
+#' @rdname plot.DiversityIndex
 NULL
 
 #' Rarefaction Plot
@@ -1281,8 +1380,8 @@ NULL
 #' @author N. Frerebeau
 #' @family diversity measures
 #' @docType methods
-#' @name plot_rarefaction
-#' @rdname plot_rarefaction
+#' @name plot.RarefactionIndex
+#' @rdname plot.RarefactionIndex
 NULL
 
 #' SHE Analysis
@@ -1515,9 +1614,9 @@ setGeneric(
 #' @param flip A [`logical`] scalar: should `x` and `y` axis be flipped?
 #'  Defaults to `TRUE`.
 #' @param ... Currently not used.
-#' @section Bertin Matrix:
+#' @details
 #'  As de Falguerolles *et al.* (1997) points out:
-#'  "In abstract terms, a Bertin matrix is a matrix of  displays. [...] To fix
+#'  "In abstract terms, a Bertin matrix is a matrix of  displays. \[...\] To fix
 #'  ideas, think of a data matrix, variable by case, with real valued variables.
 #'  For each variable, draw a bar chart of variable value by case. High-light
 #'  all bars representing a value above some sample threshold for that

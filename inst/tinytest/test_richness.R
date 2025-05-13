@@ -11,7 +11,8 @@ for (i in method) {
   expect_equal(get_method(index), i)
 }
 
-boot <- with_seed(12345, bootstrap(index, n = 30))
+boot <- suppressWarnings(bootstrap(index, n = 30, seed = 12345))
+expect_true(all(boot$bias < 0)) # Downward bias
 expect_equal_to_reference(boot, file = "_snaps/richness_bootstrap.rds")
 
 jack <- jackknife(index)
@@ -32,18 +33,11 @@ for (i in method) {
 
 # Plot =========================================================================
 if (at_home()) {
-  source("helpers.R")
   using("tinysnapshot")
-  options(tinysnapshot_device = "svglite")
-  options(tinysnapshot_height = 7) # inches
-  options(tinysnapshot_width = 7)
-  options(tinysnapshot_tol = 200) # pixels
-  options(tinysnapshot_os = "Linux")
+  source("helpers.R")
 
-  idx_richness <- with_seed(12345, {
-    idx_richness <- richness(cantabria, method = "observed")
-    sim_richness <- simulate(idx_richness, n = 10)
-  })
+  idx_richness <- richness(cantabria, method = "observed")
+  sim_richness <- simulate(idx_richness, n = 10, seed = 12345)
   plot_richness <- function() plot(sim_richness)
   expect_snapshot_plot(plot_richness, "plot_richness")
 }

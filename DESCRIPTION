@@ -1,17 +1,17 @@
 Package: tabula
 Title: Analysis and Visualization of Archaeological Count Data
-Version: 3.2.1
+Version: 3.3.0
 Authors@R: c(
     person("Nicolas", "Frerebeau", , "nicolas.frerebeau@u-bordeaux-montaigne.fr", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0001-5759-4944")),
-    person("Brice", "Lebrun", role = "art",
-           comment = c(ORCID = "0000-0001-7503-8685", "Logo designer")),
     person("Matthew", "Peeples", , "matthew.peeples@asu.edu", role = "ctb",
            comment = c(ORCID = "0000-0003-4496-623X")),
     person("Ben", "Marwick", , "bmarwick@uw.edu", role = "ctb",
            comment = c(ORCID = "0000-0001-7879-4531")),
     person("Jean-Baptiste", "Fourvel", , "jean-baptiste.fourvel@univ-amu.fr", role = "ctb",
            comment = c(ORCID = "0000-0002-1061-4642")),
+    person("Brice", "Lebrun", role = "art",
+           comment = c(ORCID = "0000-0001-7503-8685", "Logo designer")),
     person("Université Bordeaux Montaigne", role = "fnd",
            comment = c(ROR = "03pbgwk21")),
     person("CNRS", role = "fnd",
@@ -30,14 +30,14 @@ URL: https://codeberg.org/tesselle/tabula,
         https://packages.tesselle.org/tabula/
 BugReports: https://codeberg.org/tesselle/tabula/issues
 Depends: R (>= 3.5)
-Imports: arkhe (>= 1.10.0), graphics, grDevices, khroma (>= 1.16.0),
+Imports: arkhe (>= 1.11.0), graphics, grDevices, khroma (>= 1.16.0),
         methods, stats, utils
-Suggests: folio (>= 1.5.0), knitr, markdown, rsvg, svglite,
+Suggests: folio (>= 1.5.0), fontquiver, knitr, markdown, rsvg, svglite,
         tinysnapshot, tinytest
 VignetteBuilder: knitr
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.2.9000
 X-schema.org-applicationCategory: Archaeological Science
 X-schema.org-isPartOf: https://www.tesselle.org
 X-schema.org-keywords: archaeological-science, archaeology,
@@ -47,19 +47,21 @@ Collate: 'AllClasses.R' 'AllGenerics.R' 'coerce.R' 'data.R'
         'diversity_test.R' 'matrigraph.R' 'mutators.R' 'occurrence.R'
         'plot_bertin.R' 'plot_diceleraas.R' 'plot_diversity.R'
         'plot_ford.R' 'plot_heatmap.R' 'plot_matrix.R' 'plot_rank.R'
-        'plot_spot.R' 'rarefaction.R' 'reexport.R' 'seriograph.R'
-        'show.R' 'similarity.R' 'statistics.R' 'subset.R'
-        'tabula-deprecated.R' 'tabula-internal.R' 'tabula-package.R'
-        'validate.R' 'zzz.R'
+        'plot_spot.R' 'rarefaction.R' 'reexport.R' 'resample.R'
+        'seriograph.R' 'show.R' 'similarity.R' 'statistics.R'
+        'subset.R' 'tabula-deprecated.R' 'tabula-internal.R'
+        'tabula-package.R' 'validate.R' 'zzz.R'
 NeedsCompilation: no
-Packaged: 2025-04-02 09:44:18 UTC; nicolas
-Author: Nicolas Frerebeau [aut, cre] (<https://orcid.org/0000-0001-5759-4944>),
-  Brice Lebrun [art] (<https://orcid.org/0000-0001-7503-8685>, Logo
-    designer),
-  Matthew Peeples [ctb] (<https://orcid.org/0000-0003-4496-623X>),
-  Ben Marwick [ctb] (<https://orcid.org/0000-0001-7879-4531>),
-  Jean-Baptiste Fourvel [ctb] (<https://orcid.org/0000-0002-1061-4642>),
-  Université Bordeaux Montaigne [fnd] (03pbgwk21),
-  CNRS [fnd] (02feahw73)
+Packaged: 2025-05-13 12:34:32 UTC; nfrerebeau
+Author: Nicolas Frerebeau [aut, cre] (ORCID:
+    <https://orcid.org/0000-0001-5759-4944>),
+  Matthew Peeples [ctb] (ORCID: <https://orcid.org/0000-0003-4496-623X>),
+  Ben Marwick [ctb] (ORCID: <https://orcid.org/0000-0001-7879-4531>),
+  Jean-Baptiste Fourvel [ctb] (ORCID:
+    <https://orcid.org/0000-0002-1061-4642>),
+  Brice Lebrun [art] (ORCID: <https://orcid.org/0000-0001-7503-8685>,
+    Logo designer),
+  Université Bordeaux Montaigne [fnd] (ROR: <https://ror.org/03pbgwk21>),
+  CNRS [fnd] (ROR: <https://ror.org/02feahw73>)
 Repository: CRAN
-Date/Publication: 2025-04-02 10:10:02 UTC
+Date/Publication: 2025-05-13 13:00:02 UTC

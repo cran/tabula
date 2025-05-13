@@ -56,6 +56,9 @@ form of the second measure).}
 
 This assumes that the order of the matrix rows (from \eqn{1} to \eqn{n})
 follows the progression along the gradient/transect.
+
+Data are standardized on a presence/absence scale (\eqn{0}/\eqn{1})
+beforehand.
 }
 \examples{
 ## Data from Magurran 1988, p. 162
@@ -80,10 +83,12 @@ turnover(woodland, "wilson") # 1
 \code{\link[=index_routledge3]{index_routledge3()}}, \code{\link[=index_whittaker]{index_whittaker()}}, \code{\link[=index_wilson]{index_wilson()}}
 
 Other diversity measures: 
+\code{\link{diversity}()},
+\code{\link{evenness}()},
 \code{\link{heterogeneity}()},
 \code{\link{occurrence}()},
-\code{\link{plot_diversity}},
-\code{\link{plot_rarefaction}},
+\code{\link{plot.DiversityIndex}()},
+\code{\link{plot.RarefactionIndex}()},
 \code{\link{profiles}()},
 \code{\link{rarefaction}()},
 \code{\link{richness}()},

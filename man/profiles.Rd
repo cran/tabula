@@ -118,10 +118,12 @@ Ordering. \emph{Journal of Vegetation Science}, 6(2), 283-290.
 }
 \seealso{
 Other diversity measures: 
+\code{\link{diversity}()},
+\code{\link{evenness}()},
 \code{\link{heterogeneity}()},
 \code{\link{occurrence}()},
-\code{\link{plot_diversity}},
-\code{\link{plot_rarefaction}},
+\code{\link{plot.DiversityIndex}()},
+\code{\link{plot.RarefactionIndex}()},
 \code{\link{rarefaction}()},
 \code{\link{richness}()},
 \code{\link{she}()},

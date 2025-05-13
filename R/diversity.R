@@ -13,6 +13,9 @@ do_index <- function(x, method, ...) {
   f <- get_index(method)
   f(x, ...)
 }
+is_evenness <- function(x) {
+  methods::is(x, "EvennessIndex")
+}
 
 #' Compute a Diversity Index
 #'
@@ -44,6 +47,56 @@ index_diversity <- function(x, method, ..., by_row = TRUE) {
   )
 }
 
+# Diversity ====================================================================
+#' @export
+#' @rdname diversity
+#' @aliases diversity,matrix-method
+setMethod(
+  f = "diversity",
+  signature = c(object = "matrix"),
+  definition = function(object, ..., evenness = FALSE, unbiased = FALSE) {
+
+    index <- t(apply(
+      X = object,
+      MARGIN = 1,
+      FUN = function(x, evenness, unbiased) {
+        c(
+          size = sum(x),
+          observed = observed(x),
+          ## Heterogeneity
+          shannon = index_shannon(x, evenness = evenness, unbiased = unbiased),
+          brillouin = index_brillouin(x, evenness = evenness),
+          ## Dominance
+          simpson = index_simpson(x, evenness = evenness, unbiased = unbiased),
+          berger = index_berger(x),
+          ## Richness
+          menhinick = index_menhinick(x),
+          margalef = index_margalef(x),
+          chao1 = index_chao1(x, unbiased = unbiased),
+          ace = index_ace(x),
+          squares = index_squares(x)
+        )
+      },
+      evenness = evenness,
+      unbiased = unbiased
+    ))
+    rownames(index) <- rownames(object)
+    as.data.frame(index)
+  }
+)
+
+#' @export
+#' @rdname diversity
+#' @aliases diversity,data.frame-method
+setMethod(
+  f = "diversity",
+  signature = c(object = "data.frame"),
+  definition = function(object, ..., evenness = FALSE, unbiased = FALSE) {
+    object <- data.matrix(object)
+    methods::callGeneric(object, ..., evenness = evenness, unbiased = unbiased)
+  }
+)
+
 # Heterogeneity ================================================================
 #' @export
 #' @rdname heterogeneity
@@ -52,8 +105,8 @@ setMethod(
   f = "heterogeneity",
   signature = c(object = "matrix"),
   definition = function(object, ...,
-                        method = c("berger", "boone", "brillouin",
-                                   "mcintosh", "shannon", "simpson")) {
+                        method = c("shannon", "simpson", "berger",
+                                   "boone", "brillouin", "mcintosh")) {
     method <- match.arg(method, several.ok = FALSE)
     by_row <- method != "boone"
     index <- index_diversity(object, method, ..., evenness = FALSE,
@@ -69,8 +122,8 @@ setMethod(
   f = "heterogeneity",
   signature = c(object = "data.frame"),
   definition = function(object, ...,
-                        method = c("berger", "boone", "brillouin",
-                                   "mcintosh", "shannon", "simpson")) {
+                        method = c("shannon", "simpson", "berger",
+                                   "boone", "brillouin", "mcintosh")) {
     object <- data.matrix(object)
     methods::callGeneric(object, ..., method = method)
   }
@@ -78,14 +131,14 @@ setMethod(
 
 # Evenness =====================================================================
 #' @export
-#' @rdname heterogeneity
+#' @rdname evenness
 #' @aliases evenness,matrix-method
 setMethod(
   f = "evenness",
   signature = c(object = "matrix"),
   definition = function(object, ...,
-                        method = c("shannon", "brillouin",
-                                   "mcintosh", "simpson")) {
+                        method = c("shannon", "simpson", "brillouin",
+                                   "mcintosh")) {
     method <- match.arg(method, several.ok = FALSE)
     index <- index_diversity(object, method, ..., evenness = TRUE)
     .EvennessIndex(index)
@@ -93,14 +146,14 @@ setMethod(
 )
 
 #' @export
-#' @rdname heterogeneity
+#' @rdname evenness
 #' @aliases evenness,data.frame-method
 setMethod(
   f = "evenness",
   signature = c(object = "data.frame"),
   definition = function(object, ...,
-                        method = c("shannon", "brillouin",
-                                   "mcintosh", "simpson")) {
+                        method = c("shannon", "simpson", "brillouin",
+                                   "mcintosh")) {
     object <- data.matrix(object)
     methods::callGeneric(object, ..., method = method)
   }
@@ -193,132 +246,3 @@ setMethod(
     methods::callGeneric(object, ..., method = method)
   }
 )
-
-# Resample =====================================================================
-## Bootstrap -------------------------------------------------------------------
-#' @export
-#' @rdname bootstrap
-#' @aliases bootstrap,DiversityIndex-method
-setMethod(
-  f = "bootstrap",
-  signature = c(object = "DiversityIndex"),
-  definition = function(object, n = 1000, f = NULL) {
-
-    w <- object@data
-    m <- nrow(w)
-    method <- object@method
-
-    results <- vector(mode = "list", length = m)
-    for (i in seq_len(m)) {
-      results[[i]] <- arkhe::bootstrap(
-        object = w[i, ],
-        do = do_index,
-        n = n,
-        method = method,
-        evenness = methods::is(object, "EvennessIndex"),
-        f = f
-      )
-    }
-    results <- do.call(rbind, results)
-    rownames(results) <- rownames(w)
-    as.data.frame(results)
-  }
-)
-
-## Jackknife -------------------------------------------------------------------
-#' @export
-#' @rdname jackknife
-#' @aliases jackknife,DiversityIndex-method
-setMethod(
-  f = "jackknife",
-  signature = c(object = "DiversityIndex"),
-  definition = function(object, f = NULL) {
-
-    w <- object@data
-    m <- nrow(w)
-    method <- object@method
-
-    results <- vector(mode = "list", length = m)
-    for (i in seq_len(m)) {
-      results[[i]] <- arkhe::jackknife(
-        object = w[i, ],
-        do = do_index,
-        method = method,
-        evenness = methods::is(object, "EvennessIndex"),
-        f = f
-      )
-    }
-    results <- do.call(rbind, results)
-    rownames(results) <- rownames(w)
-    as.data.frame(results)
-  }
-)
-
-## Simulate --------------------------------------------------------------------
-#' @export
-#' @rdname simulate
-#' @aliases simulate,DiversityIndex-method
-setMethod(
-  f = "simulate",
-  signature = c(object = "DiversityIndex"),
-  definition = function(object, n = 1000, step = 1,
-                        interval = c("percentiles", "student", "normal"),
-                        level = 0.80, progress = getOption("tabula.progress")) {
-    ## Simulate
-    ## Specify the probability for the classes
-    data <- object@data
-    method <- object@method # Select method
-
-    ## Sample size
-    size <- max(rowSums(data))
-    sample_sizes <- seq(from = 1, to = size * 1.05, by = step)
-
-    m <- length(sample_sizes)
-    k <- seq_len(m)
-
-    simulated <- vector(mode = "list", length = m)
-    fun <- function(x) conf(x, level = level, type = interval)
-
-    progress_bar <- interactive() && progress
-    if (progress_bar) pbar <- utils::txtProgressBar(max = m, style = 3)
-
-    for (i in k) {
-      simulated[[i]] <- resample(
-        object = colSums(data),
-        do = do_index,
-        method = method,
-        evenness = methods::is(object, "EvennessIndex"),
-        n = n,
-        size = sample_sizes[[i]],
-        f = fun
-      )
-      if (progress_bar) utils::setTxtProgressBar(pbar, i)
-    }
-
-    if (progress_bar) close(pbar)
-
-    simulated <- do.call(rbind, simulated)
-    simulated <- cbind(size = sample_sizes, simulated)
-
-    methods::initialize(object, simulation = simulated)
-  }
-)
-
-conf <- function(x, type = c("percentiles", "student", "normal"),
-                 level = 0.80) {
-
-  type <- match.arg(type, several.ok = FALSE)
-
-  if (type == "percentiles") {
-    ## Confidence interval as described in Kintigh 1989
-    k <- (1 - level) / 2
-    conf <- stats::quantile(x, probs = c(k, 1 - k), names = FALSE)
-  } else {
-    ## Confidence interval
-    conf <- arkhe::confidence_mean(x, level = level, type = type)
-  }
-
-  result <- c(mean(x), conf)
-  names(result) <- c("mean", "lower", "upper")
-  result
-}

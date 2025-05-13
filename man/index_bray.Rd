@@ -20,7 +20,7 @@ index_bray(x, y, ...)
 A \code{\link{numeric}} vector.
 }
 \description{
-Bray and Curtis modified version of the Sorenson index.
+Bray and Curtis modified version of the Dice-Sorensen index.
 }
 \references{
 Bray, J. R. & Curtis, J. T. (1957). An Ordination of the Upland Forest
@@ -35,7 +35,7 @@ Other beta diversity measures:
 \code{\link{index_jaccard}()},
 \code{\link{index_morisita}()},
 \code{\link{index_routledge}},
-\code{\link{index_sorenson}()},
+\code{\link{index_sorensen}()},
 \code{\link{index_whittaker}()},
 \code{\link{index_wilson}()}
 }

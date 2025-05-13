@@ -26,6 +26,9 @@ Whittaker Measure
 \details{
 This assumes that the order of the matrix rows (from \eqn{1} to \eqn{n})
 follows the progression along the gradient/transect.
+
+Data are standardized on a presence/absence scale (\eqn{0}/\eqn{1})
+beforehand.
 }
 \references{
 Whittaker, R. H. (1960). Vegetation of the Siskiyou Mountains, Oregon and
@@ -41,7 +44,7 @@ Other beta diversity measures:
 \code{\link{index_jaccard}()},
 \code{\link{index_morisita}()},
 \code{\link{index_routledge}},
-\code{\link{index_sorenson}()},
+\code{\link{index_sorensen}()},
 \code{\link{index_wilson}()}
 }
 \author{
