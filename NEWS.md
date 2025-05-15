@@ -1,3 +1,7 @@
+# tabula 3.3.1
+## Internals
+* Fix tests.
+
 # tabula 3.3.0
 ## New classes and methods
 * Add `diversity()` to compute multiple alpha diversity indices.
