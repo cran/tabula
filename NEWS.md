@@ -1,3 +1,7 @@
+# tabula 3.3.2
+## Bugfixes & changes
+* Fix `plot_ford()`: ignore empty rows when calculating relative frequencies.
+
 # tabula 3.3.1
 ## Internals
 * Fix tests.

@@ -5,9 +5,17 @@
 
 <!-- badges: start -->
 
-[![Code
-coverage](https://packages.tesselle.org/tabula/coverage/badge.svg)](https://packages.tesselle.org/tabula/coverage/)
-[![Dependencies](https://tinyverse.netlify.app/badge/tabula)](https://cran.r-project.org/package=tabula)
+<a href="https://ci.codeberg.org/repos/14696" class="pkgdown-devel"><img
+src="https://ci.codeberg.org/api/badges/14696/status.svg"
+alt="status-badge" /></a>
+<a href="https://packages.tesselle.org/tabula/coverage/"
+class="pkgdown-devel"><img
+src="https://packages.tesselle.org/tabula/coverage/badge.svg"
+alt="Code coverage" /></a>
+<a href="https://cran.r-project.org/package=tabula"
+class="pkgdown-devel"><img
+src="https://tinyverse.netlify.app/badge/tabula"
+alt="Dependencies" /></a>
 
 <a href="https://tesselle.r-universe.dev/tabula"
 class="pkgdown-devel"><img
@@ -73,7 +81,7 @@ Software*, *4*(44), 1821. <doi:10.21105/joss.01821>
 Frerebeau N (2025). *tabula: Analysis and Visualization of
 Archaeological Count Data*. Université Bordeaux Montaigne, Pessac,
 France. <doi:10.5281/zenodo.1489944>
-<https://doi.org/10.5281/zenodo.1489944>, R package version 3.3.1,
+<https://doi.org/10.5281/zenodo.1489944>, R package version 3.3.2,
 <https://packages.tesselle.org/tabula/>.
 
 This package is a part of the tesselle project
@@ -322,7 +330,6 @@ and Evolution of Communities*, edited by M. L. Cody and J. M. Diamond,
 Conkey, Margaret W. 1980. “The Identification of Prehistoric
 Hunter-Gatherer Aggregation Sites: The Case of Altamira.” *Current
 Anthropology* 21 (5): 609–30.
-<https://escholarship.org/uc/item/0q29504g>.
 
 </div>
 
